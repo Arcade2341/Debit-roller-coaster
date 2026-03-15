@@ -4,13 +4,22 @@
       <span class="brand-mark">RC</span>
       <span class="brand-text">
         <strong>Roller Flow</strong>
-        <small>Debit roller coaster</small>
+        <small>Calculateur</small>
       </span>
     </a>
 
     <nav class="nav-links" aria-label="Navigation principale">
-      <button type="button" class="nav-button theme-toggle" data-theme-toggle aria-label="Changer le theme">
-        Mode sombre
+      <button
+        type="button"
+        class="theme-switch"
+        data-theme-toggle
+        aria-label="Activer ou desactiver le mode sombre"
+        aria-pressed="false"
+      >
+        <span class="theme-switch-track">
+          <span class="theme-switch-thumb"></span>
+        </span>
+        <span class="theme-switch-label">Mode sombre</span>
       </button>
       <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>">Calcul</a>
       <% if (user) { %>

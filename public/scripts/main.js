@@ -2,10 +2,14 @@ const themeToggle = document.querySelector("[data-theme-toggle]");
 
 if (themeToggle) {
   const root = document.documentElement;
+  const themeToggleLabel = themeToggle.querySelector(".theme-switch-label");
 
   function syncThemeLabel() {
     const isDark = root.dataset.theme === "dark";
-    themeToggle.textContent = isDark ? "Mode clair" : "Mode sombre";
+    themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
+    if (themeToggleLabel) {
+      themeToggleLabel.textContent = isDark ? "Mode clair" : "Mode sombre";
+    }
   }
 
   themeToggle.addEventListener("click", () => {
@@ -13,6 +17,13 @@ if (themeToggle) {
     root.dataset.theme = nextTheme;
     localStorage.setItem("roller-theme", nextTheme);
     syncThemeLabel();
+  });
+
+  window.addEventListener("storage", (event) => {
+    if (event.key === "roller-theme" && event.newValue) {
+      root.dataset.theme = event.newValue;
+      syncThemeLabel();
+    }
   });
 
   syncThemeLabel();
@@ -57,11 +68,11 @@ if (form) {
     submitButton.disabled = !formReady;
 
     if (!formReady) {
-      resultStatus.textContent = "Completez tous les champs avec des valeurs valides.";
+      resultStatus.textContent = "Remplissez tous les champs.";
       return;
     }
 
-    resultStatus.textContent = "Le resultat s'affichera apres avoir clique sur le bouton.";
+    resultStatus.textContent = "Cliquez sur le bouton pour afficher le resultat.";
   }
 
   [attractionInput, peopleInput, trainsInput].forEach((input) => {
@@ -72,7 +83,7 @@ if (form) {
     resultAttraction.textContent = "Attraction en attente";
     resultPeople.textContent = "--";
     resultTrains.textContent = "--";
-    resultStatus.textContent = "Remplissez les champs puis cliquez pour afficher le resultat.";
+    resultStatus.textContent = "Remplissez les champs puis cliquez.";
   }
 
   syncFormState();

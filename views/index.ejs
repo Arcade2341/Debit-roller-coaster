@@ -13,11 +13,11 @@
           </div>
         <% } else if (!user.isAdmin) { %>
           <div class="limit-pill">
-            <strong>Compte actif :</strong> <span>calculs illimites + historique personnel</span>
+            <strong>Compte :</strong> <span>calculs illimites</span>
           </div>
         <% } else { %>
           <div class="limit-pill">
-            <strong>Mode prive :</strong> <span>moderation et suivi avances</span>
+            <strong>Compte :</strong> <span>gestion</span>
           </div>
         <% } %>
       </div>
@@ -33,19 +33,19 @@
               </div>
 
               <div class="formula-banner">
-                <span>Formule active</span>
-                <strong>personnes x 30 x trains / 2 min</strong>
+                <span>Formule</span>
+                <strong>personnes x 30 x trains en 2 min</strong>
               </div>
 
               <div class="hero-actions">
                 <% if (!user) { %>
-                  <a href="/register" class="primary-button button-link">Creer un compte</a>
+                  <a href="/register" class="primary-button button-link">Créer un compte</a>
                   <a href="/login" class="ghost-button button-link">Connexion</a>
                 <% } else if (user.isAdmin) { %>
-                  <a href="/admin" class="primary-button button-link">Ouvrir la gestion</a>
+                  <a href="/admin" class="primary-button button-link">Gestion</a>
                   <a href="/" class="ghost-button button-link">Nouveau calcul</a>
                 <% } else { %>
-                  <a href="/dashboard" class="primary-button button-link">Voir mon historique</a>
+                  <a href="/dashboard" class="primary-button button-link">Mon historique</a>
                   <a href="/" class="ghost-button button-link">Nouveau calcul</a>
                 <% } %>
               </div>
@@ -123,7 +123,7 @@
                 </div>
                 <div>
                   <dt>Statut</dt>
-                  <dd data-result-status>Completez les champs pour activer le calcul.</dd>
+                  <dd data-result-status>Remplissez les champs.</dd>
                 </div>
               </dl>
 
