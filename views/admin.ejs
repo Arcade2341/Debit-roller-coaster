@@ -36,14 +36,13 @@
                 <th>Derniere IP</th>
                 <th>Calculs</th>
                 <th>Role</th>
-                <th>Renommer</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               <% if (users.length === 0) { %>
                 <tr>
-                  <td colspan="6">Aucun compte ne correspond a la recherche.</td>
+                  <td colspan="5">Aucun compte ne correspond a la recherche.</td>
                 </tr>
               <% } else { %>
                 <% users.forEach((account) => { %>
@@ -60,12 +59,6 @@
                       <span class="role-pill <%= account.is_admin ? 'role-pill-admin' : '' %>">
                         <%= account.is_admin ? "Gestion" : "Utilisateur" %>
                       </span>
-                    </td>
-                    <td>
-                      <form action="/admin/users/<%= account.id %>/rename" method="post" class="rename-form">
-                        <input type="text" name="username" value="<%= account.username %>" minlength="3" maxlength="30" required />
-                        <button type="submit" class="ghost-button">Modifier</button>
-                      </form>
                     </td>
                     <td>
                       <div class="action-stack">
@@ -189,6 +182,19 @@
             <% }) %>
           <% } %>
         </div>
+
+        <div class="section-head compact">
+          <h2>Modifier le pseudo</h2>
+        </div>
+
+        <form action="/account/username" method="post" class="stack-form">
+          <label class="field">
+            <span>Nouveau pseudo</span>
+            <input type="text" name="username" value="<%= user.username %>" minlength="3" maxlength="30" required />
+          </label>
+
+          <button type="submit" class="ghost-button">Mettre a jour le pseudo</button>
+        </form>
 
         <div class="section-head compact">
           <h2>Mot de passe du compte</h2>

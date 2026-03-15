@@ -316,6 +316,37 @@ router.post("/account/password", requireAuth, (req, res) => {
   res.redirect(req.session.user.isAdmin ? "/admin" : "/dashboard");
 });
 
+router.post("/account/username", requireAuth, (req, res) => {
+  const usernameValidation = validateUsername(req.body.username);
+
+  if (!usernameValidation.valid) {
+    setFlash(req, "error", usernameValidation.message);
+    return res.redirect(req.session.user.isAdmin ? "/admin" : "/dashboard");
+  }
+
+  const existingUser = db
+    .prepare("SELECT id FROM users WHERE LOWER(username) = LOWER(?) AND id != ? LIMIT 1")
+    .get(usernameValidation.value, req.session.user.id);
+
+  if (existingUser) {
+    setFlash(req, "error", "Ce nom d'utilisateur est deja utilise.");
+    return res.redirect(req.session.user.isAdmin ? "/admin" : "/dashboard");
+  }
+
+  db.prepare(
+    `
+      UPDATE users
+      SET username = ?, updated_at = ?
+      WHERE id = ?
+    `
+  ).run(usernameValidation.value, new Date().toISOString(), req.session.user.id);
+
+  req.session.user.username = usernameValidation.value;
+
+  setFlash(req, "success", "Pseudo mis a jour.");
+  res.redirect(req.session.user.isAdmin ? "/admin" : "/dashboard");
+});
+
 router.get("/admin", requireAdmin, (req, res) => {
   const search = cleanText(req.query.search || "");
   const searchPattern = `%${search.toLowerCase()}%`;
@@ -434,49 +465,6 @@ router.post("/admin/ip-bans/:id/lift", requireAdmin, (req, res) => {
   ).run(new Date().toISOString(), req.session.user.id, Number(req.params.id));
 
   setFlash(req, "success", "Ban leve.");
-  res.redirect("/admin");
-});
-
-router.post("/admin/users/:id/rename", requireAdmin, (req, res) => {
-  const userId = Number(req.params.id);
-  const usernameValidation = validateUsername(req.body.username);
-
-  if (!usernameValidation.valid) {
-    setFlash(req, "error", usernameValidation.message);
-    return res.redirect("/admin");
-  }
-
-  const targetUser = db
-    .prepare("SELECT id, username FROM users WHERE id = ? LIMIT 1")
-    .get(userId);
-
-  if (!targetUser) {
-    setFlash(req, "error", "Compte introuvable.");
-    return res.redirect("/admin");
-  }
-
-  const existingUser = db
-    .prepare("SELECT id FROM users WHERE LOWER(username) = LOWER(?) AND id != ? LIMIT 1")
-    .get(usernameValidation.value, userId);
-
-  if (existingUser) {
-    setFlash(req, "error", "Ce nom d'utilisateur est deja utilise.");
-    return res.redirect("/admin");
-  }
-
-  db.prepare(
-    `
-      UPDATE users
-      SET username = ?, updated_at = ?
-      WHERE id = ?
-    `
-  ).run(usernameValidation.value, new Date().toISOString(), userId);
-
-  if (req.session.user.id === userId) {
-    req.session.user.username = usernameValidation.value;
-  }
-
-  setFlash(req, "success", "Nom du compte mis a jour.");
   res.redirect("/admin");
 });
 

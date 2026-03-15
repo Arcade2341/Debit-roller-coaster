@@ -46,6 +46,19 @@
 
       <aside class="dashboard-card">
         <div class="section-head">
+          <h2>Modifier le pseudo</h2>
+        </div>
+
+        <form action="/account/username" method="post" class="stack-form">
+          <label class="field">
+            <span>Nouveau pseudo</span>
+            <input type="text" name="username" value="<%= user.username %>" minlength="3" maxlength="30" required />
+          </label>
+
+          <button type="submit" class="ghost-button">Mettre a jour le pseudo</button>
+        </form>
+
+        <div class="section-head compact">
           <h2>Changer le mot de passe</h2>
         </div>
 
