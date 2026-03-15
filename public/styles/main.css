@@ -157,7 +157,7 @@ input {
 
 .cta-link {
   background: linear-gradient(135deg, var(--orange-deep), var(--orange));
-  color: white !important;
+  color: var(--orange-deep) !important;
 }
 
 .inline-form {
