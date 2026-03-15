@@ -21,7 +21,7 @@ if (form) {
     return Number.isInteger(parsed) ? parsed : NaN;
   }
 
-  function syncResult() {
+  function syncFormState() {
     const attractionName = attractionInput.value.trim();
     const peoplePerTrain = toInteger(peopleInput.value);
     const trainsInTwoMinutes = toInteger(trainsInput.value);
@@ -36,26 +36,24 @@ if (form) {
 
     submitButton.disabled = !formReady;
 
-    resultAttraction.textContent = attractionName || "Attraction en attente";
-    resultPeople.textContent = Number.isInteger(peoplePerTrain) ? String(peoplePerTrain) : "--";
-    resultTrains.textContent = Number.isInteger(trainsInTwoMinutes)
-      ? String(trainsInTwoMinutes)
-      : "--";
-
     if (!formReady) {
-      resultValue.textContent = "-- pers/heure";
       resultStatus.textContent = "Completez tous les champs avec des valeurs valides.";
       return;
     }
 
-    const throughput = peoplePerTrain * 30 * trainsInTwoMinutes;
-    resultValue.textContent = `${throughput} pers/heure`;
-    resultStatus.textContent = "Le calcul est pret a etre enregistre.";
+    resultStatus.textContent = "Le resultat s'affichera apres avoir clique sur le bouton.";
   }
 
   [attractionInput, peopleInput, trainsInput].forEach((input) => {
-    input.addEventListener("input", syncResult);
+    input.addEventListener("input", syncFormState);
   });
 
-  syncResult();
+  if (resultValue.textContent.trim() === "-- pers/heure") {
+    resultAttraction.textContent = "Attraction en attente";
+    resultPeople.textContent = "--";
+    resultTrains.textContent = "--";
+    resultStatus.textContent = "Remplissez les champs puis cliquez pour afficher le resultat.";
+  }
+
+  syncFormState();
 }

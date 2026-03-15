@@ -660,6 +660,12 @@ input {
   text-decoration: none;
 }
 
+a.ghost-button.button-link,
+a.ghost-button.button-link:visited,
+a.ghost-button.button-link:active {
+  color: var(--orange-deep) !important;
+}
+
 .form-note {
   margin: 1rem 0 0;
 }

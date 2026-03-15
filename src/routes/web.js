@@ -340,7 +340,7 @@ router.get("/admin", requireAdmin, (req, res) => {
     .all();
 
   res.render("admin", {
-    pageTitle: "Administration",
+    pageTitle: "Gestion privee",
     calculations,
     ipBans
   });
