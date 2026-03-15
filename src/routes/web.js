@@ -317,6 +317,8 @@ router.post("/account/password", requireAuth, (req, res) => {
 });
 
 router.get("/admin", requireAdmin, (req, res) => {
+  const search = cleanText(req.query.search || "");
+  const searchPattern = `%${search.toLowerCase()}%`;
   const calculations = db
     .prepare(
       `
@@ -327,6 +329,42 @@ router.get("/admin", requireAdmin, (req, res) => {
       `
     )
     .all();
+
+  const users = db
+    .prepare(
+      `
+        SELECT
+          users.id,
+          users.username,
+          users.is_admin,
+          users.created_at,
+          (
+            SELECT calculations.ip_address
+            FROM calculations
+            WHERE calculations.user_id = users.id
+            ORDER BY calculations.id DESC
+            LIMIT 1
+          ) AS latest_ip,
+          (
+            SELECT COUNT(*)
+            FROM calculations
+            WHERE calculations.user_id = users.id
+          ) AS calculations_count
+        FROM users
+        WHERE
+          ? = ''
+          OR LOWER(users.username) LIKE ?
+          OR LOWER(COALESCE((
+            SELECT calculations.ip_address
+            FROM calculations
+            WHERE calculations.user_id = users.id
+            ORDER BY calculations.id DESC
+            LIMIT 1
+          ), '')) LIKE ?
+        ORDER BY users.is_admin DESC, LOWER(users.username) ASC
+      `
+    )
+    .all(search, searchPattern, searchPattern);
 
   const ipBans = db
     .prepare(
@@ -342,7 +380,9 @@ router.get("/admin", requireAdmin, (req, res) => {
   res.render("admin", {
     pageTitle: "Gestion privee",
     calculations,
-    ipBans
+    ipBans,
+    users,
+    search
   });
 });
 
@@ -394,6 +434,181 @@ router.post("/admin/ip-bans/:id/lift", requireAdmin, (req, res) => {
   ).run(new Date().toISOString(), req.session.user.id, Number(req.params.id));
 
   setFlash(req, "success", "Ban leve.");
+  res.redirect("/admin");
+});
+
+router.post("/admin/users/:id/rename", requireAdmin, (req, res) => {
+  const userId = Number(req.params.id);
+  const usernameValidation = validateUsername(req.body.username);
+
+  if (!usernameValidation.valid) {
+    setFlash(req, "error", usernameValidation.message);
+    return res.redirect("/admin");
+  }
+
+  const targetUser = db
+    .prepare("SELECT id, username FROM users WHERE id = ? LIMIT 1")
+    .get(userId);
+
+  if (!targetUser) {
+    setFlash(req, "error", "Compte introuvable.");
+    return res.redirect("/admin");
+  }
+
+  const existingUser = db
+    .prepare("SELECT id FROM users WHERE LOWER(username) = LOWER(?) AND id != ? LIMIT 1")
+    .get(usernameValidation.value, userId);
+
+  if (existingUser) {
+    setFlash(req, "error", "Ce nom d'utilisateur est deja utilise.");
+    return res.redirect("/admin");
+  }
+
+  db.prepare(
+    `
+      UPDATE users
+      SET username = ?, updated_at = ?
+      WHERE id = ?
+    `
+  ).run(usernameValidation.value, new Date().toISOString(), userId);
+
+  if (req.session.user.id === userId) {
+    req.session.user.username = usernameValidation.value;
+  }
+
+  setFlash(req, "success", "Nom du compte mis a jour.");
+  res.redirect("/admin");
+});
+
+router.post("/admin/users/:id/toggle-admin", requireAdmin, (req, res) => {
+  const userId = Number(req.params.id);
+  const targetUser = db
+    .prepare("SELECT id, is_admin, username FROM users WHERE id = ? LIMIT 1")
+    .get(userId);
+
+  if (!targetUser) {
+    setFlash(req, "error", "Compte introuvable.");
+    return res.redirect("/admin");
+  }
+
+  const nextAdminState = targetUser.is_admin ? 0 : 1;
+
+  if (req.session.user.id === userId && nextAdminState === 0) {
+    setFlash(req, "error", "Vous ne pouvez pas retirer vos propres droits de gestion.");
+    return res.redirect("/admin");
+  }
+
+  if (targetUser.is_admin) {
+    const adminCount = db
+      .prepare("SELECT COUNT(*) AS total FROM users WHERE is_admin = 1")
+      .get().total;
+
+    if (adminCount <= 1) {
+      setFlash(req, "error", "Il doit toujours rester au moins un compte de gestion.");
+      return res.redirect("/admin");
+    }
+  }
+
+  db.prepare(
+    `
+      UPDATE users
+      SET is_admin = ?, updated_at = ?
+      WHERE id = ?
+    `
+  ).run(nextAdminState, new Date().toISOString(), userId);
+
+  if (req.session.user.id === userId) {
+    req.session.user.isAdmin = Boolean(nextAdminState);
+  }
+
+  setFlash(req, "success", nextAdminState ? "Droits de gestion accordes." : "Droits de gestion retires.");
+  res.redirect("/admin");
+});
+
+router.post("/admin/users/:id/delete", requireAdmin, (req, res) => {
+  const userId = Number(req.params.id);
+
+  if (req.session.user.id === userId) {
+    setFlash(req, "error", "Vous ne pouvez pas supprimer votre propre compte.");
+    return res.redirect("/admin");
+  }
+
+  const targetUser = db
+    .prepare("SELECT id, is_admin FROM users WHERE id = ? LIMIT 1")
+    .get(userId);
+
+  if (!targetUser) {
+    setFlash(req, "error", "Compte introuvable.");
+    return res.redirect("/admin");
+  }
+
+  if (targetUser.is_admin) {
+    const adminCount = db
+      .prepare("SELECT COUNT(*) AS total FROM users WHERE is_admin = 1")
+      .get().total;
+
+    if (adminCount <= 1) {
+      setFlash(req, "error", "Impossible de supprimer le dernier compte de gestion.");
+      return res.redirect("/admin");
+    }
+  }
+
+  db.prepare("DELETE FROM users WHERE id = ?").run(userId);
+
+  setFlash(req, "success", "Compte supprime.");
+  res.redirect("/admin");
+});
+
+router.post("/admin/users/:id/ban-ip", requireAdmin, (req, res) => {
+  const userId = Number(req.params.id);
+  const targetUser = db
+    .prepare(
+      `
+        SELECT
+          users.id,
+          users.username,
+          (
+            SELECT calculations.ip_address
+            FROM calculations
+            WHERE calculations.user_id = users.id
+            ORDER BY calculations.id DESC
+            LIMIT 1
+          ) AS latest_ip
+        FROM users
+        WHERE users.id = ?
+        LIMIT 1
+      `
+    )
+    .get(userId);
+
+  if (!targetUser) {
+    setFlash(req, "error", "Compte introuvable.");
+    return res.redirect("/admin");
+  }
+
+  if (!targetUser.latest_ip) {
+    setFlash(req, "error", "Aucune adresse IP connue pour ce compte.");
+    return res.redirect("/admin");
+  }
+
+  const timestamp = createTimestampParts(appTimeZone);
+  const reason = `Ban depuis la gestion du compte ${targetUser.username}`;
+
+  db.prepare(
+    `
+      INSERT INTO ip_bans (ip_address, reason, is_active, created_at, created_by_user_id, lifted_at, lifted_by_user_id)
+      VALUES (?, ?, 1, ?, ?, NULL, NULL)
+      ON CONFLICT(ip_address) DO UPDATE SET
+        reason = excluded.reason,
+        is_active = 1,
+        created_at = excluded.created_at,
+        created_by_user_id = excluded.created_by_user_id,
+        lifted_at = NULL,
+        lifted_by_user_id = NULL
+    `
+  ).run(targetUser.latest_ip, reason, timestamp.iso, req.session.user.id);
+
+  setFlash(req, "success", "Adresse IP du compte bannie.");
   res.redirect("/admin");
 });
 
