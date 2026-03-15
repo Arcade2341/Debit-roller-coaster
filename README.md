@@ -54,6 +54,7 @@ Application web complete pour calculer le debit d'un roller coaster, enregistrer
 - `SESSION_SECRET` : secret des sessions
 - `APP_TIMEZONE` : fuseau pour la date et l'heure enregistrees
 - `TRUST_PROXY` : mettre `true` derriere un reverse proxy VPS
+- `SESSION_COOKIE_SECURE` : mettre `true` uniquement quand le site est servi en HTTPS
 
 ## Deploiement sur VPS Ubuntu 22.04
 
@@ -87,6 +88,7 @@ Application web complete pour calculer le debit d'un roller coaster, enregistrer
    SESSION_SECRET=change-me-vraiment
    APP_TIMEZONE=Europe/Paris
    TRUST_PROXY=true
+   SESSION_COOKIE_SECURE=false
    ```
 
 6. Lancer avec PM2 :

@@ -13,6 +13,7 @@ require("./db");
 const app = express();
 const FileStore = FileStoreFactory(session);
 const sessionsPath = path.join(__dirname, "..", "data", "sessions");
+const secureSessionCookie = process.env.SESSION_COOKIE_SECURE === "true";
 
 fs.mkdirSync(sessionsPath, { recursive: true });
 
@@ -55,7 +56,7 @@ app.use(
     cookie: {
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.TRUST_PROXY === "true",
+      secure: secureSessionCookie,
       maxAge: 1000 * 60 * 60 * 24 * 7
     }
   })
