@@ -5,12 +5,25 @@
   <section class="hero-section">
     <div class="container hero-grid">
       <div class="hero-copy">
-        <span class="eyebrow">Exploitation attraction</span>
-        <h1>Calculez le debit horaire d'un roller coaster en quelques secondes.</h1>
+        <span class="eyebrow">Pilotage attraction</span>
+        <h1>Une interface plus premium pour piloter le debit de tes roller coasters.</h1>
         <p class="hero-text">
-          Entrez les informations de l'attraction, obtenez le resultat a droite et enregistrez
-          automatiquement les donnees propres dans un historique reserve a l'administration.
+          Renseigne les donnees d'exploitation, lis le resultat instantanement dans le panneau de
+          droite et garde un historique propre, filtre et exploitable par l'administration.
         </p>
+
+        <div class="hero-actions">
+          <% if (!user) { %>
+            <a href="/register" class="primary-button button-link">Creer un compte</a>
+            <a href="/login" class="ghost-button button-link">Connexion</a>
+          <% } else if (user.isAdmin) { %>
+            <a href="/admin" class="primary-button button-link">Ouvrir l'admin</a>
+            <a href="/" class="ghost-button button-link">Nouveau calcul</a>
+          <% } else { %>
+            <a href="/dashboard" class="primary-button button-link">Voir mon historique</a>
+            <a href="/" class="ghost-button button-link">Nouveau calcul</a>
+          <% } %>
+        </div>
 
         <% if (!user) { %>
           <div class="limit-pill">
@@ -25,94 +38,153 @@
             <strong>Mode admin :</strong> <span>tableau Excel, moderation et bannissement IP</span>
           </div>
         <% } %>
-      </div>
 
-      <div class="hero-card">
-        <%- include("partials/flash") %>
-
-        <div class="panel-grid">
-          <form action="/calculate" method="post" class="calculator-card" data-calculator-form>
-            <div class="section-head">
-              <h2>Saisie du calcul</h2>
-              <p>Toutes les cases doivent etre remplies avant validation.</p>
-            </div>
-
-            <label class="field">
-              <span>Nom de l'attraction</span>
-              <input
-                type="text"
-                name="attractionName"
-                maxlength="80"
-                minlength="3"
-                required
-                placeholder="Ex. Dragon Rush"
-                data-attraction-input
-              />
-            </label>
-
-            <label class="field">
-              <span>Personnes par train</span>
-              <input
-                type="number"
-                name="peoplePerTrain"
-                min="1"
-                max="100"
-                required
-                placeholder="Ex. 24"
-                data-people-input
-              />
-            </label>
-
-            <label class="field">
-              <span>Trains qui passent en 2 minutes</span>
-              <input
-                type="number"
-                name="trainsInTwoMinutes"
-                min="1"
-                max="50"
-                required
-                placeholder="Ex. 3"
-                data-trains-input
-              />
-            </label>
-
-            <button type="submit" class="primary-button" disabled data-submit-button>
-              Enregistrer le calcul
-            </button>
-          </form>
-
-          <aside class="result-card" aria-live="polite">
-            <div class="section-head">
-              <h2>Resultat a droite</h2>
-              <p>Formule : personnes par train x 30 x trains en 2 minutes.</p>
-            </div>
-
-            <div class="result-metric">
-              <span data-result-attraction>
-                <%= lastCalculation ? lastCalculation.attractionName : "Attraction en attente" %>
-              </span>
-              <strong data-result-value>
-                <%= lastCalculation ? `${lastCalculation.throughput} pers/heure` : "-- pers/heure" %>
-              </strong>
-            </div>
-
-            <dl class="result-details">
-              <div>
-                <dt>Personnes / train</dt>
-                <dd data-result-people><%= lastCalculation ? lastCalculation.peoplePerTrain : "--" %></dd>
-              </div>
-              <div>
-                <dt>Trains / 2 min</dt>
-                <dd data-result-trains><%= lastCalculation ? lastCalculation.trainsInTwoMinutes : "--" %></dd>
-              </div>
-              <div>
-                <dt>Statut</dt>
-                <dd data-result-status>Completez les champs pour activer le calcul.</dd>
-              </div>
-            </dl>
-          </aside>
+        <div class="hero-highlights">
+          <article class="highlight-card">
+            <span class="highlight-kicker">Formule</span>
+            <strong>Calcul instantane</strong>
+            <p>Personnes par train x 30 x trains en 2 minutes, avec verification visuelle en direct.</p>
+          </article>
+          <article class="highlight-card">
+            <span class="highlight-kicker">Qualite de donnees</span>
+            <strong>Saisies maitrisees</strong>
+            <p>Champs controles, limites visiteurs et moderation admin pour conserver un tableau propre.</p>
+          </article>
+          <article class="highlight-card">
+            <span class="highlight-kicker">Exploitation</span>
+            <strong>Suivi exploitable</strong>
+            <p>Date, heure, auteur, IP et export Excel pour un usage operationnel plus solide.</p>
+          </article>
         </div>
       </div>
+
+      <div class="hero-stage">
+        <div class="hero-status-bar">
+          <span>Resultat live</span>
+          <span>Enregistrement securise</span>
+          <span>Historique structure</span>
+        </div>
+
+        <div class="hero-card">
+          <%- include("partials/flash") %>
+
+          <div class="panel-grid">
+            <form action="/calculate" method="post" class="calculator-card" data-calculator-form>
+              <div class="section-head">
+                <h2>Saisie du calcul</h2>
+                <p>Toutes les cases doivent etre remplies avant validation.</p>
+              </div>
+
+              <div class="formula-banner">
+                <span>Formule active</span>
+                <strong>personnes x 30 x trains / 2 min</strong>
+              </div>
+
+              <label class="field">
+                <span>Nom de l'attraction</span>
+                <input
+                  type="text"
+                  name="attractionName"
+                  maxlength="80"
+                  minlength="3"
+                  required
+                  placeholder="Ex. Dragon Rush"
+                  data-attraction-input
+                />
+              </label>
+
+              <div class="field-split">
+                <label class="field">
+                  <span>Personnes par train</span>
+                  <input
+                    type="number"
+                    name="peoplePerTrain"
+                    min="1"
+                    max="100"
+                    required
+                    placeholder="Ex. 24"
+                    data-people-input
+                  />
+                </label>
+
+                <label class="field">
+                  <span>Trains en 2 minutes</span>
+                  <input
+                    type="number"
+                    name="trainsInTwoMinutes"
+                    min="1"
+                    max="50"
+                    required
+                    placeholder="Ex. 3"
+                    data-trains-input
+                  />
+                </label>
+              </div>
+
+              <button type="submit" class="primary-button" disabled data-submit-button>
+                Enregistrer le calcul
+              </button>
+            </form>
+
+            <aside class="result-card" aria-live="polite">
+              <div class="section-head">
+                <h2>Resultat a droite</h2>
+                <p>Lecture immediate du debit horaire avant enregistrement.</p>
+              </div>
+
+              <div class="result-badge">Simulation temps reel</div>
+
+              <div class="result-metric">
+                <span data-result-attraction>
+                  <%= lastCalculation ? lastCalculation.attractionName : "Attraction en attente" %>
+                </span>
+                <strong data-result-value>
+                  <%= lastCalculation ? `${lastCalculation.throughput} pers/heure` : "-- pers/heure" %>
+                </strong>
+              </div>
+
+              <dl class="result-details">
+                <div>
+                  <dt>Personnes / train</dt>
+                  <dd data-result-people><%= lastCalculation ? lastCalculation.peoplePerTrain : "--" %></dd>
+                </div>
+                <div>
+                  <dt>Trains / 2 min</dt>
+                  <dd data-result-trains><%= lastCalculation ? lastCalculation.trainsInTwoMinutes : "--" %></dd>
+                </div>
+                <div>
+                  <dt>Statut</dt>
+                  <dd data-result-status>Completez les champs pour activer le calcul.</dd>
+                </div>
+              </dl>
+
+              <div class="result-note">
+                Le resultat s'actualise a chaque saisie pour une lecture plus fluide.
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="workflow-section">
+    <div class="container workflow-grid">
+      <article class="workflow-card">
+        <span class="workflow-number">01</span>
+        <h3>Renseigner</h3>
+        <p>Entre le nom de l'attraction, la capacite du train et le nombre de passages sur 2 minutes.</p>
+      </article>
+      <article class="workflow-card">
+        <span class="workflow-number">02</span>
+        <h3>Verifier</h3>
+        <p>Le panneau de droite calcule instantanement le debit et confirme si la saisie est valide.</p>
+      </article>
+      <article class="workflow-card">
+        <span class="workflow-number">03</span>
+        <h3>Exploiter</h3>
+        <p>Les donnees enregistrees alimentent l'historique utilisateur et le tableau admin exportable en Excel.</p>
+      </article>
     </div>
   </section>
 
