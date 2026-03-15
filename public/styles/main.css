@@ -31,6 +31,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
   font-family: "Source Sans 3", sans-serif;
   color: var(--text);
   background:
@@ -186,10 +187,12 @@ input {
   grid-template-columns: 0.72fr 1.28fr;
   gap: 1.3rem;
   align-items: start;
+  min-width: 0;
 }
 
 .hero-copy {
   padding-top: 0.9rem;
+  min-width: 0;
 }
 
 .eyebrow {
@@ -252,6 +255,7 @@ input {
 
 .hero-stage {
   position: relative;
+  min-width: 0;
 }
 
 .hero-card,
@@ -284,6 +288,7 @@ input {
   display: grid;
   grid-template-columns: 1.08fr 0.92fr;
   gap: 0.85rem;
+  min-width: 0;
 }
 
 .calculator-card,
@@ -293,6 +298,7 @@ input {
   position: relative;
   z-index: 1;
   padding: 1.75rem;
+  min-width: 0;
 }
 
 .calculator-card {
@@ -361,6 +367,7 @@ input {
 
 .field input {
   width: 100%;
+  min-width: 0;
   padding: 1rem 1.05rem;
   border-radius: var(--radius-md);
   border: 1px solid rgba(143, 63, 23, 0.14);
@@ -485,6 +492,7 @@ input {
   font-size: clamp(2.4rem, 4vw, 4rem);
   line-height: 0.98;
   letter-spacing: -0.05em;
+  overflow-wrap: anywhere;
 }
 
 .result-details {
@@ -545,6 +553,7 @@ input {
   gap: 1rem;
   grid-template-columns: 1.35fr 0.85fr;
   align-items: start;
+  min-width: 0;
 }
 
 .dashboard-card-wide {
@@ -564,12 +573,14 @@ input {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.8rem;
   margin-bottom: 1.2rem;
+  min-width: 0;
 }
 
 .search-bar input,
 .rename-form input,
 .inline-admin-form input {
   width: 100%;
+  min-width: 0;
   padding: 0.95rem 1rem;
   border-radius: 16px;
   border: 1px solid rgba(143, 63, 23, 0.14);
@@ -596,11 +607,13 @@ input {
 .user-cell {
   display: grid;
   gap: 0.25rem;
+  min-width: 0;
 }
 
 .user-cell span {
   color: var(--muted);
   font-size: 0.92rem;
+  overflow-wrap: anywhere;
 }
 
 .role-pill {
@@ -627,6 +640,12 @@ input {
 .inline-admin-form {
   display: grid;
   gap: 0.5rem;
+}
+
+.action-stack form,
+.rename-form,
+.inline-admin-form {
+  min-width: 0;
 }
 
 .form-page {
@@ -684,6 +703,7 @@ input {
   padding: 0.9rem 0.95rem;
   text-align: left;
   border-bottom: 1px solid rgba(143, 63, 23, 0.08);
+  vertical-align: top;
 }
 
 .data-table th {
@@ -760,6 +780,7 @@ code {
   padding: 0.2rem 0.45rem;
   border-radius: 8px;
   background: rgba(143, 63, 23, 0.08);
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 1024px) {
@@ -774,9 +795,21 @@ code {
     max-width: 100%;
   }
 
+  .hero-copy {
+    order: 1;
+  }
+
+  .hero-stage {
+    order: 2;
+  }
+
   .admin-topbar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .search-bar {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -793,6 +826,7 @@ code {
 
   .nav-links {
     justify-content: flex-start;
+    width: 100%;
   }
 
   .hero-section {
@@ -809,10 +843,111 @@ code {
     grid-template-columns: 1fr;
   }
 
+  .result-details div,
+  .ban-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ban-meta {
+    width: 100%;
+    justify-items: stretch;
+  }
+
+  .ban-meta form,
+  .ban-meta button,
+  .action-stack form,
+  .action-stack button,
+  .rename-form button,
+  .inline-admin-form button,
+  .hero-actions a,
+  .hero-actions button,
+  .search-bar button {
+    width: 100%;
+  }
+
+  .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .limit-pill {
+    width: 100%;
+    justify-content: space-between;
+    border-radius: 20px;
+    flex-wrap: wrap;
+  }
+
+  .formula-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .result-badge {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
   .calculator-card,
   .result-card,
   .dashboard-card,
   .form-shell {
     padding: 1.25rem;
+  }
+
+  .data-table {
+    min-width: 640px;
+  }
+}
+
+@media (max-width: 560px) {
+  .container {
+    width: min(calc(100% - 1rem), var(--container));
+  }
+
+  .site-header {
+    padding-top: 0.4rem;
+  }
+
+  .nav-shell {
+    padding: 0.8rem;
+  }
+
+  .brand {
+    min-width: 0;
+  }
+
+  .brand-text {
+    min-width: 0;
+  }
+
+  .brand-text small,
+  .brand-text strong {
+    overflow-wrap: anywhere;
+  }
+
+  .hero-copy h1,
+  .section-head h1 {
+    font-size: 2rem;
+  }
+
+  .eyebrow {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .nav-links a,
+  .nav-button,
+  .primary-button,
+  .ghost-button,
+  .button-link {
+    min-height: 50px;
+    padding-inline: 1rem;
+  }
+
+  .data-table {
+    min-width: 560px;
   }
 }
