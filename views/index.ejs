@@ -6,24 +6,11 @@
     <div class="container hero-grid">
       <div class="hero-copy">
         <span class="eyebrow">Pilotage attraction</span>
-        <h1>Une interface plus premium pour piloter le debit de tes roller coasters.</h1>
+        <h1>Le calculateur de debit devient le centre de l'experience.</h1>
         <p class="hero-text">
-          Renseigne les donnees d'exploitation, lis le resultat instantanement dans le panneau de
-          droite et garde un historique propre, filtre et exploitable par l'administration.
+          Saisis rapidement les donnees utiles, lis le resultat instantanement et enregistre un
+          calcul propre dans un outil plus direct, plus lisible et plus agreable a utiliser.
         </p>
-
-        <div class="hero-actions">
-          <% if (!user) { %>
-            <a href="/register" class="primary-button button-link">Creer un compte</a>
-            <a href="/login" class="ghost-button button-link">Connexion</a>
-          <% } else if (user.isAdmin) { %>
-            <a href="/admin" class="primary-button button-link">Ouvrir l'admin</a>
-            <a href="/" class="ghost-button button-link">Nouveau calcul</a>
-          <% } else { %>
-            <a href="/dashboard" class="primary-button button-link">Voir mon historique</a>
-            <a href="/" class="ghost-button button-link">Nouveau calcul</a>
-          <% } %>
-        </div>
 
         <% if (!user) { %>
           <div class="limit-pill">
@@ -38,28 +25,9 @@
             <strong>Mode admin :</strong> <span>tableau Excel, moderation et bannissement IP</span>
           </div>
         <% } %>
-
-        <div class="hero-highlights">
-          <article class="highlight-card">
-            <span class="highlight-kicker">Formule</span>
-            <strong>Calcul instantane</strong>
-            <p>Personnes par train x 30 x trains en 2 minutes, avec verification visuelle en direct.</p>
-          </article>
-          <article class="highlight-card">
-            <span class="highlight-kicker">Qualite de donnees</span>
-            <strong>Saisies maitrisees</strong>
-            <p>Champs controles, limites visiteurs et moderation admin pour conserver un tableau propre.</p>
-          </article>
-        </div>
       </div>
 
       <div class="hero-stage">
-        <div class="hero-status-bar">
-          <span>Resultat live</span>
-          <span>Enregistrement securise</span>
-          <span>Historique structure</span>
-        </div>
-
         <div class="hero-card">
           <%- include("partials/flash") %>
 
@@ -73,6 +41,19 @@
               <div class="formula-banner">
                 <span>Formule active</span>
                 <strong>personnes x 30 x trains / 2 min</strong>
+              </div>
+
+              <div class="hero-actions">
+                <% if (!user) { %>
+                  <a href="/register" class="primary-button button-link">Creer un compte</a>
+                  <a href="/login" class="ghost-button button-link">Connexion</a>
+                <% } else if (user.isAdmin) { %>
+                  <a href="/admin" class="primary-button button-link">Ouvrir l'admin</a>
+                  <a href="/" class="ghost-button button-link">Nouveau calcul</a>
+                <% } else { %>
+                  <a href="/dashboard" class="primary-button button-link">Voir mon historique</a>
+                  <a href="/" class="ghost-button button-link">Nouveau calcul</a>
+                <% } %>
               </div>
 
               <label class="field">
@@ -155,6 +136,21 @@
 
               <div class="result-note">
                 Le resultat s'actualise a chaque saisie pour une lecture plus fluide.
+              </div>
+
+              <div class="result-mini-stats">
+                <article>
+                  <span>Lecture</span>
+                  <strong>Instantanee</strong>
+                </article>
+                <article>
+                  <span>Saisie</span>
+                  <strong>Controlee</strong>
+                </article>
+                <article>
+                  <span>Export</span>
+                  <strong>Admin</strong>
+                </article>
               </div>
             </aside>
           </div>
