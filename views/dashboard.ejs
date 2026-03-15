@@ -8,7 +8,6 @@
         <div class="section-head">
           <span class="eyebrow">Mon espace</span>
           <h1>Historique de <%= user.username %></h1>
-          <p>Retrouvez tous vos calculs enregistres et gerez votre mot de passe.</p>
         </div>
 
         <%- include("partials/flash") %>
@@ -48,7 +47,6 @@
       <aside class="dashboard-card">
         <div class="section-head">
           <h2>Changer le mot de passe</h2>
-          <p>Securisez votre compte avec un mot de passe fort.</p>
         </div>
 
         <form action="/account/password" method="post" class="stack-form">

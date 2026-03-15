@@ -7,10 +7,6 @@
       <div class="hero-copy">
         <span class="eyebrow">Pilotage attraction</span>
         <h1>Le calculateur de debit devient le centre de l'experience.</h1>
-        <p class="hero-text">
-          Saisis rapidement les donnees utiles, lis le resultat instantanement et enregistre un
-          calcul propre dans un outil plus direct, plus lisible et plus agreable a utiliser.
-        </p>
 
         <% if (!user) { %>
           <div class="limit-pill">
@@ -35,7 +31,6 @@
             <form action="/calculate" method="post" class="calculator-card" data-calculator-form>
               <div class="section-head">
                 <h2>Saisie du calcul</h2>
-                <p>Toutes les cases doivent etre remplies avant validation.</p>
               </div>
 
               <div class="formula-banner">
@@ -105,7 +100,6 @@
             <aside class="result-card" aria-live="polite">
               <div class="section-head">
                 <h2>Resultat a droite</h2>
-                <p>Lecture immediate du debit horaire avant enregistrement.</p>
               </div>
 
               <div class="result-badge">Simulation temps reel</div>
@@ -134,24 +128,6 @@
                 </div>
               </dl>
 
-              <div class="result-note">
-                Le resultat apparait uniquement apres validation du calcul.
-              </div>
-
-              <div class="result-mini-stats">
-                <article>
-                  <span>Lecture</span>
-                  <strong>Instantanee</strong>
-                </article>
-                <article>
-                  <span>Saisie</span>
-                  <strong>Controlee</strong>
-                </article>
-                <article>
-                  <span>Acces</span>
-                  <strong>Prive</strong>
-                </article>
-              </div>
             </aside>
           </div>
         </div>
