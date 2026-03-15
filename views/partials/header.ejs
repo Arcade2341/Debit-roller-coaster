@@ -9,6 +9,9 @@
     </a>
 
     <nav class="nav-links" aria-label="Navigation principale">
+      <button type="button" class="nav-button theme-toggle" data-theme-toggle aria-label="Changer le theme">
+        Mode sombre
+      </button>
       <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>">Calcul</a>
       <% if (user) { %>
         <% if (user.isAdmin) { %>

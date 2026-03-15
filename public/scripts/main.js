@@ -1,3 +1,23 @@
+const themeToggle = document.querySelector("[data-theme-toggle]");
+
+if (themeToggle) {
+  const root = document.documentElement;
+
+  function syncThemeLabel() {
+    const isDark = root.dataset.theme === "dark";
+    themeToggle.textContent = isDark ? "Mode clair" : "Mode sombre";
+  }
+
+  themeToggle.addEventListener("click", () => {
+    const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
+    root.dataset.theme = nextTheme;
+    localStorage.setItem("roller-theme", nextTheme);
+    syncThemeLabel();
+  });
+
+  syncThemeLabel();
+}
+
 const form = document.querySelector("[data-calculator-form]");
 
 if (form) {
