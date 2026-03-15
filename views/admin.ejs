@@ -69,7 +69,14 @@
                     </td>
                     <td>
                       <div class="action-stack">
-                        <form action="/admin/users/<%= account.id %>/ban-ip" method="post">
+                        <form action="/admin/users/<%= account.id %>/ban-ip" method="post" class="inline-admin-form">
+                          <input
+                            type="text"
+                            name="reason"
+                            maxlength="160"
+                            placeholder="Motif du ban"
+                            required
+                          />
                           <button type="submit" class="ghost-button">Ban IP</button>
                         </form>
                         <form action="/admin/users/<%= account.id %>/toggle-admin" method="post">

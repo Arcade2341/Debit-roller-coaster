@@ -561,6 +561,7 @@ router.post("/admin/users/:id/delete", requireAdmin, (req, res) => {
 
 router.post("/admin/users/:id/ban-ip", requireAdmin, (req, res) => {
   const userId = Number(req.params.id);
+  const reason = cleanText(req.body.reason);
   const targetUser = db
     .prepare(
       `
@@ -591,8 +592,12 @@ router.post("/admin/users/:id/ban-ip", requireAdmin, (req, res) => {
     return res.redirect("/admin");
   }
 
+  if (reason.length < 5 || reason.length > 160) {
+    setFlash(req, "error", "Le motif du ban doit contenir entre 5 et 160 caracteres.");
+    return res.redirect("/admin");
+  }
+
   const timestamp = createTimestampParts(appTimeZone);
-  const reason = `Ban depuis la gestion du compte ${targetUser.username}`;
 
   db.prepare(
     `

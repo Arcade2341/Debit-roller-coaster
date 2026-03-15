@@ -567,7 +567,8 @@ input {
 }
 
 .search-bar input,
-.rename-form input {
+.rename-form input,
+.inline-admin-form input {
   width: 100%;
   padding: 0.95rem 1rem;
   border-radius: 16px;
@@ -578,7 +579,8 @@ input {
 }
 
 .search-bar input:focus,
-.rename-form input:focus {
+.rename-form input:focus,
+.inline-admin-form input:focus {
   border-color: rgba(215, 100, 26, 0.48);
   box-shadow: 0 0 0 5px rgba(215, 100, 26, 0.13);
 }
@@ -620,6 +622,11 @@ input {
 .action-stack {
   display: grid;
   gap: 0.6rem;
+}
+
+.inline-admin-form {
+  display: grid;
+  gap: 0.5rem;
 }
 
 .form-page {
