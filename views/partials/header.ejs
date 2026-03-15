@@ -1,0 +1,28 @@
+<header class="site-header">
+  <div class="container nav-shell">
+    <a class="brand" href="/">
+      <span class="brand-mark">RC</span>
+      <span class="brand-text">
+        <strong>Roller Flow</strong>
+        <small>Debit roller coaster</small>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="Navigation principale">
+      <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>">Calcul</a>
+      <% if (user) { %>
+        <% if (user.isAdmin) { %>
+          <a href="/admin" class="<%= currentPath === '/admin' ? 'is-active' : '' %>">Admin</a>
+        <% } else { %>
+          <a href="/dashboard" class="<%= currentPath === '/dashboard' ? 'is-active' : '' %>">Mon espace</a>
+        <% } %>
+        <form action="/logout" method="post" class="inline-form">
+          <button type="submit" class="nav-button">Deconnexion</button>
+        </form>
+      <% } else { %>
+        <a href="/login" class="<%= currentPath === '/login' ? 'is-active' : '' %>">Connexion</a>
+        <a href="/register" class="cta-link <%= currentPath === '/register' ? 'is-active' : '' %>">Creer un compte</a>
+      <% } %>
+    </nav>
+  </div>
+</header>

@@ -1,0 +1,146 @@
+<%- include("partials/head", { pageTitle }) %>
+<%- include("partials/header") %>
+
+<main>
+  <section class="hero-section">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow">Exploitation attraction</span>
+        <h1>Calculez le debit horaire d'un roller coaster en quelques secondes.</h1>
+        <p class="hero-text">
+          Entrez les informations de l'attraction, obtenez le resultat a droite et enregistrez
+          automatiquement les donnees propres dans un historique reserve a l'administration.
+        </p>
+
+        <% if (!user) { %>
+          <div class="limit-pill">
+            <strong>Visiteur :</strong> <span><%= anonymousDailyCount %>/2 calculs aujourd'hui</span>
+          </div>
+        <% } else if (!user.isAdmin) { %>
+          <div class="limit-pill">
+            <strong>Compte actif :</strong> <span>calculs illimites + historique personnel</span>
+          </div>
+        <% } else { %>
+          <div class="limit-pill">
+            <strong>Mode admin :</strong> <span>tableau Excel, moderation et bannissement IP</span>
+          </div>
+        <% } %>
+      </div>
+
+      <div class="hero-card">
+        <%- include("partials/flash") %>
+
+        <div class="panel-grid">
+          <form action="/calculate" method="post" class="calculator-card" data-calculator-form>
+            <div class="section-head">
+              <h2>Saisie du calcul</h2>
+              <p>Toutes les cases doivent etre remplies avant validation.</p>
+            </div>
+
+            <label class="field">
+              <span>Nom de l'attraction</span>
+              <input
+                type="text"
+                name="attractionName"
+                maxlength="80"
+                minlength="3"
+                required
+                placeholder="Ex. Dragon Rush"
+                data-attraction-input
+              />
+            </label>
+
+            <label class="field">
+              <span>Personnes par train</span>
+              <input
+                type="number"
+                name="peoplePerTrain"
+                min="1"
+                max="100"
+                required
+                placeholder="Ex. 24"
+                data-people-input
+              />
+            </label>
+
+            <label class="field">
+              <span>Trains qui passent en 2 minutes</span>
+              <input
+                type="number"
+                name="trainsInTwoMinutes"
+                min="1"
+                max="50"
+                required
+                placeholder="Ex. 3"
+                data-trains-input
+              />
+            </label>
+
+            <button type="submit" class="primary-button" disabled data-submit-button>
+              Enregistrer le calcul
+            </button>
+          </form>
+
+          <aside class="result-card" aria-live="polite">
+            <div class="section-head">
+              <h2>Resultat a droite</h2>
+              <p>Formule : personnes par train x 30 x trains en 2 minutes.</p>
+            </div>
+
+            <div class="result-metric">
+              <span data-result-attraction>
+                <%= lastCalculation ? lastCalculation.attractionName : "Attraction en attente" %>
+              </span>
+              <strong data-result-value>
+                <%= lastCalculation ? `${lastCalculation.throughput} pers/heure` : "-- pers/heure" %>
+              </strong>
+            </div>
+
+            <dl class="result-details">
+              <div>
+                <dt>Personnes / train</dt>
+                <dd data-result-people><%= lastCalculation ? lastCalculation.peoplePerTrain : "--" %></dd>
+              </div>
+              <div>
+                <dt>Trains / 2 min</dt>
+                <dd data-result-trains><%= lastCalculation ? lastCalculation.trainsInTwoMinutes : "--" %></dd>
+              </div>
+              <div>
+                <dt>Statut</dt>
+                <dd data-result-status>Completez les champs pour activer le calcul.</dd>
+              </div>
+            </dl>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="info-section">
+    <div class="container info-grid">
+      <article class="info-card">
+        <h3>Controle des abus</h3>
+        <p>
+          Les saisies sont filtrees, bornees et limitees pour eviter les donnees fantaisistes.
+          L'administration peut supprimer les lignes douteuses et bannir les IP problematiques.
+        </p>
+      </article>
+      <article class="info-card">
+        <h3>Comptes utilisateurs</h3>
+        <p>
+          Les visiteurs ont 2 calculs par jour. Un compte donne acces a un historique personnel,
+          a la connexion et au changement de mot de passe.
+        </p>
+      </article>
+      <article class="info-card">
+        <h3>Espace admin prive</h3>
+        <p>
+          Le tableau des donnees est reserve a l'administrateur, avec export Excel, date, heure,
+          adresse IP et auteur de chaque enregistrement.
+        </p>
+      </article>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

@@ -1,0 +1,37 @@
+<%- include("partials/head", { pageTitle }) %>
+<%- include("partials/header") %>
+
+<main class="auth-page">
+  <section class="container form-page">
+    <div class="form-shell">
+      <div class="section-head">
+        <span class="eyebrow">Inscription</span>
+        <h1>Creer un compte utilisateur</h1>
+        <p>Un compte permet de faire plus de 2 calculs par jour et de consulter son historique.</p>
+      </div>
+
+      <%- include("partials/flash") %>
+
+      <form action="/register" method="post" class="stack-form">
+        <label class="field">
+          <span>Nom d'utilisateur</span>
+          <input type="text" name="username" minlength="3" maxlength="30" required />
+        </label>
+
+        <label class="field">
+          <span>Mot de passe</span>
+          <input type="password" name="password" minlength="8" required />
+        </label>
+
+        <label class="field">
+          <span>Confirmer le mot de passe</span>
+          <input type="password" name="confirmPassword" minlength="8" required />
+        </label>
+
+        <button type="submit" class="primary-button">Creer mon compte</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

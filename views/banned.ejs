@@ -1,0 +1,13 @@
+<%- include("partials/head", { pageTitle }) %>
+
+<main class="status-page">
+  <section class="container status-shell">
+    <div class="form-shell">
+      <span class="eyebrow">Acces bloque</span>
+      <h1>Cette adresse IP est actuellement bannie.</h1>
+      <p>Motif : <strong><%= reason %></strong></p>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

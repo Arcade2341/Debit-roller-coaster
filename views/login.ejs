@@ -1,0 +1,36 @@
+<%- include("partials/head", { pageTitle }) %>
+<%- include("partials/header") %>
+
+<main class="auth-page">
+  <section class="container form-page">
+    <div class="form-shell">
+      <div class="section-head">
+        <span class="eyebrow">Connexion</span>
+        <h1>Acceder a votre espace</h1>
+        <p>Connectez-vous pour depasser la limite visiteur et retrouver votre historique.</p>
+      </div>
+
+      <%- include("partials/flash") %>
+
+      <form action="/login" method="post" class="stack-form">
+        <label class="field">
+          <span>Nom d'utilisateur</span>
+          <input type="text" name="username" minlength="3" maxlength="30" required />
+        </label>
+
+        <label class="field">
+          <span>Mot de passe</span>
+          <input type="password" name="password" required />
+        </label>
+
+        <button type="submit" class="primary-button">Connexion</button>
+      </form>
+
+      <p class="form-note">
+        Compte admin initial : <strong>Admin</strong> / <strong>admin</strong>. Pensez a changer ce mot de passe apres deployment.
+      </p>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

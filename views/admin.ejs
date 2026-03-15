@@ -1,0 +1,137 @@
+<%- include("partials/head", { pageTitle }) %>
+<%- include("partials/header") %>
+
+<main class="dashboard-page">
+  <section class="container">
+    <div class="admin-topbar">
+      <div class="section-head">
+        <span class="eyebrow">Administration</span>
+        <h1>Tableau de moderation et export Excel</h1>
+        <p>Supprimez les faux enregistrements, bannissez des IP et exportez le tableau complet.</p>
+      </div>
+      <a href="/admin/export.xlsx" class="primary-button button-link">Telecharger le fichier Excel</a>
+    </div>
+
+    <%- include("partials/flash") %>
+
+    <div class="dashboard-grid">
+      <section class="dashboard-card dashboard-card-wide">
+        <div class="section-head">
+          <h2>Historique complet</h2>
+          <p>Ce tableau est reserve a l'administrateur.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Attraction</th>
+                <th>Pers./train</th>
+                <th>Trains/2 min</th>
+                <th>Debit/h</th>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Auteur</th>
+                <th>IP</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% calculations.forEach((entry) => { %>
+                <tr>
+                  <td><%= entry.attraction_name %></td>
+                  <td><%= entry.people_per_train %></td>
+                  <td><%= entry.trains_in_two_minutes %></td>
+                  <td><%= entry.throughput_per_hour %></td>
+                  <td><%= entry.recorded_date %></td>
+                  <td><%= entry.recorded_time %></td>
+                  <td><%= entry.username || "Visiteur" %></td>
+                  <td><code><%= entry.ip_address %></code></td>
+                  <td>
+                    <form action="/admin/entries/<%= entry.id %>/delete" method="post">
+                      <button type="submit" class="ghost-button danger-button">Supprimer</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <aside class="dashboard-card">
+        <div class="section-head">
+          <h2>Bannir une IP</h2>
+          <p>Bloquez les adresses problematiques et conservez une trace du motif.</p>
+        </div>
+
+        <form action="/admin/ip-bans" method="post" class="stack-form">
+          <label class="field">
+            <span>Adresse IP</span>
+            <input type="text" name="ipAddress" maxlength="64" required placeholder="Ex. 203.0.113.42" />
+          </label>
+
+          <label class="field">
+            <span>Motif du ban</span>
+            <input type="text" name="reason" maxlength="160" required placeholder="Ex. Saisies abusives repetees" />
+          </label>
+
+          <button type="submit" class="primary-button">Bannir cette IP</button>
+        </form>
+
+        <div class="section-head compact">
+          <h2>Liste des bans</h2>
+        </div>
+
+        <div class="ban-list">
+          <% if (ipBans.length === 0) { %>
+            <p class="empty-state">Aucun ban pour le moment.</p>
+          <% } else { %>
+            <% ipBans.forEach((ban) => { %>
+              <article class="ban-item <%= ban.is_active ? 'ban-item-active' : '' %>">
+                <div>
+                  <strong><%= ban.ip_address %></strong>
+                  <p><%= ban.reason %></p>
+                </div>
+                <div class="ban-meta">
+                  <span><%= ban.is_active ? "Actif" : "Leve" %></span>
+                  <% if (ban.is_active) { %>
+                    <form action="/admin/ip-bans/<%= ban.id %>/lift" method="post">
+                      <button type="submit" class="ghost-button">Lever le ban</button>
+                    </form>
+                  <% } %>
+                </div>
+              </article>
+            <% }) %>
+          <% } %>
+        </div>
+
+        <div class="section-head compact">
+          <h2>Mot de passe admin</h2>
+          <p>Changez rapidement le mot de passe par defaut apres installation.</p>
+        </div>
+
+        <form action="/account/password" method="post" class="stack-form">
+          <label class="field">
+            <span>Mot de passe actuel</span>
+            <input type="password" name="currentPassword" required />
+          </label>
+
+          <label class="field">
+            <span>Nouveau mot de passe</span>
+            <input type="password" name="newPassword" minlength="8" required />
+          </label>
+
+          <label class="field">
+            <span>Confirmation</span>
+            <input type="password" name="confirmNewPassword" minlength="8" required />
+          </label>
+
+          <button type="submit" class="ghost-button">Mettre a jour le mot de passe</button>
+        </form>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

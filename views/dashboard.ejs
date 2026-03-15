@@ -1,0 +1,77 @@
+<%- include("partials/head", { pageTitle }) %>
+<%- include("partials/header") %>
+
+<main class="dashboard-page">
+  <section class="container">
+    <div class="dashboard-grid">
+      <section class="dashboard-card">
+        <div class="section-head">
+          <span class="eyebrow">Mon espace</span>
+          <h1>Historique de <%= user.username %></h1>
+          <p>Retrouvez tous vos calculs enregistres et gerez votre mot de passe.</p>
+        </div>
+
+        <%- include("partials/flash") %>
+
+        <% if (calculations.length === 0) { %>
+          <p class="empty-state">Aucun calcul enregistre pour le moment.</p>
+        <% } else { %>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Attraction</th>
+                  <th>Personnes/train</th>
+                  <th>Trains/2 min</th>
+                  <th>Debit/heure</th>
+                  <th>Date</th>
+                  <th>Heure</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% calculations.forEach((entry) => { %>
+                  <tr>
+                    <td><%= entry.attraction_name %></td>
+                    <td><%= entry.people_per_train %></td>
+                    <td><%= entry.trains_in_two_minutes %></td>
+                    <td><%= entry.throughput_per_hour %></td>
+                    <td><%= entry.recorded_date %></td>
+                    <td><%= entry.recorded_time %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </section>
+
+      <aside class="dashboard-card">
+        <div class="section-head">
+          <h2>Changer le mot de passe</h2>
+          <p>Securisez votre compte avec un mot de passe fort.</p>
+        </div>
+
+        <form action="/account/password" method="post" class="stack-form">
+          <label class="field">
+            <span>Mot de passe actuel</span>
+            <input type="password" name="currentPassword" required />
+          </label>
+
+          <label class="field">
+            <span>Nouveau mot de passe</span>
+            <input type="password" name="newPassword" minlength="8" required />
+          </label>
+
+          <label class="field">
+            <span>Confirmation</span>
+            <input type="password" name="confirmNewPassword" minlength="8" required />
+          </label>
+
+          <button type="submit" class="primary-button">Mettre a jour</button>
+        </form>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>
