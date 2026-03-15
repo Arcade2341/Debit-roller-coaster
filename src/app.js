@@ -33,7 +33,8 @@ app.use(
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
         formAction: ["'self'"],
-        frameAncestors: ["'none'"]
+        frameAncestors: ["'none'"],
+        upgradeInsecureRequests: null
       }
     },
     crossOriginOpenerPolicy: { policy: "same-origin" }
