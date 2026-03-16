@@ -47,6 +47,7 @@ body {
   margin: 0;
   min-height: 100vh;
   overflow-x: hidden;
+  padding-bottom: 6rem;
   font-family: "Source Sans 3", sans-serif;
   color: var(--text);
   background:
@@ -187,6 +188,15 @@ input {
   background: rgba(143, 63, 23, 0.05);
   color: var(--orange-deep);
   cursor: pointer;
+}
+
+.theme-switch-floating {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 80;
+  width: auto;
+  box-shadow: 0 16px 32px rgba(143, 63, 23, 0.16);
 }
 
 .theme-switch-track {
@@ -964,6 +974,12 @@ code {
   .theme-switch {
     width: 100%;
     justify-content: center;
+  }
+
+  .theme-switch-floating {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    width: auto;
   }
 
   .hero-section {

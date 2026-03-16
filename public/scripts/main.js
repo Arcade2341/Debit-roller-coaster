@@ -1,22 +1,26 @@
-const themeToggle = document.querySelector("[data-theme-toggle]");
+const themeToggles = document.querySelectorAll("[data-theme-toggle]");
 
-if (themeToggle) {
+if (themeToggles.length > 0) {
   const root = document.documentElement;
-  const themeToggleLabel = themeToggle.querySelector(".theme-switch-label");
 
   function syncThemeLabel() {
     const isDark = root.dataset.theme === "dark";
-    themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
-    if (themeToggleLabel) {
-      themeToggleLabel.textContent = isDark ? "Mode clair" : "Mode sombre";
-    }
+    themeToggles.forEach((themeToggle) => {
+      const themeToggleLabel = themeToggle.querySelector(".theme-switch-label");
+      themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
+      if (themeToggleLabel) {
+        themeToggleLabel.textContent = isDark ? "Mode clair" : "Mode sombre";
+      }
+    });
   }
 
-  themeToggle.addEventListener("click", () => {
-    const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
-    root.dataset.theme = nextTheme;
-    localStorage.setItem("roller-theme", nextTheme);
-    syncThemeLabel();
+  themeToggles.forEach((themeToggle) => {
+    themeToggle.addEventListener("click", () => {
+      const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
+      root.dataset.theme = nextTheme;
+      localStorage.setItem("roller-theme", nextTheme);
+      syncThemeLabel();
+    });
   });
 
   window.addEventListener("storage", (event) => {
@@ -83,7 +87,7 @@ if (form) {
     resultAttraction.textContent = "Attraction en attente";
     resultPeople.textContent = "--";
     resultTrains.textContent = "--";
-    resultStatus.textContent = "Remplissez les champs puis cliquez.";
+    resultStatus.textContent = "Remplissez les champs puis validez.";
   }
 
   syncFormState();

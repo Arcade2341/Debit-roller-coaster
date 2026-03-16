@@ -9,18 +9,6 @@
     </a>
 
     <nav class="nav-links" aria-label="Navigation principale">
-      <button
-        type="button"
-        class="theme-switch"
-        data-theme-toggle
-        aria-label="Activer ou desactiver le mode sombre"
-        aria-pressed="false"
-      >
-        <span class="theme-switch-track">
-          <span class="theme-switch-thumb"></span>
-        </span>
-        <span class="theme-switch-label">Mode sombre</span>
-      </button>
       <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>">Calcul</a>
       <% if (user) { %>
         <% if (user.isAdmin) { %>
@@ -38,3 +26,16 @@
     </nav>
   </div>
 </header>
+
+<button
+  type="button"
+  class="theme-switch theme-switch-floating"
+  data-theme-toggle
+  aria-label="Activer ou desactiver le mode sombre"
+  aria-pressed="false"
+>
+  <span class="theme-switch-track">
+    <span class="theme-switch-thumb"></span>
+  </span>
+  <span class="theme-switch-label">Mode sombre</span>
+</button>
