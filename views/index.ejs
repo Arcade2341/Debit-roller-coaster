@@ -68,14 +68,16 @@
                   class="mode-button"
                   data-mode-button
                   data-mode-value="auto"
-                  <%= !catalogInfo.available ? "disabled" : "" %>
+                  <%= !user || !catalogInfo.available ? "disabled" : "" %>
                 >
                   Auto
                 </button>
               </div>
 
               <div class="catalog-state">
-                <% if (catalogInfo.available) { %>
+                <% if (!user) { %>
+                  <span>Connectez-vous pour utiliser le mode auto.</span>
+                <% } else if (catalogInfo.available) { %>
                   <span><%= catalogInfo.total %> attractions chargees depuis le fichier Excel.</span>
                 <% } else { %>
                   <span>Ajoutez `data/attractions.xlsx` pour activer le mode auto.</span>

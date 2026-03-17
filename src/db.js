@@ -18,6 +18,7 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
+    locked_ip TEXT,
     is_admin INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
@@ -51,6 +52,13 @@ db.exec(`
   );
 `);
 
+const userColumns = db.prepare("PRAGMA table_info(users)").all();
+const hasLockedIpColumn = userColumns.some((column) => column.name === "locked_ip");
+
+if (!hasLockedIpColumn) {
+  db.exec("ALTER TABLE users ADD COLUMN locked_ip TEXT");
+}
+
 const existingAdmin = db
   .prepare("SELECT id FROM users WHERE LOWER(username) = LOWER(?) LIMIT 1")
   .get("admin");
@@ -60,8 +68,8 @@ if (!existingAdmin) {
 
   db.prepare(
     `
-      INSERT INTO users (username, password_hash, is_admin, created_at, updated_at)
-      VALUES (?, ?, 1, ?, ?)
+      INSERT INTO users (username, password_hash, locked_ip, is_admin, created_at, updated_at)
+      VALUES (?, ?, NULL, 1, ?, ?)
     `
   ).run("admin", bcrypt.hashSync("admin", 12), now, now);
 }
