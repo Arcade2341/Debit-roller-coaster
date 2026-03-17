@@ -301,7 +301,7 @@ textarea {
 .hero-copy-shell {
   display: grid;
   gap: 1rem;
-  padding: 1.25rem;
+  padding: 1.35rem;
   border: 1px solid rgba(143, 63, 23, 0.1);
   border-radius: 30px;
   background: rgba(255, 250, 244, 0.82);
@@ -323,6 +323,14 @@ textarea {
 }
 
 .hero-head {
+  margin-bottom: 0;
+}
+
+.page-intro {
+  margin: 0 0 1rem;
+}
+
+.page-intro .section-head {
   margin-bottom: 0;
 }
 
@@ -383,43 +391,24 @@ textarea {
   grid-template-columns: 1fr;
 }
 
-.limit-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.85rem 1rem;
-  border-radius: 20px;
-  background: rgba(255, 247, 239, 0.84);
-  border: 1px solid rgba(143, 63, 23, 0.1);
-  box-shadow: 0 12px 28px rgba(143, 63, 23, 0.07);
-  flex-wrap: wrap;
-}
-
-.limit-pill strong {
-  color: var(--orange-deep);
-}
-
-:root[data-theme="dark"] .limit-pill {
-  background: rgba(255, 159, 67, 0.12);
-  border-color: rgba(255, 191, 133, 0.16);
-  color: #fff0e2;
-}
-
-:root[data-theme="dark"] .limit-pill strong {
-  color: #ffd5ad;
-}
-
-.quick-card {
+.hero-summary-grid {
   display: grid;
-  gap: 0.35rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.summary-card {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
   padding: 1rem 1.05rem;
   border-radius: 22px;
-  background: linear-gradient(135deg, rgba(215, 100, 26, 0.11), rgba(242, 166, 90, 0.18));
   border: 1px solid rgba(143, 63, 23, 0.1);
+  background: linear-gradient(135deg, rgba(255, 247, 239, 0.94), rgba(255, 234, 211, 0.76));
+  box-shadow: 0 12px 28px rgba(143, 63, 23, 0.07);
 }
 
-.quick-card-label {
+.summary-label {
   font-size: 0.76rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -427,22 +416,23 @@ textarea {
   color: var(--orange);
 }
 
-.quick-card strong {
+.summary-card strong {
   color: var(--orange-deep);
   font-family: "Sora", sans-serif;
   line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
-:root[data-theme="dark"] .quick-card {
+:root[data-theme="dark"] .summary-card {
   background: linear-gradient(135deg, rgba(255, 159, 67, 0.16), rgba(95, 50, 24, 0.6));
   border-color: rgba(255, 191, 133, 0.16);
 }
 
-:root[data-theme="dark"] .quick-card-label {
+:root[data-theme="dark"] .summary-label {
   color: #ffd5ad;
 }
 
-:root[data-theme="dark"] .quick-card strong {
+:root[data-theme="dark"] .summary-card strong {
   color: #fff1e2;
 }
 
@@ -491,30 +481,6 @@ textarea {
   min-width: 0;
 }
 
-.hero-card-topline {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-}
-
-.hero-card-topline span {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.5rem 0.8rem;
-  border-radius: 999px;
-  background: rgba(143, 63, 23, 0.06);
-  color: var(--orange-deep);
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-:root[data-theme="dark"] .hero-card-topline span {
-  background: rgba(255, 159, 67, 0.14);
-  color: #ffe2c5;
-}
-
 .calculator-card,
 .result-card,
 .dashboard-card,
@@ -555,43 +521,6 @@ textarea {
 
 .section-head.compact {
   margin-top: 1.5rem;
-}
-
-.formula-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
-  margin-bottom: 1.25rem;
-  padding: 1rem 1.05rem;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(215, 100, 26, 0.11), rgba(242, 166, 90, 0.2));
-  border: 1px solid rgba(143, 63, 23, 0.1);
-}
-
-.formula-banner span {
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--orange);
-  font-weight: 800;
-}
-
-.formula-banner strong {
-  color: var(--orange-deep);
-}
-
-:root[data-theme="dark"] .formula-banner {
-  background: linear-gradient(135deg, rgba(255, 159, 67, 0.16), rgba(95, 50, 24, 0.62));
-  border-color: rgba(255, 191, 133, 0.16);
-}
-
-:root[data-theme="dark"] .formula-banner span {
-  color: #ffd3a9;
-}
-
-:root[data-theme="dark"] .formula-banner strong {
-  color: #fff1e2;
 }
 
 .mode-switch {
@@ -1022,6 +951,11 @@ textarea {
   flex-wrap: wrap;
 }
 
+.info-stack {
+  display: grid;
+  gap: 0.8rem;
+}
+
 .nav-badge {
   display: inline-flex;
   align-items: center;
@@ -1380,17 +1314,16 @@ code {
     width: 100%;
   }
 
-  .limit-pill {
+  .hero-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card {
     width: 100%;
   }
 
   .hero-copy-shell {
     padding: 1rem;
-  }
-
-  .formula-banner {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .result-badge {

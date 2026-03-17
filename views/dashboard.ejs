@@ -3,10 +3,17 @@
 
 <main class="dashboard-page">
   <section class="container">
+    <div class="page-intro">
+      <div class="section-head">
+        <h1>Mon espace</h1>
+        <p>Historique, notifications et reglages du compte.</p>
+      </div>
+    </div>
+
     <div class="dashboard-grid">
       <section class="dashboard-card">
         <div class="section-head">
-          <h1>Vos calculs</h1>
+          <h2>Vos calculs</h2>
         </div>
 
         <%- include("partials/flash") %>
@@ -88,7 +95,7 @@
           <a href="/notifications" class="ghost-button button-link">Voir toutes les notifications</a>
         <% } %>
 
-        <div class="section-head">
+        <div class="section-head compact">
           <h2>Modifier le pseudo</h2>
         </div>
 

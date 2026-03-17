@@ -3,10 +3,17 @@
 
 <main class="dashboard-page">
   <section class="container">
+    <div class="page-intro">
+      <div class="section-head">
+        <h1>Comptes</h1>
+        <p>Gerez les acces et envoyez des notifications ciblees.</p>
+      </div>
+    </div>
+
     <div class="dashboard-grid">
       <section class="dashboard-card">
         <div class="section-head">
-          <h1>Comptes</h1>
+          <h2>Liste des comptes</h2>
         </div>
 
         <%- include("partials/flash") %>
@@ -84,13 +91,10 @@
           <h2>Roles</h2>
         </div>
 
-        <p class="empty-state">
-          Le role helper sert uniquement a traiter les demandes d'ajout.
-        </p>
-
-        <p class="empty-state">
-          Les admins gardent la gestion des comptes et peuvent nommer les helpers.
-        </p>
+        <div class="info-stack">
+          <p class="empty-state">Le role helper sert uniquement a traiter les demandes d'ajout.</p>
+          <p class="empty-state">Les admins gardent la gestion des comptes et peuvent nommer les helpers.</p>
+        </div>
       </aside>
     </div>
   </section>

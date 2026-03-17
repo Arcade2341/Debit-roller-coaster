@@ -7,25 +7,28 @@
       <div class="hero-copy">
         <div class="hero-copy-shell">
           <div class="section-head hero-head">
+            <span class="eyebrow">Version 1</span>
             <h1>Calculateur de debit</h1>
-            <p>Entrez les valeurs, validez, et l'enregistrement se fait dans l'historique.</p>
+            <p>Choisissez votre mode, validez le calcul et retrouvez-le ensuite dans votre historique.</p>
           </div>
 
-          <% if (!user) { %>
-            <div class="limit-pill">
-              <strong>Visiteur</strong>
-              <span><%= anonymousDailyCount %>/2 calculs aujourd'hui</span>
-            </div>
-          <% } else { %>
-            <div class="limit-pill">
-              <strong>Compte</strong>
-              <span>calculs illimites</span>
-            </div>
-          <% } %>
+          <div class="hero-summary-grid">
+            <% if (!user) { %>
+              <div class="summary-card">
+                <span class="summary-label">Visiteur</span>
+                <strong><%= anonymousDailyCount %>/2 calculs</strong>
+              </div>
+            <% } else { %>
+              <div class="summary-card">
+                <span class="summary-label">Compte</span>
+                <strong>Calculs illimites</strong>
+              </div>
+            <% } %>
 
-          <div class="quick-card">
-            <span class="quick-card-label">Formule</span>
-            <strong>personnes x 30 x trains en 2 min</strong>
+            <div class="summary-card">
+              <span class="summary-label">Formule</span>
+              <strong>personnes x 30 x trains en 2 min</strong>
+            </div>
           </div>
 
           <div class="hero-actions hero-actions-stack">
@@ -43,12 +46,6 @@
       <div class="hero-stage">
         <div class="hero-card">
           <%- include("partials/flash") %>
-
-          <div class="hero-card-topline">
-            <span>Calcul</span>
-            <span>Resultat</span>
-            <span>Enregistrement</span>
-          </div>
 
           <div class="panel-grid">
             <form action="/calculate" method="post" class="calculator-card" data-calculator-form>
@@ -87,11 +84,6 @@
               <% if (user) { %>
                 <a href="/attraction-requests/new" class="request-link">Pas trouve ? Cliquez ici</a>
               <% } %>
-
-              <div class="formula-banner">
-                <span>Formule</span>
-                <strong>personnes x 30 x trains en 2 min</strong>
-              </div>
 
               <label class="field">
                 <span data-attraction-label>Nom de l'attraction</span>
@@ -150,6 +142,7 @@
             <aside class="result-card" aria-live="polite">
               <div class="section-head">
                 <h2>Resultat</h2>
+                <p>Le dernier calcul valide reste affiche ici.</p>
               </div>
 
               <div class="result-badge">Dernier calcul</div>
