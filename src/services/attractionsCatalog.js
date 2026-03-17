@@ -152,7 +152,36 @@ function getCatalogInfo() {
   };
 }
 
+function appendAttractionToCatalog({ countryName, parkName, attractionName, peoplePerTrain }) {
+  const workbook = fs.existsSync(workbookPath)
+    ? XLSX.readFile(workbookPath)
+    : XLSX.utils.book_new();
+  const firstSheetName = workbook.SheetNames[0] || "Sheet1";
+  const worksheet = workbook.Sheets[firstSheetName]
+    || XLSX.utils.aoa_to_sheet([["Pays", "Parc", "Attraction", "Nombre de personnes par train"]]);
+
+  if (!workbook.Sheets[firstSheetName]) {
+    XLSX.utils.book_append_sheet(workbook, worksheet, firstSheetName);
+  }
+
+  const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+
+  if (rows.length === 0) {
+    rows.push(["Pays", "Parc", "Attraction", "Nombre de personnes par train"]);
+  }
+
+  rows.push([countryName, parkName, attractionName, peoplePerTrain]);
+
+  const nextWorksheet = XLSX.utils.aoa_to_sheet(rows);
+  workbook.Sheets[firstSheetName] = nextWorksheet;
+  XLSX.writeFile(workbook, workbookPath);
+
+  cachedCatalog = [];
+  cachedMtimeMs = 0;
+}
+
 module.exports = {
+  appendAttractionToCatalog,
   findAttractionById,
   getCatalogInfo,
   searchAttractions

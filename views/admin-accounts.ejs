@@ -41,6 +41,58 @@
             </tbody>
           </table>
         </div>
+
+        <div class="section-head compact">
+          <h2>Demandes d'attractions</h2>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Attraction</th>
+                <th>Parc</th>
+                <th>Pays</th>
+                <th>Pers./train</th>
+                <th>Demandeur</th>
+                <th>Statut</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (attractionRequests.length === 0) { %>
+                <tr>
+                  <td colspan="7">Aucune demande pour le moment.</td>
+                </tr>
+              <% } else { %>
+                <% attractionRequests.forEach((requestEntry) => { %>
+                  <tr>
+                    <td><%= requestEntry.attraction_name %></td>
+                    <td><%= requestEntry.park_name %></td>
+                    <td><%= requestEntry.country_name %></td>
+                    <td><%= requestEntry.people_per_train %></td>
+                    <td><%= requestEntry.requested_by_username || "Visiteur" %></td>
+                    <td><%= requestEntry.status %></td>
+                    <td>
+                      <% if (requestEntry.status === "pending") { %>
+                        <div class="table-actions">
+                          <form action="/admin/attraction-requests/<%= requestEntry.id %>/accept" method="post">
+                            <button type="submit" class="history-delete-button">Accepter</button>
+                          </form>
+                          <form action="/admin/attraction-requests/<%= requestEntry.id %>/reject" method="post">
+                            <button type="submit" class="history-delete-button">Refuser</button>
+                          </form>
+                        </div>
+                      <% } else { %>
+                        <span>Traitee</span>
+                      <% } %>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <aside class="dashboard-card">

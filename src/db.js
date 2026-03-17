@@ -50,6 +50,23 @@ db.exec(`
     FOREIGN KEY (created_by_user_id) REFERENCES users (id) ON DELETE SET NULL,
     FOREIGN KEY (lifted_by_user_id) REFERENCES users (id) ON DELETE SET NULL
   );
+
+  CREATE TABLE IF NOT EXISTS attraction_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    attraction_name TEXT NOT NULL,
+    park_name TEXT NOT NULL,
+    country_name TEXT NOT NULL,
+    people_per_train INTEGER NOT NULL,
+    requested_by_user_id INTEGER,
+    requested_by_username TEXT,
+    requester_ip TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    created_at TEXT NOT NULL,
+    processed_at TEXT,
+    processed_by_user_id INTEGER,
+    FOREIGN KEY (requested_by_user_id) REFERENCES users (id) ON DELETE SET NULL,
+    FOREIGN KEY (processed_by_user_id) REFERENCES users (id) ON DELETE SET NULL
+  );
 `);
 
 const userColumns = db.prepare("PRAGMA table_info(users)").all();

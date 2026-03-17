@@ -10,12 +10,14 @@ const {
   redirectIfAuthenticated
 } = require("../middleware/auth");
 const {
+  appendAttractionToCatalog,
   findAttractionById,
   getCatalogInfo,
   searchAttractions
 } = require("../services/attractionsCatalog");
 const { getClientIp, setFlash, createTimestampParts } = require("../utils/security");
 const {
+  cleanText,
   validateAttractionName,
   validateInteger,
   validateUsername,
@@ -286,6 +288,72 @@ router.get("/register", redirectIfAuthenticated, (req, res) => {
   });
 });
 
+router.get("/attraction-requests/new", (req, res) => {
+  res.render("attraction-request", {
+    pageTitle: "Demander une attraction"
+  });
+});
+
+router.post("/attraction-requests", (req, res) => {
+  const attractionValidation = validateAttractionName(req.body.attractionName);
+  const parkName = cleanText(req.body.parkName);
+  const countryName = cleanText(req.body.countryName);
+  const peopleValidation = validateInteger(
+    req.body.peoplePerTrain,
+    "Le nombre de personnes par train",
+    { min: 1, max: 100 }
+  );
+
+  if (!attractionValidation.valid) {
+    setFlash(req, "error", attractionValidation.message);
+    return res.redirect("/attraction-requests/new");
+  }
+
+  if (parkName.length < 2 || parkName.length > 80) {
+    setFlash(req, "error", "Le nom du parc doit contenir entre 2 et 80 caracteres.");
+    return res.redirect("/attraction-requests/new");
+  }
+
+  if (countryName.length < 2 || countryName.length > 60) {
+    setFlash(req, "error", "Le pays doit contenir entre 2 et 60 caracteres.");
+    return res.redirect("/attraction-requests/new");
+  }
+
+  if (!peopleValidation.valid) {
+    setFlash(req, "error", peopleValidation.message);
+    return res.redirect("/attraction-requests/new");
+  }
+
+  db.prepare(
+    `
+      INSERT INTO attraction_requests (
+        attraction_name,
+        park_name,
+        country_name,
+        people_per_train,
+        requested_by_user_id,
+        requested_by_username,
+        requester_ip,
+        status,
+        created_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+    `
+  ).run(
+    attractionValidation.value,
+    parkName,
+    countryName,
+    peopleValidation.value,
+    req.session.user ? req.session.user.id : null,
+    req.session.user ? req.session.user.username : null,
+    getClientIp(req),
+    new Date().toISOString()
+  );
+
+  setFlash(req, "success", "Votre demande a bien ete envoyee.");
+  res.redirect("/");
+});
+
 router.post("/register", registerLimiter, redirectIfAuthenticated, (req, res) => {
   const usernameValidation = validateUsername(req.body.username);
   const passwordValidation = validatePassword(req.body.password);
@@ -389,10 +457,26 @@ router.get("/admin/accounts", requireAuth, requireBoundIp, requireAdmin, (req, r
       `
     )
     .all();
+  const attractionRequests = db
+    .prepare(
+      `
+        SELECT *
+        FROM attraction_requests
+        ORDER BY
+          CASE status
+            WHEN 'pending' THEN 0
+            WHEN 'accepted' THEN 1
+            ELSE 2
+          END,
+          id DESC
+      `
+    )
+    .all();
 
   res.render("admin-accounts", {
     pageTitle: "Comptes",
-    users
+    users,
+    attractionRequests
   });
 });
 
@@ -438,6 +522,69 @@ router.post("/admin/users/:id/toggle-admin", requireAuth, requireBoundIp, requir
     "success",
     nextAdminState ? "Compte passe admin." : "Statut admin retire."
   );
+  res.redirect("/admin/accounts");
+});
+
+router.post("/admin/attraction-requests/:id/accept", requireAuth, requireBoundIp, requireAdmin, (req, res) => {
+  const requestId = Number(req.params.id);
+  const requestEntry = db
+    .prepare("SELECT * FROM attraction_requests WHERE id = ? LIMIT 1")
+    .get(requestId);
+
+  if (!requestEntry) {
+    setFlash(req, "error", "Demande introuvable.");
+    return res.redirect("/admin/accounts");
+  }
+
+  if (requestEntry.status !== "pending") {
+    setFlash(req, "error", "Cette demande a deja ete traitee.");
+    return res.redirect("/admin/accounts");
+  }
+
+  appendAttractionToCatalog({
+    countryName: requestEntry.country_name,
+    parkName: requestEntry.park_name,
+    attractionName: requestEntry.attraction_name,
+    peoplePerTrain: requestEntry.people_per_train
+  });
+
+  db.prepare(
+    `
+      UPDATE attraction_requests
+      SET status = 'accepted', processed_at = ?, processed_by_user_id = ?
+      WHERE id = ?
+    `
+  ).run(new Date().toISOString(), req.session.user.id, requestId);
+
+  setFlash(req, "success", "Demande acceptee et ajoutee au fichier Excel.");
+  res.redirect("/admin/accounts");
+});
+
+router.post("/admin/attraction-requests/:id/reject", requireAuth, requireBoundIp, requireAdmin, (req, res) => {
+  const requestId = Number(req.params.id);
+  const requestEntry = db
+    .prepare("SELECT id, status FROM attraction_requests WHERE id = ? LIMIT 1")
+    .get(requestId);
+
+  if (!requestEntry) {
+    setFlash(req, "error", "Demande introuvable.");
+    return res.redirect("/admin/accounts");
+  }
+
+  if (requestEntry.status !== "pending") {
+    setFlash(req, "error", "Cette demande a deja ete traitee.");
+    return res.redirect("/admin/accounts");
+  }
+
+  db.prepare(
+    `
+      UPDATE attraction_requests
+      SET status = 'rejected', processed_at = ?, processed_by_user_id = ?
+      WHERE id = ?
+    `
+  ).run(new Date().toISOString(), req.session.user.id, requestId);
+
+  setFlash(req, "success", "Demande refusee.");
   res.redirect("/admin/accounts");
 });
 

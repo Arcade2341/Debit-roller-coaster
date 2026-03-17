@@ -1,0 +1,40 @@
+<%- include("partials/head", { pageTitle }) %>
+<%- include("partials/header") %>
+
+<main class="auth-page">
+  <section class="container form-page">
+    <div class="form-shell">
+      <div class="section-head">
+        <h1>Demander une attraction</h1>
+      </div>
+
+      <%- include("partials/flash") %>
+
+      <form action="/attraction-requests" method="post" class="stack-form">
+        <label class="field">
+          <span>Nom de l'attraction</span>
+          <input type="text" name="attractionName" minlength="3" maxlength="80" required />
+        </label>
+
+        <label class="field">
+          <span>Parc</span>
+          <input type="text" name="parkName" minlength="2" maxlength="80" required />
+        </label>
+
+        <label class="field">
+          <span>Pays</span>
+          <input type="text" name="countryName" minlength="2" maxlength="60" required />
+        </label>
+
+        <label class="field">
+          <span>Personnes par train</span>
+          <input type="number" name="peoplePerTrain" min="1" max="100" required />
+        </label>
+
+        <button type="submit" class="primary-button">Envoyer la demande</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

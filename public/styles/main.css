@@ -639,6 +639,18 @@ input {
   font-size: 0.92rem;
 }
 
+.request-link {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: var(--orange-deep);
+  font-weight: 700;
+}
+
+.request-link:hover {
+  text-decoration: underline;
+}
+
 .field-split {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -973,6 +985,12 @@ input {
   border-color: rgba(184, 70, 43, 0.24);
 }
 
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 :root[data-theme="dark"] .account-actions {
   border-color: rgba(255, 191, 133, 0.14);
   background: linear-gradient(180deg, rgba(255, 159, 67, 0.08), rgba(255, 159, 67, 0.03));
@@ -1002,6 +1020,10 @@ input {
 :root[data-theme="dark"] .history-delete-button:hover {
   background: rgba(201, 77, 49, 0.18);
   border-color: rgba(255, 180, 165, 0.24);
+}
+
+:root[data-theme="dark"] .request-link {
+  color: #ffd8b4;
 }
 
 .form-page {
