@@ -1,0 +1,65 @@
+<%- include("partials/head", { pageTitle }) %>
+<%- include("partials/header") %>
+
+<main class="dashboard-page">
+  <section class="container">
+    <div class="dashboard-grid">
+      <section class="dashboard-card">
+        <div class="section-head">
+          <h1>Comptes</h1>
+        </div>
+
+        <%- include("partials/flash") %>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Pseudo</th>
+                <th>Statut</th>
+                <th>Calculs</th>
+                <th>Date de creation</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% users.forEach((account) => { %>
+                <tr>
+                  <td><%= account.username %></td>
+                  <td><%= account.is_admin ? "Admin" : "Utilisateur" %></td>
+                  <td><%= account.calculations_count %></td>
+                  <td><%= account.created_at.slice(0, 10) %></td>
+                  <td>
+                    <form action="/admin/users/<%= account.id %>/toggle-admin" method="post">
+                      <button type="submit" class="history-delete-button">
+                        <%= account.is_admin ? "Retirer admin" : "Passer admin" %>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <aside class="dashboard-card">
+        <div class="section-head">
+          <h2>Compte admin</h2>
+        </div>
+
+        <p class="empty-state">
+          Le compte admin par defaut est <strong>admin</strong> avec le mot de passe
+          <strong>admin</strong>.
+        </p>
+
+        <p class="empty-state">
+          Il garde le meme espace personnel que les autres comptes et ajoute seulement l'acces a
+          cette page.
+        </p>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

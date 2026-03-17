@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const bcrypt = require("bcryptjs");
 const Database = require("better-sqlite3");
 
 const dataPath = path.join(__dirname, "..", "data");
@@ -49,5 +50,20 @@ db.exec(`
     FOREIGN KEY (lifted_by_user_id) REFERENCES users (id) ON DELETE SET NULL
   );
 `);
+
+const existingAdmin = db
+  .prepare("SELECT id FROM users WHERE LOWER(username) = LOWER(?) LIMIT 1")
+  .get("admin");
+
+if (!existingAdmin) {
+  const now = new Date().toISOString();
+
+  db.prepare(
+    `
+      INSERT INTO users (username, password_hash, is_admin, created_at, updated_at)
+      VALUES (?, ?, 1, ?, ?)
+    `
+  ).run("admin", bcrypt.hashSync("admin", 12), now, now);
+}
 
 module.exports = db;

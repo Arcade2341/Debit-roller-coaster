@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const rateLimit = require("express-rate-limit");
 
 const db = require("../db");
-const { requireAuth, redirectIfAuthenticated } = require("../middleware/auth");
+const { requireAuth, requireAdmin, redirectIfAuthenticated } = require("../middleware/auth");
 const {
   findAttractionById,
   getCatalogInfo,
@@ -217,7 +217,7 @@ router.post("/login", authLimiter, redirectIfAuthenticated, (req, res) => {
   const user = db
     .prepare(
       `
-        SELECT id, username, password_hash
+        SELECT id, username, password_hash, is_admin
         FROM users
         WHERE LOWER(username) = LOWER(?)
         LIMIT 1
@@ -232,7 +232,8 @@ router.post("/login", authLimiter, redirectIfAuthenticated, (req, res) => {
 
   req.session.user = {
     id: user.id,
-    username: user.username
+    username: user.username,
+    isAdmin: Boolean(user.is_admin)
   };
 
   setFlash(req, "success", `Bienvenue ${user.username}.`);
@@ -287,7 +288,8 @@ router.post("/register", registerLimiter, redirectIfAuthenticated, (req, res) =>
 
   req.session.user = {
     id: Number(result.lastInsertRowid),
-    username: usernameValidation.value
+    username: usernameValidation.value,
+    isAdmin: false
   };
 
   setFlash(req, "success", "Compte cree. Vous pouvez desormais faire autant de calculs que necessaire.");
@@ -316,6 +318,77 @@ router.get("/dashboard", requireAuth, (req, res) => {
     pageTitle: "Mon espace",
     calculations
   });
+});
+
+router.get("/admin/accounts", requireAdmin, (req, res) => {
+  const users = db
+    .prepare(
+      `
+        SELECT
+          id,
+          username,
+          is_admin,
+          created_at,
+          (
+            SELECT COUNT(*)
+            FROM calculations
+            WHERE calculations.user_id = users.id
+          ) AS calculations_count
+        FROM users
+        ORDER BY is_admin DESC, LOWER(username) ASC
+      `
+    )
+    .all();
+
+  res.render("admin-accounts", {
+    pageTitle: "Comptes",
+    users
+  });
+});
+
+router.post("/admin/users/:id/toggle-admin", requireAdmin, (req, res) => {
+  const userId = Number(req.params.id);
+  const targetUser = db
+    .prepare("SELECT id, is_admin, username FROM users WHERE id = ? LIMIT 1")
+    .get(userId);
+
+  if (!targetUser) {
+    setFlash(req, "error", "Compte introuvable.");
+    return res.redirect("/admin/accounts");
+  }
+
+  const nextAdminState = targetUser.is_admin ? 0 : 1;
+
+  if (req.session.user.id === userId && nextAdminState === 0) {
+    setFlash(req, "error", "Vous ne pouvez pas retirer votre propre statut admin.");
+    return res.redirect("/admin/accounts");
+  }
+
+  if (targetUser.is_admin) {
+    const adminCount = db
+      .prepare("SELECT COUNT(*) AS total FROM users WHERE is_admin = 1")
+      .get().total;
+
+    if (adminCount <= 1) {
+      setFlash(req, "error", "Il doit toujours rester au moins un admin.");
+      return res.redirect("/admin/accounts");
+    }
+  }
+
+  db.prepare(
+    `
+      UPDATE users
+      SET is_admin = ?, updated_at = ?
+      WHERE id = ?
+    `
+  ).run(nextAdminState, new Date().toISOString(), userId);
+
+  setFlash(
+    req,
+    "success",
+    nextAdminState ? "Compte passe admin." : "Statut admin retire."
+  );
+  res.redirect("/admin/accounts");
 });
 
 router.post("/calculations/:id/delete", requireAuth, (req, res) => {
@@ -405,6 +478,17 @@ router.post("/account/username", requireAuth, (req, res) => {
 
 router.post("/account/delete", requireAuth, (req, res) => {
   const userId = req.session.user.id;
+
+  if (req.session.user.isAdmin) {
+    const adminCount = db
+      .prepare("SELECT COUNT(*) AS total FROM users WHERE is_admin = 1")
+      .get().total;
+
+    if (adminCount <= 1) {
+      setFlash(req, "error", "Impossible de supprimer le dernier admin.");
+      return res.redirect("/dashboard");
+    }
+  }
 
   db.prepare("DELETE FROM calculations WHERE user_id = ?").run(userId);
   db.prepare("DELETE FROM users WHERE id = ?").run(userId);
