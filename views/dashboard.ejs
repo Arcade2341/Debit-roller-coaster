@@ -41,6 +41,16 @@
             </table>
           </div>
         <% } %>
+
+        <div class="account-actions">
+          <form action="/logout" method="post">
+            <button type="submit" class="danger-button account-action-button">Deconnexion</button>
+          </form>
+
+          <form action="/account/delete" method="post">
+            <button type="submit" class="danger-button account-action-button">Supprimer le compte</button>
+          </form>
+        </div>
       </section>
 
       <aside class="dashboard-card">

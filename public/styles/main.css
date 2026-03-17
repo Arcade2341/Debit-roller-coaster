@@ -698,6 +698,11 @@ input {
   background: var(--danger);
 }
 
+:root[data-theme="dark"] .danger-button {
+  color: white;
+  background: #c94d31;
+}
+
 .result-card {
   display: flex;
   flex-direction: column;
@@ -826,6 +831,23 @@ input {
 
 .dashboard-card-wide {
   min-width: 0;
+}
+
+.account-actions {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(143, 63, 23, 0.1);
+}
+
+.account-action-button {
+  min-width: 220px;
+}
+
+:root[data-theme="dark"] .account-actions {
+  border-top-color: rgba(255, 191, 133, 0.12);
 }
 
 .admin-topbar {
@@ -1193,6 +1215,12 @@ code {
   .hero-actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .account-actions,
+  .account-actions form,
+  .account-action-button {
+    width: 100%;
   }
 
   .limit-pill {

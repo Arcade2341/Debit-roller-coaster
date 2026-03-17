@@ -339,6 +339,17 @@ router.post("/account/username", requireAuth, (req, res) => {
   res.redirect("/dashboard");
 });
 
+router.post("/account/delete", requireAuth, (req, res) => {
+  const userId = req.session.user.id;
+
+  db.prepare("DELETE FROM calculations WHERE user_id = ?").run(userId);
+  db.prepare("DELETE FROM users WHERE id = ?").run(userId);
+
+  req.session.destroy(() => {
+    res.redirect("/");
+  });
+});
+
 module.exports = {
   router
 };

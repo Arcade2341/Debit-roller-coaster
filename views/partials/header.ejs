@@ -12,9 +12,6 @@
       <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>">Calcul</a>
       <% if (user) { %>
         <a href="/dashboard" class="<%= currentPath === '/dashboard' ? 'is-active' : '' %>">Mon espace</a>
-        <form action="/logout" method="post" class="inline-form">
-          <button type="submit" class="nav-button">Deconnexion</button>
-        </form>
       <% } else { %>
         <a href="/login" class="<%= currentPath === '/login' ? 'is-active' : '' %>">Connexion</a>
         <a href="/register" class="cta-link <%= currentPath === '/register' ? 'is-active' : '' %>">Creer un compte</a>
