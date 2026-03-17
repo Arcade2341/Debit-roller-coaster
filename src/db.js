@@ -68,6 +68,26 @@ db.exec(`
     FOREIGN KEY (requested_by_user_id) REFERENCES users (id) ON DELETE SET NULL,
     FOREIGN KEY (processed_by_user_id) REFERENCES users (id) ON DELETE SET NULL
   );
+
+  CREATE TABLE IF NOT EXISTS notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    message TEXT NOT NULL,
+    target_role TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    created_by_user_id INTEGER,
+    FOREIGN KEY (created_by_user_id) REFERENCES users (id) ON DELETE SET NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS notification_reads (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    notification_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    read_at TEXT NOT NULL,
+    UNIQUE(notification_id, user_id),
+    FOREIGN KEY (notification_id) REFERENCES notifications (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+  );
 `);
 
 const userColumns = db.prepare("PRAGMA table_info(users)").all();

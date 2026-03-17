@@ -66,6 +66,29 @@
 
       <aside class="dashboard-card">
         <div class="section-head">
+          <h2>Notifications</h2>
+        </div>
+
+        <% if (notifications.length === 0) { %>
+          <p class="empty-state">Aucune notification.</p>
+        <% } else { %>
+          <div class="notifications-list compact">
+            <% notifications.forEach((notification) => { %>
+              <article class="notification-item <%= notification.is_read ? 'is-read' : 'is-unread' %>">
+                <div class="notification-meta">
+                  <span><%= resolveNotificationTargetLabel(notification.target_role) %></span>
+                  <span><%= notification.created_at.slice(0, 10) %></span>
+                </div>
+                <h3><%= notification.title %></h3>
+                <p><%= notification.message %></p>
+              </article>
+            <% }) %>
+          </div>
+
+          <a href="/notifications" class="ghost-button button-link">Voir toutes les notifications</a>
+        <% } %>
+
+        <div class="section-head">
           <h2>Modifier le pseudo</h2>
         </div>
 

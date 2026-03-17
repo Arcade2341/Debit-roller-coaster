@@ -1,0 +1,57 @@
+<%- include("partials/head", { pageTitle }) %>
+<%- include("partials/header") %>
+
+<main class="dashboard-page">
+  <section class="container">
+    <div class="dashboard-grid">
+      <section class="dashboard-card">
+        <div class="section-head">
+          <h1>Notifications</h1>
+        </div>
+
+        <%- include("partials/flash") %>
+
+        <% if (notifications.length === 0) { %>
+          <p class="empty-state">Aucune notification pour le moment.</p>
+        <% } else { %>
+          <form action="/notifications/read-all" method="post" class="notifications-toolbar">
+            <button type="submit" class="ghost-button">Tout marquer comme lu</button>
+          </form>
+
+          <div class="notifications-list">
+            <% notifications.forEach((notification) => { %>
+              <article class="notification-item <%= notification.is_read ? 'is-read' : 'is-unread' %>">
+                <div class="notification-meta">
+                  <span><%= resolveNotificationTargetLabel(notification.target_role) %></span>
+                  <span><%= notification.created_at.slice(0, 10) %></span>
+                  <span><%= notification.sender_username || "Systeme" %></span>
+                </div>
+
+                <h2><%= notification.title %></h2>
+                <p><%= notification.message %></p>
+
+                <% if (!notification.is_read) { %>
+                  <form action="/notifications/<%= notification.id %>/read" method="post">
+                    <button type="submit" class="history-delete-button">Marquer comme lu</button>
+                  </form>
+                <% } %>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+      </section>
+
+      <aside class="dashboard-card">
+        <div class="section-head">
+          <h2>Boite de reception</h2>
+        </div>
+
+        <p class="empty-state">
+          Vous recevez ici les messages envoyes aux helpers, aux admins ou a tous les comptes.
+        </p>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

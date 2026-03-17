@@ -54,6 +54,33 @@
 
       <aside class="dashboard-card">
         <div class="section-head">
+          <h2>Envoyer une notification</h2>
+        </div>
+
+        <form action="/admin/notifications" method="post" class="stack-form">
+          <label class="field">
+            <span>Titre</span>
+            <input type="text" name="title" minlength="3" maxlength="80" required />
+          </label>
+
+          <label class="field">
+            <span>Cible</span>
+            <select name="targetRole" class="field-select" required>
+              <option value="all">Tous les comptes</option>
+              <option value="helpers">Helpers</option>
+              <option value="admins">Admins</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Message</span>
+            <textarea name="message" rows="5" maxlength="500" required></textarea>
+          </label>
+
+          <button type="submit" class="primary-button">Envoyer</button>
+        </form>
+
+        <div class="section-head compact">
           <h2>Roles</h2>
         </div>
 

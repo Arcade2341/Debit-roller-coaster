@@ -11,6 +11,12 @@
     <nav class="nav-links" aria-label="Navigation principale">
       <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>">Calcul</a>
       <% if (user) { %>
+        <a href="/notifications" class="<%= currentPath === '/notifications' ? 'is-active' : '' %>">
+          Notifications
+          <% if (unreadNotificationsCount > 0) { %>
+            <span class="nav-badge"><%= unreadNotificationsCount %></span>
+          <% } %>
+        </a>
         <a href="/dashboard" class="<%= currentPath === '/dashboard' ? 'is-active' : '' %>">Mon espace</a>
         <% if (user.isAdmin || user.isHelper) { %>
           <a href="/requests/review" class="<%= currentPath === '/requests/review' ? 'is-active' : '' %>">Demandes</a>

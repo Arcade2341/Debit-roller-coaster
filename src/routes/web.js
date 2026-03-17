@@ -85,6 +85,59 @@ function buildSessionUser(user) {
   };
 }
 
+function getNotificationTargets(user) {
+  const targets = ["all"];
+
+  if (user.isAdmin) {
+    targets.push("admins");
+  }
+
+  if (user.isHelper) {
+    targets.push("helpers");
+  }
+
+  return targets;
+}
+
+function getNotificationsForUser(userId, sessionUser) {
+  const targets = getNotificationTargets(sessionUser);
+  const placeholders = targets.map(() => "?").join(", ");
+
+  return db
+    .prepare(
+      `
+        SELECT
+          notifications.id,
+          notifications.title,
+          notifications.message,
+          notifications.target_role,
+          notifications.created_at,
+          sender.username AS sender_username,
+          CASE WHEN notification_reads.id IS NULL THEN 0 ELSE 1 END AS is_read
+        FROM notifications
+        LEFT JOIN users AS sender ON sender.id = notifications.created_by_user_id
+        LEFT JOIN notification_reads
+          ON notification_reads.notification_id = notifications.id
+         AND notification_reads.user_id = ?
+        WHERE notifications.target_role IN (${placeholders})
+        ORDER BY notifications.id DESC
+      `
+    )
+    .all(userId, ...targets);
+}
+
+function resolveNotificationTargetLabel(targetRole) {
+  if (targetRole === "admins") {
+    return "Admins";
+  }
+
+  if (targetRole === "helpers") {
+    return "Helpers";
+  }
+
+  return "Tous les comptes";
+}
+
 router.get("/", (req, res) => {
   const ipAddress = getClientIp(req);
   const today = createTimestampParts(appTimeZone).date;
@@ -439,10 +492,23 @@ router.get("/dashboard", requireAuth, requireBoundIp, (req, res) => {
       `
     )
     .all(req.session.user.id);
+  const notifications = getNotificationsForUser(req.session.user.id, req.session.user).slice(0, 3);
 
   res.render("dashboard", {
     pageTitle: "Mon espace",
-    calculations
+    calculations,
+    notifications,
+    resolveNotificationTargetLabel
+  });
+});
+
+router.get("/notifications", requireAuth, requireBoundIp, (req, res) => {
+  const notifications = getNotificationsForUser(req.session.user.id, req.session.user);
+
+  res.render("notifications", {
+    pageTitle: "Notifications",
+    notifications,
+    resolveNotificationTargetLabel
   });
 });
 
@@ -471,6 +537,38 @@ router.get("/admin/accounts", requireAuth, requireBoundIp, requireAdmin, (req, r
     pageTitle: "Comptes",
     users
   });
+});
+
+router.post("/admin/notifications", requireAuth, requireBoundIp, requireAdmin, (req, res) => {
+  const title = cleanText(req.body.title);
+  const message = cleanText(req.body.message);
+  const allowedTargets = new Set(["all", "helpers", "admins"]);
+  const targetRole = allowedTargets.has(req.body.targetRole) ? req.body.targetRole : "";
+
+  if (title.length < 3 || title.length > 80) {
+    setFlash(req, "error", "Le titre doit contenir entre 3 et 80 caracteres.");
+    return res.redirect("/admin/accounts");
+  }
+
+  if (message.length < 5 || message.length > 500) {
+    setFlash(req, "error", "Le message doit contenir entre 5 et 500 caracteres.");
+    return res.redirect("/admin/accounts");
+  }
+
+  if (!targetRole) {
+    setFlash(req, "error", "Choisissez une cible valide.");
+    return res.redirect("/admin/accounts");
+  }
+
+  db.prepare(
+    `
+      INSERT INTO notifications (title, message, target_role, created_at, created_by_user_id)
+      VALUES (?, ?, ?, ?, ?)
+    `
+  ).run(title, message, targetRole, new Date().toISOString(), req.session.user.id);
+
+  setFlash(req, "success", "Notification envoyee.");
+  res.redirect("/admin/accounts");
 });
 
 router.post("/admin/users/:id/toggle-admin", requireAuth, requireBoundIp, requireAdmin, (req, res) => {
@@ -635,6 +733,49 @@ router.post("/requests/:id/reject", requireAuth, requireBoundIp, requireHelperOr
 
   setFlash(req, "success", "Demande refusee.");
   res.redirect("/requests/review");
+});
+
+router.post("/notifications/read-all", requireAuth, requireBoundIp, (req, res) => {
+  const notifications = getNotificationsForUser(req.session.user.id, req.session.user);
+  const unreadNotifications = notifications.filter((notification) => !notification.is_read);
+  const insertRead = db.prepare(
+    `
+      INSERT OR IGNORE INTO notification_reads (notification_id, user_id, read_at)
+      VALUES (?, ?, ?)
+    `
+  );
+  const now = new Date().toISOString();
+
+  const markAllAsRead = db.transaction(() => {
+    unreadNotifications.forEach((notification) => {
+      insertRead.run(notification.id, req.session.user.id, now);
+    });
+  });
+
+  markAllAsRead();
+
+  setFlash(req, "success", "Notifications marquees comme lues.");
+  res.redirect("/notifications");
+});
+
+router.post("/notifications/:id/read", requireAuth, requireBoundIp, (req, res) => {
+  const notificationId = Number(req.params.id);
+  const notifications = getNotificationsForUser(req.session.user.id, req.session.user);
+  const notification = notifications.find((entry) => entry.id === notificationId);
+
+  if (!notification) {
+    setFlash(req, "error", "Notification introuvable.");
+    return res.redirect("/notifications");
+  }
+
+  db.prepare(
+    `
+      INSERT OR IGNORE INTO notification_reads (notification_id, user_id, read_at)
+      VALUES (?, ?, ?)
+    `
+  ).run(notificationId, req.session.user.id, new Date().toISOString());
+
+  res.redirect("/notifications");
 });
 
 router.post("/calculations/:id/delete", requireAuth, requireBoundIp, (req, res) => {
