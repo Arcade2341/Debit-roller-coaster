@@ -20,6 +20,7 @@ db.exec(`
     password_hash TEXT NOT NULL,
     locked_ip TEXT,
     is_admin INTEGER NOT NULL DEFAULT 0,
+    is_helper INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   );
@@ -71,9 +72,14 @@ db.exec(`
 
 const userColumns = db.prepare("PRAGMA table_info(users)").all();
 const hasLockedIpColumn = userColumns.some((column) => column.name === "locked_ip");
+const hasHelperColumn = userColumns.some((column) => column.name === "is_helper");
 
 if (!hasLockedIpColumn) {
   db.exec("ALTER TABLE users ADD COLUMN locked_ip TEXT");
+}
+
+if (!hasHelperColumn) {
+  db.exec("ALTER TABLE users ADD COLUMN is_helper INTEGER NOT NULL DEFAULT 0");
 }
 
 const existingAdmin = db

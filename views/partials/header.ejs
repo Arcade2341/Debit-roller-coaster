@@ -12,6 +12,9 @@
       <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>">Calcul</a>
       <% if (user) { %>
         <a href="/dashboard" class="<%= currentPath === '/dashboard' ? 'is-active' : '' %>">Mon espace</a>
+        <% if (user.isAdmin || user.isHelper) { %>
+          <a href="/requests/review" class="<%= currentPath === '/requests/review' ? 'is-active' : '' %>">Demandes</a>
+        <% } %>
         <% if (user.isAdmin) { %>
           <a href="/admin/accounts" class="<%= currentPath === '/admin/accounts' ? 'is-active' : '' %>">Comptes</a>
         <% } %>

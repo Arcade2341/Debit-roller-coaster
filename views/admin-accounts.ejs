@@ -17,9 +17,10 @@
               <tr>
                 <th>Pseudo</th>
                 <th>Statut</th>
+                <th>Helper</th>
                 <th>Calculs</th>
                 <th>Date de creation</th>
-                <th>Action</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -27,69 +28,25 @@
                 <tr>
                   <td><%= account.username %></td>
                   <td><%= account.is_admin ? "Admin" : "Utilisateur" %></td>
+                  <td><%= account.is_helper ? "Oui" : "Non" %></td>
                   <td><%= account.calculations_count %></td>
                   <td><%= account.created_at.slice(0, 10) %></td>
                   <td>
-                    <form action="/admin/users/<%= account.id %>/toggle-admin" method="post">
-                      <button type="submit" class="history-delete-button">
-                        <%= account.is_admin ? "Retirer admin" : "Passer admin" %>
-                      </button>
-                    </form>
+                    <div class="table-actions">
+                      <form action="/admin/users/<%= account.id %>/toggle-admin" method="post">
+                        <button type="submit" class="history-delete-button">
+                          <%= account.is_admin ? "Retirer admin" : "Passer admin" %>
+                        </button>
+                      </form>
+                      <form action="/admin/users/<%= account.id %>/toggle-helper" method="post">
+                        <button type="submit" class="history-delete-button">
+                          <%= account.is_helper ? "Retirer helper" : "Passer helper" %>
+                        </button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               <% }) %>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="section-head compact">
-          <h2>Demandes d'attractions</h2>
-        </div>
-
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Attraction</th>
-                <th>Parc</th>
-                <th>Pays</th>
-                <th>Pers./train</th>
-                <th>Demandeur</th>
-                <th>Statut</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if (attractionRequests.length === 0) { %>
-                <tr>
-                  <td colspan="7">Aucune demande pour le moment.</td>
-                </tr>
-              <% } else { %>
-                <% attractionRequests.forEach((requestEntry) => { %>
-                  <tr>
-                    <td><%= requestEntry.attraction_name %></td>
-                    <td><%= requestEntry.park_name %></td>
-                    <td><%= requestEntry.country_name %></td>
-                    <td><%= requestEntry.people_per_train %></td>
-                    <td><%= requestEntry.requested_by_username || "Visiteur" %></td>
-                    <td><%= requestEntry.status %></td>
-                    <td>
-                      <% if (requestEntry.status === "pending") { %>
-                        <div class="table-actions">
-                          <form action="/admin/attraction-requests/<%= requestEntry.id %>/accept" method="post">
-                            <button type="submit" class="history-delete-button">Accepter</button>
-                          </form>
-                          <form action="/admin/attraction-requests/<%= requestEntry.id %>/reject" method="post">
-                            <button type="submit" class="history-delete-button">Refuser</button>
-                          </form>
-                        </div>
-                      <% } else { %>
-                        <span>Traitee</span>
-                      <% } %>
-                    </td>
-                  </tr>
-                <% }) %>
-              <% } %>
             </tbody>
           </table>
         </div>
@@ -97,17 +54,15 @@
 
       <aside class="dashboard-card">
         <div class="section-head">
-          <h2>Compte admin</h2>
+          <h2>Roles</h2>
         </div>
 
         <p class="empty-state">
-          Le compte admin par defaut est <strong>admin</strong> avec le mot de passe
-          <strong>admin</strong>.
+          Le role helper sert uniquement a traiter les demandes d'ajout.
         </p>
 
         <p class="empty-state">
-          Il garde le meme espace personnel que les autres comptes et ajoute seulement l'acces a
-          cette page.
+          Les admins gardent la gestion des comptes et peuvent nommer les helpers.
         </p>
       </aside>
     </div>

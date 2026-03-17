@@ -6,6 +6,7 @@ const db = require("../db");
 const {
   requireAuth,
   requireAdmin,
+  requireHelperOrAdmin,
   requireBoundIp,
   redirectIfAuthenticated
 } = require("../middleware/auth");
@@ -73,6 +74,15 @@ function getAnonymousDailyCount(ipAddress, currentDate) {
     .get(ipAddress, currentDate);
 
   return row ? row.total : 0;
+}
+
+function buildSessionUser(user) {
+  return {
+    id: user.id,
+    username: user.username,
+    isAdmin: Boolean(user.is_admin),
+    isHelper: Boolean(user.is_helper)
+  };
 }
 
 router.get("/", (req, res) => {
@@ -245,6 +255,7 @@ router.post("/login", authLimiter, redirectIfAuthenticated, (req, res) => {
     .prepare(
       `
         SELECT id, username, password_hash, is_admin, locked_ip
+             , is_helper
         FROM users
         WHERE LOWER(username) = LOWER(?)
         LIMIT 1
@@ -272,11 +283,7 @@ router.post("/login", authLimiter, redirectIfAuthenticated, (req, res) => {
     );
   }
 
-  req.session.user = {
-    id: user.id,
-    username: user.username,
-    isAdmin: Boolean(user.is_admin)
-  };
+  req.session.user = buildSessionUser(user);
 
   setFlash(req, "success", `Bienvenue ${user.username}.`);
   res.redirect("/dashboard");
@@ -407,7 +414,8 @@ router.post("/register", registerLimiter, redirectIfAuthenticated, (req, res) =>
   req.session.user = {
     id: Number(result.lastInsertRowid),
     username: usernameValidation.value,
-    isAdmin: false
+    isAdmin: false,
+    isHelper: false
   };
 
   setFlash(req, "success", "Compte cree. Vous pouvez desormais faire autant de calculs que necessaire.");
@@ -446,6 +454,7 @@ router.get("/admin/accounts", requireAuth, requireBoundIp, requireAdmin, (req, r
           id,
           username,
           is_admin,
+          is_helper,
           created_at,
           (
             SELECT COUNT(*)
@@ -457,26 +466,10 @@ router.get("/admin/accounts", requireAuth, requireBoundIp, requireAdmin, (req, r
       `
     )
     .all();
-  const attractionRequests = db
-    .prepare(
-      `
-        SELECT *
-        FROM attraction_requests
-        ORDER BY
-          CASE status
-            WHEN 'pending' THEN 0
-            WHEN 'accepted' THEN 1
-            ELSE 2
-          END,
-          id DESC
-      `
-    )
-    .all();
 
   res.render("admin-accounts", {
     pageTitle: "Comptes",
-    users,
-    attractionRequests
+    users
   });
 });
 
@@ -525,7 +518,63 @@ router.post("/admin/users/:id/toggle-admin", requireAuth, requireBoundIp, requir
   res.redirect("/admin/accounts");
 });
 
-router.post("/admin/attraction-requests/:id/accept", requireAuth, requireBoundIp, requireAdmin, (req, res) => {
+router.post("/admin/users/:id/toggle-helper", requireAuth, requireBoundIp, requireAdmin, (req, res) => {
+  const userId = Number(req.params.id);
+  const targetUser = db
+    .prepare("SELECT id, is_helper FROM users WHERE id = ? LIMIT 1")
+    .get(userId);
+
+  if (!targetUser) {
+    setFlash(req, "error", "Compte introuvable.");
+    return res.redirect("/admin/accounts");
+  }
+
+  const nextHelperState = targetUser.is_helper ? 0 : 1;
+
+  db.prepare(
+    `
+      UPDATE users
+      SET is_helper = ?, updated_at = ?
+      WHERE id = ?
+    `
+  ).run(nextHelperState, new Date().toISOString(), userId);
+
+  if (req.session.user.id === userId) {
+    req.session.user.isHelper = Boolean(nextHelperState);
+  }
+
+  setFlash(
+    req,
+    "success",
+    nextHelperState ? "Compte passe helper." : "Statut helper retire."
+  );
+  res.redirect("/admin/accounts");
+});
+
+router.get("/requests/review", requireAuth, requireBoundIp, requireHelperOrAdmin, (req, res) => {
+  const attractionRequests = db
+    .prepare(
+      `
+        SELECT *
+        FROM attraction_requests
+        ORDER BY
+          CASE status
+            WHEN 'pending' THEN 0
+            WHEN 'accepted' THEN 1
+            ELSE 2
+          END,
+          id DESC
+      `
+    )
+    .all();
+
+  res.render("requests-review", {
+    pageTitle: "Demandes",
+    attractionRequests
+  });
+});
+
+router.post("/requests/:id/accept", requireAuth, requireBoundIp, requireHelperOrAdmin, (req, res) => {
   const requestId = Number(req.params.id);
   const requestEntry = db
     .prepare("SELECT * FROM attraction_requests WHERE id = ? LIMIT 1")
@@ -533,12 +582,12 @@ router.post("/admin/attraction-requests/:id/accept", requireAuth, requireBoundIp
 
   if (!requestEntry) {
     setFlash(req, "error", "Demande introuvable.");
-    return res.redirect("/admin/accounts");
+    return res.redirect("/requests/review");
   }
 
   if (requestEntry.status !== "pending") {
     setFlash(req, "error", "Cette demande a deja ete traitee.");
-    return res.redirect("/admin/accounts");
+    return res.redirect("/requests/review");
   }
 
   appendAttractionToCatalog({
@@ -557,10 +606,10 @@ router.post("/admin/attraction-requests/:id/accept", requireAuth, requireBoundIp
   ).run(new Date().toISOString(), req.session.user.id, requestId);
 
   setFlash(req, "success", "Demande acceptee et ajoutee au fichier Excel.");
-  res.redirect("/admin/accounts");
+  res.redirect("/requests/review");
 });
 
-router.post("/admin/attraction-requests/:id/reject", requireAuth, requireBoundIp, requireAdmin, (req, res) => {
+router.post("/requests/:id/reject", requireAuth, requireBoundIp, requireHelperOrAdmin, (req, res) => {
   const requestId = Number(req.params.id);
   const requestEntry = db
     .prepare("SELECT id, status FROM attraction_requests WHERE id = ? LIMIT 1")
@@ -568,12 +617,12 @@ router.post("/admin/attraction-requests/:id/reject", requireAuth, requireBoundIp
 
   if (!requestEntry) {
     setFlash(req, "error", "Demande introuvable.");
-    return res.redirect("/admin/accounts");
+    return res.redirect("/requests/review");
   }
 
   if (requestEntry.status !== "pending") {
     setFlash(req, "error", "Cette demande a deja ete traitee.");
-    return res.redirect("/admin/accounts");
+    return res.redirect("/requests/review");
   }
 
   db.prepare(
@@ -585,7 +634,7 @@ router.post("/admin/attraction-requests/:id/reject", requireAuth, requireBoundIp
   ).run(new Date().toISOString(), req.session.user.id, requestId);
 
   setFlash(req, "success", "Demande refusee.");
-  res.redirect("/admin/accounts");
+  res.redirect("/requests/review");
 });
 
 router.post("/calculations/:id/delete", requireAuth, requireBoundIp, (req, res) => {
