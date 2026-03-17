@@ -159,8 +159,7 @@ input {
 .section-head h1,
 .section-head h2,
 .section-head h3,
-.result-metric strong,
-.result-mini-stats strong {
+.result-metric strong {
   font-family: "Sora", sans-serif;
 }
 
@@ -266,10 +265,6 @@ input {
   color: white !important;
 }
 
-.inline-form {
-  margin: 0;
-}
-
 .hero-section {
   position: relative;
   padding: 3.5rem 0 2rem;
@@ -363,7 +358,6 @@ input {
 .section-head p,
 .form-note,
 .empty-state,
-.ban-item p,
 .status-shell p {
   color: var(--muted);
   line-height: 1.65;
@@ -630,9 +624,7 @@ input {
 }
 
 :root[data-theme="dark"] .field input,
-:root[data-theme="dark"] .search-bar input,
-:root[data-theme="dark"] .rename-form input,
-:root[data-theme="dark"] .inline-admin-form input {
+:root[data-theme="dark"] input {
   background: rgba(24, 16, 12, 0.92);
   color: var(--text);
   border-color: rgba(255, 191, 133, 0.16);
@@ -691,16 +683,6 @@ input {
   opacity: 0.45;
   transform: none;
   box-shadow: none;
-}
-
-.danger-button {
-  color: white;
-  background: var(--danger);
-}
-
-:root[data-theme="dark"] .danger-button {
-  color: white;
-  background: #c94d31;
 }
 
 .result-card {
@@ -788,33 +770,6 @@ input {
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.result-mini-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.result-mini-stats article {
-  padding: 0.9rem 0.8rem;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.result-mini-stats span {
-  display: block;
-  margin-bottom: 0.3rem;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.72);
-}
-
-.result-mini-stats strong {
-  font-size: 0.98rem;
-}
-
 .dashboard-page,
 .auth-page,
 .status-page {
@@ -829,113 +784,83 @@ input {
   min-width: 0;
 }
 
-.dashboard-card-wide {
-  min-width: 0;
-}
-
 .account-actions {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.85rem;
   justify-items: start;
   margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(143, 63, 23, 0.1);
+  padding: 1.2rem;
+  border: 1px solid rgba(143, 63, 23, 0.12);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(143, 63, 23, 0.04), rgba(143, 63, 23, 0.02));
 }
 
-.account-action-button {
-  min-width: 220px;
-}
-
-:root[data-theme="dark"] .account-actions {
-  border-top-color: rgba(255, 191, 133, 0.12);
-}
-
-.admin-topbar {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.search-bar {
+.account-actions-head {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.8rem;
-  margin-bottom: 1.2rem;
-  min-width: 0;
+  gap: 0.2rem;
 }
 
-.search-bar input,
-.rename-form input,
-.inline-admin-form input {
-  width: 100%;
-  min-width: 0;
-  padding: 0.95rem 1rem;
-  border-radius: 16px;
-  border: 1px solid rgba(143, 63, 23, 0.14);
-  background: rgba(255, 255, 255, 0.94);
-  color: var(--text);
-  outline: none;
-}
-
-.search-bar input:focus,
-.rename-form input:focus,
-.inline-admin-form input:focus {
-  border-color: rgba(215, 100, 26, 0.48);
-  box-shadow: 0 0 0 5px rgba(215, 100, 26, 0.13);
-}
-
-.admin-users-wrap {
-  margin-bottom: 1.5rem;
-}
-
-.admin-users-table {
-  min-width: 1120px;
-}
-
-.user-cell {
-  display: grid;
-  gap: 0.25rem;
-  min-width: 0;
-}
-
-.user-cell span {
-  color: var(--muted);
-  font-size: 0.92rem;
-  overflow-wrap: anywhere;
-}
-
-.role-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.45rem 0.8rem;
-  border-radius: 999px;
-  background: rgba(143, 63, 23, 0.08);
-  color: var(--orange-deep);
-  font-weight: 700;
-}
-
-.role-pill-admin {
-  background: rgba(215, 100, 26, 0.14);
+.account-actions-label {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
   color: var(--orange);
 }
 
-.rename-form,
-.action-stack {
-  display: grid;
-  gap: 0.6rem;
+.account-actions-head strong {
+  font-family: "Sora", sans-serif;
+  color: var(--text);
 }
 
-.inline-admin-form {
-  display: grid;
-  gap: 0.5rem;
+.account-action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 220px;
+  min-height: 52px;
+  padding: 0.9rem 1.15rem;
+  border-radius: 18px;
+  font-weight: 800;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.action-stack form,
-.rename-form,
-.inline-admin-form {
-  min-width: 0;
+.account-action-button:hover {
+  transform: translateY(-2px);
+}
+
+.account-action-logout {
+  color: #8d2e21;
+  background: rgba(184, 70, 43, 0.08);
+  border-color: rgba(184, 70, 43, 0.18);
+}
+
+.account-action-delete {
+  color: white;
+  background: linear-gradient(135deg, #8d2e21, #b8462b);
+  box-shadow: 0 14px 28px rgba(184, 70, 43, 0.2);
+}
+
+:root[data-theme="dark"] .account-actions {
+  border-color: rgba(255, 191, 133, 0.14);
+  background: linear-gradient(180deg, rgba(255, 159, 67, 0.08), rgba(255, 159, 67, 0.03));
+}
+
+:root[data-theme="dark"] .account-actions-head strong {
+  color: #fff0e0;
+}
+
+:root[data-theme="dark"] .account-action-logout {
+  color: #ffd8d0;
+  background: rgba(201, 77, 49, 0.14);
+  border-color: rgba(255, 180, 165, 0.2);
+}
+
+:root[data-theme="dark"] .account-action-delete {
+  background: linear-gradient(135deg, #9f3927, #c94d31);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.24);
 }
 
 .form-page {
@@ -1035,40 +960,6 @@ input {
   background: rgba(255, 159, 67, 0.08);
 }
 
-.ban-list {
-  display: grid;
-  gap: 0.9rem;
-}
-
-.ban-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: var(--radius-md);
-  background: rgba(143, 63, 23, 0.05);
-}
-
-:root[data-theme="dark"] .ban-item {
-  background: rgba(255, 159, 67, 0.08);
-}
-
-.ban-item-active {
-  border: 1px solid rgba(184, 70, 43, 0.18);
-  background: rgba(184, 70, 43, 0.08);
-}
-
-.ban-item strong {
-  display: block;
-  margin-bottom: 0.2rem;
-}
-
-.ban-meta {
-  display: grid;
-  justify-items: end;
-  gap: 0.6rem;
-}
-
 .button-link {
   text-decoration: none;
 }
@@ -1138,14 +1029,6 @@ code {
     order: 2;
   }
 
-  .admin-topbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .search-bar {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 720px) {
@@ -1184,31 +1067,17 @@ code {
     font-size: 2.3rem;
   }
 
-  .field-split,
-  .result-mini-stats {
+  .field-split {
     grid-template-columns: 1fr;
   }
 
-  .result-details div,
-  .ban-item {
+  .result-details div {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .ban-meta {
-    width: 100%;
-    justify-items: stretch;
-  }
-
-  .ban-meta form,
-  .ban-meta button,
-  .action-stack form,
-  .action-stack button,
-  .rename-form button,
-  .inline-admin-form button,
   .hero-actions a,
-  .hero-actions button,
-  .search-bar button {
+  .hero-actions button {
     width: 100%;
   }
 
