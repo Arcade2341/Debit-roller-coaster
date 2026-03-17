@@ -290,6 +290,7 @@ router.post("/register", registerLimiter, redirectIfAuthenticated, (req, res) =>
   const usernameValidation = validateUsername(req.body.username);
   const passwordValidation = validatePassword(req.body.password);
   const confirmPassword = String(req.body.confirmPassword || "");
+  const currentIp = getClientIp(req);
 
   if (!usernameValidation.valid) {
     setFlash(req, "error", usernameValidation.message);
@@ -315,9 +316,17 @@ router.post("/register", registerLimiter, redirectIfAuthenticated, (req, res) =>
     return res.redirect("/register");
   }
 
+  const existingIpUser = db
+    .prepare("SELECT id FROM users WHERE locked_ip = ? LIMIT 1")
+    .get(currentIp);
+
+  if (existingIpUser) {
+    setFlash(req, "error", "Un compte existe deja pour cette adresse IP.");
+    return res.redirect("/login");
+  }
+
   const now = new Date().toISOString();
   const passwordHash = bcrypt.hashSync(passwordValidation.value, 12);
-  const currentIp = getClientIp(req);
   const result = db
     .prepare(
       `
