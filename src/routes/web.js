@@ -272,6 +272,24 @@ router.get("/dashboard", requireAuth, (req, res) => {
   });
 });
 
+router.post("/calculations/:id/delete", requireAuth, (req, res) => {
+  const calculationId = Number(req.params.id);
+
+  const calculation = db
+    .prepare("SELECT id FROM calculations WHERE id = ? AND user_id = ? LIMIT 1")
+    .get(calculationId, req.session.user.id);
+
+  if (!calculation) {
+    setFlash(req, "error", "Calcul introuvable.");
+    return res.redirect("/dashboard");
+  }
+
+  db.prepare("DELETE FROM calculations WHERE id = ?").run(calculationId);
+
+  setFlash(req, "success", "Calcul supprime.");
+  res.redirect("/dashboard");
+});
+
 router.post("/account/password", requireAuth, (req, res) => {
   const currentPassword = String(req.body.currentPassword || "");
   const newPasswordValidation = validatePassword(req.body.newPassword);

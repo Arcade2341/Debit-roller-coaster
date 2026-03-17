@@ -24,6 +24,7 @@
                   <th>Debit/heure</th>
                   <th>Date</th>
                   <th>Heure</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -35,6 +36,11 @@
                     <td><%= entry.throughput_per_hour %></td>
                     <td><%= entry.recorded_date %></td>
                     <td><%= entry.recorded_time %></td>
+                    <td>
+                      <form action="/calculations/<%= entry.id %>/delete" method="post">
+                        <button type="submit" class="history-delete-button">Supprimer</button>
+                      </form>
+                    </td>
                   </tr>
                 <% }) %>
               </tbody>

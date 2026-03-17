@@ -843,6 +843,27 @@ input {
   box-shadow: 0 14px 28px rgba(184, 70, 43, 0.2);
 }
 
+.history-delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(184, 70, 43, 0.16);
+  border-radius: 12px;
+  background: rgba(184, 70, 43, 0.08);
+  color: #8d2e21;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.history-delete-button:hover {
+  transform: translateY(-1px);
+  background: rgba(184, 70, 43, 0.12);
+  border-color: rgba(184, 70, 43, 0.24);
+}
+
 :root[data-theme="dark"] .account-actions {
   border-color: rgba(255, 191, 133, 0.14);
   background: linear-gradient(180deg, rgba(255, 159, 67, 0.08), rgba(255, 159, 67, 0.03));
@@ -861,6 +882,17 @@ input {
 :root[data-theme="dark"] .account-action-delete {
   background: linear-gradient(135deg, #9f3927, #c94d31);
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.24);
+}
+
+:root[data-theme="dark"] .history-delete-button {
+  color: #ffd8d0;
+  background: rgba(201, 77, 49, 0.12);
+  border-color: rgba(255, 180, 165, 0.18);
+}
+
+:root[data-theme="dark"] .history-delete-button:hover {
+  background: rgba(201, 77, 49, 0.18);
+  border-color: rgba(255, 180, 165, 0.24);
 }
 
 .form-page {
