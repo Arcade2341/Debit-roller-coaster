@@ -52,8 +52,34 @@
 
           <div class="panel-grid">
             <form action="/calculate" method="post" class="calculator-card" data-calculator-form>
+              <input type="hidden" name="calculationMode" value="manual" data-mode-input />
+              <input type="hidden" name="catalogAttractionId" value="" data-catalog-id-input />
+
               <div class="section-head">
                 <h2>Saisie du calcul</h2>
+              </div>
+
+              <div class="mode-switch" data-mode-switch>
+                <button type="button" class="mode-button is-active" data-mode-button data-mode-value="manual">
+                  Manuel
+                </button>
+                <button
+                  type="button"
+                  class="mode-button"
+                  data-mode-button
+                  data-mode-value="auto"
+                  <%= !catalogInfo.available ? "disabled" : "" %>
+                >
+                  Auto
+                </button>
+              </div>
+
+              <div class="catalog-state">
+                <% if (catalogInfo.available) { %>
+                  <span><%= catalogInfo.total %> attractions chargees depuis le fichier Excel.</span>
+                <% } else { %>
+                  <span>Ajoutez `data/attractions.xlsx` pour activer le mode auto.</span>
+                <% } %>
               </div>
 
               <div class="formula-banner">
@@ -62,7 +88,7 @@
               </div>
 
               <label class="field">
-                <span>Nom de l'attraction</span>
+                <span data-attraction-label>Nom de l'attraction</span>
                 <input
                   type="text"
                   name="attractionName"
@@ -70,8 +96,13 @@
                   minlength="3"
                   required
                   placeholder="Ex. Dragon Rush"
+                  autocomplete="off"
                   data-attraction-input
                 />
+                <small class="field-help" data-attraction-help>
+                  Saisissez librement le nom de l'attraction.
+                </small>
+                <div class="search-results" data-search-results hidden></div>
               </label>
 
               <div class="field-split">
@@ -86,6 +117,9 @@
                     placeholder="Ex. 24"
                     data-people-input
                   />
+                  <small class="field-help" data-people-help>
+                    Entrez manuellement la capacite d'un train.
+                  </small>
                 </label>
 
                 <label class="field">

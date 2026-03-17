@@ -4,6 +4,11 @@ const rateLimit = require("express-rate-limit");
 
 const db = require("../db");
 const { requireAuth, redirectIfAuthenticated } = require("../middleware/auth");
+const {
+  findAttractionById,
+  getCatalogInfo,
+  searchAttractions
+} = require("../services/attractionsCatalog");
 const { getClientIp, setFlash, createTimestampParts } = require("../utils/security");
 const {
   validateAttractionName,
@@ -67,19 +72,63 @@ router.get("/", (req, res) => {
   const ipAddress = getClientIp(req);
   const today = createTimestampParts(appTimeZone).date;
   const anonymousDailyCount = req.session.user ? 0 : getAnonymousDailyCount(ipAddress, today);
+  const catalogInfo = getCatalogInfo();
 
   res.render("index", {
     pageTitle: "Calculateur de debit roller coaster",
-    anonymousDailyCount
+    anonymousDailyCount,
+    catalogInfo
+  });
+});
+
+router.get("/api/attractions/search", (req, res) => {
+  const catalogInfo = getCatalogInfo();
+
+  if (!catalogInfo.available) {
+    return res.json({ results: [] });
+  }
+
+  return res.json({
+    results: searchAttractions(req.query.q || "")
   });
 });
 
 router.post("/calculate", calculationLimiter, (req, res) => {
-  const attractionValidation = validateAttractionName(req.body.attractionName);
-  const peopleValidation = validateInteger(req.body.peoplePerTrain, "Le nombre de personnes par train", {
-    min: 1,
-    max: 100
-  });
+  const calculationMode = req.body.calculationMode === "auto" ? "auto" : "manual";
+  let attractionName = "";
+  let peoplePerTrain = 0;
+
+  if (calculationMode === "auto") {
+    const selectedAttraction = findAttractionById(req.body.catalogAttractionId);
+
+    if (!selectedAttraction) {
+      setFlash(req, "error", "Selectionnez une attraction valide en mode auto.");
+      return res.redirect("/");
+    }
+
+    attractionName = selectedAttraction.displayName;
+    peoplePerTrain = selectedAttraction.peoplePerTrain;
+  } else {
+    const attractionValidation = validateAttractionName(req.body.attractionName);
+    const peopleValidation = validateInteger(req.body.peoplePerTrain, "Le nombre de personnes par train", {
+      min: 1,
+      max: 100
+    });
+
+    if (!attractionValidation.valid) {
+      setFlash(req, "error", attractionValidation.message);
+      return res.redirect("/");
+    }
+
+    if (!peopleValidation.valid) {
+      setFlash(req, "error", peopleValidation.message);
+      return res.redirect("/");
+    }
+
+    attractionName = attractionValidation.value;
+    peoplePerTrain = peopleValidation.value;
+  }
+
   const trainsValidation = validateInteger(
     req.body.trainsInTwoMinutes,
     "Le nombre de trains en 2 minutes",
@@ -89,11 +138,8 @@ router.post("/calculate", calculationLimiter, (req, res) => {
     }
   );
 
-  const validations = [attractionValidation, peopleValidation, trainsValidation];
-  const invalid = validations.find((result) => !result.valid);
-
-  if (invalid) {
-    setFlash(req, "error", invalid.message);
+  if (!trainsValidation.valid) {
+    setFlash(req, "error", trainsValidation.message);
     return res.redirect("/");
   }
 
@@ -113,7 +159,7 @@ router.post("/calculate", calculationLimiter, (req, res) => {
     }
   }
 
-  const throughput = peopleValidation.value * 30 * trainsValidation.value;
+  const throughput = peoplePerTrain * 30 * trainsValidation.value;
 
   db.prepare(
     `
@@ -131,8 +177,8 @@ router.post("/calculate", calculationLimiter, (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `
   ).run(
-    attractionValidation.value,
-    peopleValidation.value,
+    attractionName,
+    peoplePerTrain,
     trainsValidation.value,
     throughput,
     timestamp.date,
@@ -143,9 +189,9 @@ router.post("/calculate", calculationLimiter, (req, res) => {
   );
 
   req.session.lastCalculation = {
-    attractionName: attractionValidation.value,
+    attractionName,
     throughput,
-    peoplePerTrain: peopleValidation.value,
+    peoplePerTrain,
     trainsInTwoMinutes: trainsValidation.value
   };
 
