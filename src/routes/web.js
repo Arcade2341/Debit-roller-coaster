@@ -288,13 +288,13 @@ router.get("/register", redirectIfAuthenticated, (req, res) => {
   });
 });
 
-router.get("/attraction-requests/new", (req, res) => {
+router.get("/attraction-requests/new", requireAuth, requireBoundIp, (req, res) => {
   res.render("attraction-request", {
     pageTitle: "Demander une attraction"
   });
 });
 
-router.post("/attraction-requests", (req, res) => {
+router.post("/attraction-requests", requireAuth, requireBoundIp, (req, res) => {
   const attractionValidation = validateAttractionName(req.body.attractionName);
   const parkName = cleanText(req.body.parkName);
   const countryName = cleanText(req.body.countryName);
