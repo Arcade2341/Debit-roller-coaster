@@ -61,6 +61,7 @@ function loadCatalog() {
     "name"
   ]);
   const peopleKey = findColumnKey(headers, [
+    "nombre de personnes par train",
     "people per train",
     "people_per_train",
     "personnes par train",
@@ -69,6 +70,8 @@ function loadCatalog() {
     "capacity",
     "places"
   ]);
+  const parkKey = findColumnKey(headers, ["parc", "park"]);
+  const countryKey = findColumnKey(headers, ["pays", "country"]);
 
   if (!attractionKey || !peopleKey) {
     cachedCatalog = [];
@@ -77,16 +80,27 @@ function loadCatalog() {
   }
 
   cachedCatalog = rows
-    .map((row) => {
+    .map((row, index) => {
       const attractionName = String(row[attractionKey] || "").trim();
       const peoplePerTrain = Number(row[peopleKey]);
+      const parkName = parkKey ? String(row[parkKey] || "").trim() : "";
+      const countryName = countryKey ? String(row[countryKey] || "").trim() : "";
 
       if (!attractionName || !Number.isInteger(peoplePerTrain) || peoplePerTrain <= 0) {
         return null;
       }
 
+      const locationParts = [parkName, countryName].filter(Boolean);
+      const displayName = locationParts.length > 0
+        ? `${attractionName} - ${locationParts.join(" / ")}`
+        : attractionName;
+
       return {
+        id: String(index + 1),
         attractionName,
+        parkName,
+        countryName,
+        displayName,
         normalizedName: normalizeText(attractionName),
         peoplePerTrain
       };
@@ -109,21 +123,23 @@ function searchAttractions(query, limit = 8) {
     .filter((entry) => entry.normalizedName.includes(normalizedQuery))
     .slice(0, limit)
     .map((entry) => ({
+      id: entry.id,
+      displayName: entry.displayName,
       attractionName: entry.attractionName,
+      parkName: entry.parkName,
+      countryName: entry.countryName,
       peoplePerTrain: entry.peoplePerTrain
     }));
 }
 
-function findAttractionByName(name) {
-  const normalizedName = normalizeText(name);
+function findAttractionById(id) {
+  const stringId = String(id || "").trim();
 
-  if (!normalizedName) {
+  if (!stringId) {
     return null;
   }
 
-  return (
-    loadCatalog().find((entry) => entry.normalizedName === normalizedName) || null
-  );
+  return loadCatalog().find((entry) => entry.id === stringId) || null;
 }
 
 function getCatalogInfo() {
@@ -137,7 +153,7 @@ function getCatalogInfo() {
 }
 
 module.exports = {
-  findAttractionByName,
+  findAttractionById,
   getCatalogInfo,
   searchAttractions
 };
