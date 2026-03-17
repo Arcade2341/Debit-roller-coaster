@@ -5,26 +5,50 @@
   <section class="hero-section">
     <div class="container hero-grid">
       <div class="hero-copy">
-        <h1>Calculateur de debit</h1>
+        <div class="hero-copy-shell">
+          <div class="section-head hero-head">
+            <h1>Calculateur de debit</h1>
+            <p>Entrez les valeurs, validez, et l'enregistrement se fait dans l'historique.</p>
+          </div>
 
-        <% if (!user) { %>
-          <div class="limit-pill">
-            <strong>Visiteur :</strong> <span><%= anonymousDailyCount %>/2 calculs aujourd'hui</span>
+          <% if (!user) { %>
+            <div class="limit-pill">
+              <strong>Visiteur</strong>
+              <span><%= anonymousDailyCount %>/2 calculs aujourd'hui</span>
+            </div>
+          <% } else { %>
+            <div class="limit-pill">
+              <strong>Compte</strong>
+              <span>calculs illimites</span>
+            </div>
+          <% } %>
+
+          <div class="quick-card">
+            <span class="quick-card-label">Formule</span>
+            <strong>personnes x 30 x trains en 2 min</strong>
           </div>
-        <% } else if (!user.isAdmin) { %>
-          <div class="limit-pill">
-            <strong>Compte :</strong> <span>calculs illimites</span>
+
+          <div class="hero-actions hero-actions-stack">
+            <% if (!user) { %>
+              <a href="/register" class="primary-button button-link">Creer un compte</a>
+              <a href="/login" class="ghost-button button-link">Connexion</a>
+            <% } else { %>
+              <a href="/dashboard" class="primary-button button-link">Mon historique</a>
+              <a href="/" class="ghost-button button-link">Nouveau calcul</a>
+            <% } %>
           </div>
-        <% } else { %>
-          <div class="limit-pill">
-            <strong>Compte :</strong> <span>gestion</span>
-          </div>
-        <% } %>
+        </div>
       </div>
 
       <div class="hero-stage">
         <div class="hero-card">
           <%- include("partials/flash") %>
+
+          <div class="hero-card-topline">
+            <span>Calcul</span>
+            <span>Resultat</span>
+            <span>Enregistrement</span>
+          </div>
 
           <div class="panel-grid">
             <form action="/calculate" method="post" class="calculator-card" data-calculator-form>
@@ -35,19 +59,6 @@
               <div class="formula-banner">
                 <span>Formule</span>
                 <strong>personnes x 30 x trains en 2 min</strong>
-              </div>
-
-              <div class="hero-actions">
-                <% if (!user) { %>
-                  <a href="/register" class="primary-button button-link">Creer un compte</a>
-                  <a href="/login" class="ghost-button button-link">Connexion</a>
-                <% } else if (user.isAdmin) { %>
-                  <a href="/admin" class="primary-button button-link">Gestion</a>
-                  <a href="/" class="ghost-button button-link">Nouveau calcul</a>
-                <% } else { %>
-                  <a href="/dashboard" class="primary-button button-link">Mon historique</a>
-                  <a href="/" class="ghost-button button-link">Nouveau calcul</a>
-                <% } %>
               </div>
 
               <label class="field">

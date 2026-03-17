@@ -5,7 +5,6 @@ const session = require("express-session");
 const helmet = require("helmet");
 const FileStoreFactory = require("session-file-store");
 
-const { banCheckMiddleware } = require("./middleware/ipBan");
 const { attachLocals } = require("./middleware/locals");
 const { router } = require("./routes/web");
 require("./db");
@@ -64,7 +63,6 @@ app.use(
 
 app.use(express.static(path.join(__dirname, "..", "public")));
 app.use(attachLocals);
-app.use(banCheckMiddleware);
 app.use(router);
 
 app.use((req, res) => {

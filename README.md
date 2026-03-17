@@ -1,6 +1,6 @@
 # Roller Flow
 
-Application web complete pour calculer le debit d'un roller coaster, enregistrer les calculs et administrer les donnees.
+Application web complete pour calculer le debit d'un roller coaster, enregistrer les calculs et suivre un historique personnel.
 
 ## Fonctionnalites
 
@@ -11,11 +11,6 @@ Application web complete pour calculer le debit d'un roller coaster, enregistrer
 - Creation de compte utilisateur avec connexion
 - Historique personnel pour chaque utilisateur connecte
 - Changement de mot de passe depuis l'espace utilisateur
-- Tableau d'administration prive
-- Suppression des enregistrements abusifs
-- Bannissement et levee de ban des adresses IP
-- Export Excel `.xlsx` du tableau admin avec date et heure
-- Compte admin cree automatiquement : `Admin` / `admin`
 
 ## Stack
 
@@ -24,7 +19,6 @@ Application web complete pour calculer le debit d'un roller coaster, enregistrer
 - EJS
 - SQLite via `better-sqlite3`
 - Sessions serveur
-- Export Excel via `xlsx`
 
 ## Installation locale
 
@@ -104,13 +98,10 @@ Application web complete pour calculer le debit d'un roller coaster, enregistrer
 
 ## Securite
 
-- Le compte admin `Admin / admin` est cree automatiquement a la premiere execution car vous l'avez demande
-- Changez ce mot de passe immediatement apres le premier lancement en production
-- Le tableau complet n'est accessible qu'a l'administrateur
-- Les visiteurs non connectes sont limites et controles par IP
+- Les visiteurs non connectes sont limites a 2 calculs par jour
+- Les utilisateurs connectes ont leur propre espace et leur propre historique
 
 ## Donnees
 
 - La base SQLite est creee automatiquement dans `data/app.db`
 - Les sessions sont stockees dans `data/sessions/`
-- Le fichier Excel est genere a la demande depuis `/admin/export.xlsx`

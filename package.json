@@ -1,7 +1,7 @@
 {
   "name": "debit-roller-coaster",
   "version": "1.0.0",
-  "description": "Application de calcul de debit de roller coaster avec comptes utilisateurs et panneau admin.",
+  "description": "Application de calcul de debit de roller coaster avec comptes utilisateurs et historique personnel.",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
@@ -12,7 +12,7 @@
     "roller-coaster",
     "express",
     "sqlite",
-    "excel"
+    "history"
   ],
   "author": "",
   "license": "MIT",
@@ -25,8 +25,7 @@
     "express-rate-limit": "^7.5.0",
     "express-session": "^1.18.1",
     "helmet": "^8.0.0",
-    "session-file-store": "^1.5.0",
-    "xlsx": "^0.18.5"
+    "session-file-store": "^1.5.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
