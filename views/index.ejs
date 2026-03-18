@@ -75,13 +75,11 @@
                 </button>
               </div>
 
-              <div class="catalog-state">
-                <% if (!catalogInfo.available) { %>
+              <% if (!catalogInfo.available) { %>
+                <div class="catalog-state">
                   <span><%= t("home.autoMissingFile") %></span>
-                <% } else { %>
-                  <span><%= t("home.autoAvailable") %></span>
-                <% } %>
-              </div>
+                </div>
+              <% } %>
 
                 <% if (user) { %>
                  <a href="/attraction-requests/new" class="request-link" data-auto-only hidden><%= t("home.requestMissingRide") %></a>
