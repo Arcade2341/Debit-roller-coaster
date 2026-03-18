@@ -75,8 +75,9 @@ if (form) {
 
   function renderSuggestions(results) {
     searchResults.innerHTML = "";
+    const limitedResults = results.slice(0, 3);
 
-    if (results.length === 0) {
+    if (limitedResults.length === 0) {
       if (searchPanel) {
         searchPanel.hidden = false;
       }
@@ -94,10 +95,10 @@ if (form) {
       searchPanel.hidden = false;
     }
     if (searchMeta) {
-      searchMeta.textContent = `${results.length} resultat${results.length > 1 ? "s" : ""}`;
+      searchMeta.textContent = `${limitedResults.length} proposition${limitedResults.length > 1 ? "s" : ""}`;
     }
 
-    results.forEach((result) => {
+    limitedResults.forEach((result) => {
       const optionButton = document.createElement("button");
       optionButton.type = "button";
       optionButton.className = "search-result-option";
