@@ -366,6 +366,210 @@ router.get("/a-propos", (req, res) => {
   });
 });
 
+router.get("/cgu", (req, res) => {
+  renderSeoPage(res, {
+    path: "/cgu",
+    pageTitle: "Conditions Generales d'Utilisation",
+    seoTitle: "CGU | Roller Flow",
+    seoDescription: "Consultez les Conditions Generales d'Utilisation du site Roller Flow.",
+    eyebrow: "Legal",
+    title: "Conditions Generales d'Utilisation",
+    intro: "Les conditions encadrant l'acces et l'utilisation de Roller Flow.",
+    sections: [
+      {
+        title: "Introduction",
+        paragraphs: [
+          "Les presentes Conditions Generales d'Utilisation ont pour objet de definir les modalites et conditions dans lesquelles les utilisateurs peuvent acceder et utiliser le site Roller Flow.",
+          "L'utilisation du site implique l'acceptation pleine et entiere des presentes conditions par tout utilisateur.",
+          "Le site Roller Flow est accessible a l'adresse suivante : https://roller-flow.xyz"
+        ]
+      },
+      {
+        title: "Article 1 - Description du service",
+        paragraphs: [
+          "Roller Flow est un outil en ligne permettant d'estimer le debit horaire d'une attraction, notamment des roller coasters, a partir de donnees saisies par l'utilisateur.",
+          "Le service permet notamment de calculer une estimation de debit horaire, comparer differentes configurations d'exploitation, enregistrer des calculs dans un historique utilisateur et acceder a differentes fonctionnalites selon le mode utilise.",
+          "Les resultats fournis par l'outil sont donnes a titre indicatif et reposent exclusivement sur les donnees renseignees par l'utilisateur."
+        ]
+      },
+      {
+        title: "Article 2 - Acces au site",
+        paragraphs: [
+          "Le site est accessible gratuitement a toute personne disposant d'un acces a Internet.",
+          "Certaines fonctionnalites peuvent necessiter la creation d'un compte utilisateur.",
+          "L'editeur du site s'efforce d'assurer une accessibilite permanente au service, mais ne peut garantir l'absence d'interruptions, notamment pour des raisons techniques, de maintenance ou de mise a jour."
+        ]
+      },
+      {
+        title: "Article 3 - Compte utilisateur",
+        paragraphs: [
+          "Certaines fonctionnalites du site necessitent la creation d'un compte.",
+          "Lors de l'inscription, l'utilisateur s'engage a fournir des informations exactes et a jour.",
+          "L'utilisateur est responsable de la confidentialite de ses identifiants de connexion et de toute activite realisee depuis son compte.",
+          "En cas d'utilisation frauduleuse du compte, l'utilisateur s'engage a en informer l'editeur du site dans les plus brefs delais."
+        ]
+      },
+      {
+        title: "Article 4 - Utilisation du service",
+        paragraphs: [
+          "L'utilisateur s'engage a utiliser le site dans le respect des lois en vigueur et des presentes conditions.",
+          "Il est notamment interdit d'utiliser le service a des fins illegales, de perturber le fonctionnement du site, de tenter d'acceder de maniere non autorisee aux systemes informatiques du service, et d'exploiter les donnees ou le fonctionnement du site a des fins abusives."
+        ]
+      },
+      {
+        title: "Article 5 - Fiabilite des resultats",
+        paragraphs: [
+          "Le calculateur propose par Roller Flow fournit des estimations basees sur les informations saisies par l'utilisateur.",
+          "Ces resultats ne constituent pas des donnees officielles et peuvent varier en fonction de nombreux facteurs, notamment les conditions d'exploitation reelles, le taux de remplissage des trains, les temps de chargement, ainsi que les interruptions ou ralentissements d'exploitation.",
+          "L'utilisateur reconnait que les resultats sont fournis a titre informatif."
+        ]
+      },
+      {
+        title: "Article 6 - Responsabilite",
+        paragraphs: [
+          "L'editeur du site ne pourra etre tenu responsable d'erreurs resultant des donnees saisies par l'utilisateur, d'une mauvaise interpretation des resultats, d'interruptions temporaires du service, ou de dommages indirects lies a l'utilisation du site.",
+          "L'utilisateur reste seul responsable de l'utilisation qu'il fait des informations fournies par le site."
+        ]
+      },
+      {
+        title: "Article 7 - Propriete intellectuelle",
+        paragraphs: [
+          "L'ensemble du contenu present sur le site Roller Flow, incluant notamment les textes, le design, le code, les elements graphiques et la structure du site, est protege par les lois relatives a la propriete intellectuelle.",
+          "Toute reproduction, modification ou diffusion du contenu sans autorisation prealable est interdite."
+        ]
+      },
+      {
+        title: "Article 8 - Modification des conditions",
+        paragraphs: [
+          "Les presentes Conditions Generales d'Utilisation peuvent etre modifiees a tout moment.",
+          "La version applicable est celle publiee sur le site au moment de l'utilisation."
+        ]
+      },
+      {
+        title: "Article 9 - Droit applicable",
+        paragraphs: [
+          "Les presentes conditions sont regies par le droit francais.",
+          "En cas de litige, une solution amiable sera privilegiee avant toute procedure judiciaire."
+        ]
+      }
+    ]
+  });
+});
+
+router.get("/mentions-legales", (req, res) => {
+  renderSeoPage(res, {
+    path: "/mentions-legales",
+    pageTitle: "Mentions legales",
+    seoTitle: "Mentions legales | Roller Flow",
+    seoDescription: "Consultez les mentions legales du site Roller Flow.",
+    eyebrow: "Legal",
+    title: "Mentions legales",
+    intro: "Les informations legales relatives au site Roller Flow.",
+    sections: [
+      {
+        title: "Editeur du site",
+        paragraphs: [
+          "Le site Roller Flow est edite par :",
+          "Editeur : Hugo bienne",
+          "Site web : https://roller-flow.xyz",
+          "Le responsable de la publication est l'administrateur du site."
+        ]
+      },
+      {
+        title: "Hebergement",
+        paragraphs: [
+          "Le site est heberge par un prestataire d'hebergement web.",
+          "Les infrastructures d'hebergement assurent la disponibilite, la securite et le stockage des donnees du site."
+        ]
+      },
+      {
+        title: "Acces au site",
+        paragraphs: [
+          "Le site est accessible a tout moment, sauf en cas de maintenance technique ou de probleme independant de la volonte de l'editeur.",
+          "L'editeur ne pourra etre tenu responsable d'une indisponibilite temporaire du service."
+        ]
+      },
+      {
+        title: "Propriete intellectuelle",
+        paragraphs: [
+          "L'ensemble du contenu present sur le site Roller Flow, incluant notamment les textes, les elements graphiques, la structure du site et le code source, est protege par les lois relatives a la propriete intellectuelle.",
+          "Toute reproduction ou utilisation sans autorisation prealable est interdite."
+        ]
+      },
+      {
+        title: "Responsabilite",
+        paragraphs: [
+          "Les informations presentes sur le site sont fournies a titre informatif.",
+          "Malgre le soin apporte a la redaction et a la mise a jour du contenu, l'editeur ne peut garantir l'exactitude ou l'exhaustivite des informations.",
+          "L'utilisation des informations presentes sur le site se fait sous la responsabilite de l'utilisateur."
+        ]
+      }
+    ]
+  });
+});
+
+router.get("/politique-confidentialite", (req, res) => {
+  renderSeoPage(res, {
+    path: "/politique-confidentialite",
+    pageTitle: "Politique de confidentialite",
+    seoTitle: "Politique de confidentialite | Roller Flow",
+    seoDescription: "Consultez la politique de confidentialite du site Roller Flow.",
+    eyebrow: "Legal",
+    title: "Politique de confidentialite",
+    intro: "Les informations essentielles sur la collecte et l'utilisation des donnees personnelles sur Roller Flow.",
+    sections: [
+      {
+        title: "Introduction",
+        paragraphs: [
+          "La presente politique de confidentialite explique comment les donnees personnelles des utilisateurs du site Roller Flow peuvent etre collectees et utilisees.",
+          "Le respect de la vie privee des utilisateurs constitue une priorite."
+        ]
+      },
+      {
+        title: "Donnees collectees",
+        paragraphs: [
+          "Lors de l'utilisation du site, certaines informations peuvent etre collectees, notamment : informations liees a la creation d'un compte, donnees necessaires au fonctionnement du service, informations techniques liees a la navigation.",
+          "Ces donnees sont collectees uniquement dans le cadre du fonctionnement du service."
+        ]
+      },
+      {
+        title: "Utilisation des donnees",
+        paragraphs: [
+          "Les donnees collectees peuvent etre utilisees pour permettre l'acces aux fonctionnalites du site, gerer les comptes utilisateurs, enregistrer l'historique des calculs, ameliorer l'experience utilisateur et assurer la securite du service.",
+          "Les donnees ne sont pas vendues ni cedees a des tiers."
+        ]
+      },
+      {
+        title: "Conservation des donnees",
+        paragraphs: [
+          "Les donnees sont conservees pendant la duree necessaire au fonctionnement du service et a la gestion des comptes utilisateurs.",
+          "Les utilisateurs peuvent demander la suppression de leurs donnees personnelles."
+        ]
+      },
+      {
+        title: "Securite",
+        paragraphs: [
+          "Des mesures techniques et organisationnelles sont mises en oeuvre afin de proteger les donnees personnelles contre tout acces non autorise, perte ou modification."
+        ]
+      },
+      {
+        title: "Droits des utilisateurs",
+        paragraphs: [
+          "Conformement a la reglementation en vigueur, les utilisateurs disposent de plusieurs droits concernant leurs donnees personnelles : droit d'acces, droit de rectification, droit de suppression et droit de limitation du traitement.",
+          "Toute demande concernant les donnees personnelles peut etre adressee a l'administrateur du site."
+        ]
+      },
+      {
+        title: "Modification de la politique",
+        paragraphs: [
+          "La presente politique de confidentialite peut etre modifiee a tout moment afin de refleter l'evolution du service ou de la reglementation.",
+          "La version en vigueur est celle publiee sur le site."
+        ]
+      }
+    ]
+  });
+});
+
 router.get("/robots.txt", (req, res) => {
   res.type("text/plain").send(`User-agent: *
 Allow: /
@@ -637,6 +841,9 @@ router.post("/register", registerLimiter, redirectIfAuthenticated, (req, res) =>
   const usernameValidation = validateUsername(req.body.username);
   const passwordValidation = validatePassword(req.body.password);
   const confirmPassword = String(req.body.confirmPassword || "");
+  const acceptsCgu = req.body.acceptCgu === "on";
+  const acceptsLegal = req.body.acceptLegal === "on";
+  const acceptsPrivacy = req.body.acceptPrivacy === "on";
 
   if (!usernameValidation.valid) {
     setFlash(req, "error", usernameValidation.message);
@@ -650,6 +857,11 @@ router.post("/register", registerLimiter, redirectIfAuthenticated, (req, res) =>
 
   if (passwordValidation.value !== confirmPassword) {
     setFlash(req, "error", "La confirmation du mot de passe ne correspond pas.");
+    return res.redirect("/register");
+  }
+
+  if (!acceptsCgu || !acceptsLegal || !acceptsPrivacy) {
+    setFlash(req, "error", "Vous devez accepter les CGU, les mentions legales et la politique de confidentialite.");
     return res.redirect("/register");
   }
 
