@@ -43,8 +43,8 @@
                     <td><%= requestEntry.park_name %></td>
                     <td><%= requestEntry.country_name %></td>
                     <td><%= requestEntry.people_per_train %></td>
-                    <td><%= requestEntry.requested_by_username || t("admin.user") %></td>
-                    <td><%= requestEntry.status %></td>
+                    <td><%= requestEntry.requested_by_username || t("requests.anonymous") %></td>
+                    <td><%= t(`requests.status${requestEntry.status.charAt(0).toUpperCase()}${requestEntry.status.slice(1)}`) %></td>
                     <td>
                       <% if (requestEntry.status === "pending") { %>
                         <div class="table-actions">

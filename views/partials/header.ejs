@@ -8,7 +8,7 @@
       </span>
     </a>
 
-    <nav class="nav-links" aria-label="Navigation principale">
+    <nav class="nav-links" aria-label="<%= currentLang === 'en' ? 'Main navigation' : 'Navigation principale' %>">
       <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>"><%= t("nav.calculate") %></a>
       <% if (user) { %>
         <a href="/notifications" class="<%= currentPath === '/notifications' ? 'is-active' : '' %>">

@@ -615,7 +615,7 @@ router.post("/calculate", calculationLimiter, (req, res) => {
     const selectedAttraction = findAttractionById(req.body.catalogAttractionId);
 
     if (!selectedAttraction) {
-      setFlash(req, "error", "Selectionnez une attraction valide en mode auto.");
+      setFlash(req, "error", t(req, "flash.selectValidAutoRide"));
       return res.redirect("/");
     }
 
@@ -644,7 +644,7 @@ router.post("/calculate", calculationLimiter, (req, res) => {
 
   const trainsValidation = validateInteger(
     req.body.trainsInTwoMinutes,
-    "Le nombre de trains observe",
+    t(req, "flash.trainsObservedLabel"),
     {
       min: 1,
       max: 120
@@ -698,7 +698,7 @@ router.post("/calculate", calculationLimiter, (req, res) => {
     trainWindowMinutes
   };
 
-  setFlash(req, "success", "Calcul enregistre avec succes.");
+  setFlash(req, "success", t(req, "flash.calculationSaved"));
   res.redirect("/");
 });
 
@@ -713,7 +713,7 @@ router.post("/login", authLimiter, redirectIfAuthenticated, (req, res) => {
   const password = String(req.body.password || "");
 
   if (!usernameValidation.valid || password.length === 0) {
-    setFlash(req, "error", "Identifiants invalides.");
+    setFlash(req, "error", t(req, "flash.invalidCredentials"));
     return res.redirect("/login");
   }
 
@@ -729,13 +729,13 @@ router.post("/login", authLimiter, redirectIfAuthenticated, (req, res) => {
     .get(usernameValidation.value);
 
   if (!user || !bcrypt.compareSync(password, user.password_hash)) {
-    setFlash(req, "error", "Identifiants invalides.");
+    setFlash(req, "error", t(req, "flash.invalidCredentials"));
     return res.redirect("/login");
   }
 
   req.session.user = buildSessionUser(user);
 
-  setFlash(req, "success", `Bienvenue ${user.username}.`);
+  setFlash(req, "success", t(req, "flash.welcomeUser", { username: user.username }));
   res.redirect("/dashboard");
 });
 
@@ -767,12 +767,12 @@ router.post("/attraction-requests", requireAuth, (req, res) => {
   }
 
   if (parkName.length < 2 || parkName.length > 80) {
-    setFlash(req, "error", "Le nom du parc doit contenir entre 2 et 80 caracteres.");
+    setFlash(req, "error", t(req, "flash.parkNameLength"));
     return res.redirect("/attraction-requests/new");
   }
 
   if (countryName.length < 2 || countryName.length > 60) {
-    setFlash(req, "error", "Le pays doit contenir entre 2 et 60 caracteres.");
+    setFlash(req, "error", t(req, "flash.countryNameLength"));
     return res.redirect("/attraction-requests/new");
   }
 
@@ -807,7 +807,7 @@ router.post("/attraction-requests", requireAuth, (req, res) => {
     new Date().toISOString()
   );
 
-  setFlash(req, "success", "Votre demande a bien ete envoyee.");
+  setFlash(req, "success", t(req, "flash.requestSent"));
   res.redirect("/");
 });
 
@@ -830,12 +830,12 @@ router.post("/register", registerLimiter, redirectIfAuthenticated, (req, res) =>
   }
 
   if (passwordValidation.value !== confirmPassword) {
-    setFlash(req, "error", "La confirmation du mot de passe ne correspond pas.");
+    setFlash(req, "error", t(req, "flash.passwordConfirmationMismatch"));
     return res.redirect("/register");
   }
 
   if (!acceptsCgu || !acceptsLegal || !acceptsPrivacy) {
-    setFlash(req, "error", "Vous devez accepter les CGU, les mentions legales et la politique de confidentialite.");
+    setFlash(req, "error", t(req, "flash.legalConsentRequired"));
     return res.redirect("/register");
   }
 
@@ -844,7 +844,7 @@ router.post("/register", registerLimiter, redirectIfAuthenticated, (req, res) =>
     .get(usernameValidation.value);
 
   if (existingUser) {
-    setFlash(req, "error", "Ce nom d'utilisateur est deja utilise.");
+    setFlash(req, "error", t(req, "flash.usernameTaken"));
     return res.redirect("/register");
   }
 
@@ -866,7 +866,7 @@ router.post("/register", registerLimiter, redirectIfAuthenticated, (req, res) =>
     isHelper: false
   };
 
-  setFlash(req, "success", "Compte cree. Vous pouvez desormais faire autant de calculs que necessaire.");
+  setFlash(req, "success", t(req, "flash.accountCreated"));
   res.redirect("/dashboard");
 });
 
@@ -941,17 +941,17 @@ router.post("/admin/notifications", requireAuth, requireAdmin, (req, res) => {
   const targetRole = allowedTargets.has(req.body.targetRole) ? req.body.targetRole : "";
 
   if (title.length < 3 || title.length > 80) {
-    setFlash(req, "error", "Le titre doit contenir entre 3 et 80 caracteres.");
+    setFlash(req, "error", t(req, "flash.titleLength"));
     return res.redirect("/admin/accounts");
   }
 
   if (message.length < 5 || message.length > 500) {
-    setFlash(req, "error", "Le message doit contenir entre 5 et 500 caracteres.");
+    setFlash(req, "error", t(req, "flash.messageLength"));
     return res.redirect("/admin/accounts");
   }
 
   if (!targetRole) {
-    setFlash(req, "error", "Choisissez une cible valide.");
+    setFlash(req, "error", t(req, "flash.chooseValidTarget"));
     return res.redirect("/admin/accounts");
   }
 
@@ -962,7 +962,7 @@ router.post("/admin/notifications", requireAuth, requireAdmin, (req, res) => {
     `
   ).run(title, message, targetRole, new Date().toISOString(), req.session.user.id);
 
-  setFlash(req, "success", "Notification envoyee.");
+  setFlash(req, "success", t(req, "flash.notificationSent"));
   res.redirect("/admin/accounts");
 });
 
@@ -973,14 +973,14 @@ router.post("/admin/users/:id/toggle-admin", requireAuth, requireAdmin, (req, re
     .get(userId);
 
   if (!targetUser) {
-    setFlash(req, "error", "Compte introuvable.");
+    setFlash(req, "error", t(req, "flash.accountNotFound"));
     return res.redirect("/admin/accounts");
   }
 
   const nextAdminState = targetUser.is_admin ? 0 : 1;
 
   if (req.session.user.id === userId && nextAdminState === 0) {
-    setFlash(req, "error", "Vous ne pouvez pas retirer votre propre statut admin.");
+    setFlash(req, "error", t(req, "flash.cannotRemoveOwnAdmin"));
     return res.redirect("/admin/accounts");
   }
 
@@ -990,7 +990,7 @@ router.post("/admin/users/:id/toggle-admin", requireAuth, requireAdmin, (req, re
       .get().total;
 
     if (adminCount <= 1) {
-      setFlash(req, "error", "Il doit toujours rester au moins un admin.");
+      setFlash(req, "error", t(req, "flash.lastAdminRequired"));
       return res.redirect("/admin/accounts");
     }
   }
@@ -1006,7 +1006,7 @@ router.post("/admin/users/:id/toggle-admin", requireAuth, requireAdmin, (req, re
   setFlash(
     req,
     "success",
-    nextAdminState ? "Compte passe admin." : "Statut admin retire."
+    nextAdminState ? t(req, "flash.accountPromotedAdmin") : t(req, "flash.accountDemotedAdmin")
   );
   res.redirect("/admin/accounts");
 });
@@ -1018,7 +1018,7 @@ router.post("/admin/users/:id/toggle-helper", requireAuth, requireAdmin, (req, r
     .get(userId);
 
   if (!targetUser) {
-    setFlash(req, "error", "Compte introuvable.");
+    setFlash(req, "error", t(req, "flash.accountNotFound"));
     return res.redirect("/admin/accounts");
   }
 
@@ -1039,7 +1039,7 @@ router.post("/admin/users/:id/toggle-helper", requireAuth, requireAdmin, (req, r
   setFlash(
     req,
     "success",
-    nextHelperState ? "Compte passe helper." : "Statut helper retire."
+    nextHelperState ? t(req, "flash.accountPromotedHelper") : t(req, "flash.accountDemotedHelper")
   );
   res.redirect("/admin/accounts");
 });
@@ -1074,12 +1074,12 @@ router.post("/requests/:id/accept", requireAuth, requireHelperOrAdmin, (req, res
     .get(requestId);
 
   if (!requestEntry) {
-    setFlash(req, "error", "Demande introuvable.");
+    setFlash(req, "error", t(req, "flash.requestNotFound"));
     return res.redirect("/requests/review");
   }
 
   if (requestEntry.status !== "pending") {
-    setFlash(req, "error", "Cette demande a deja ete traitee.");
+    setFlash(req, "error", t(req, "flash.requestAlreadyProcessed"));
     return res.redirect("/requests/review");
   }
 
@@ -1098,7 +1098,7 @@ router.post("/requests/:id/accept", requireAuth, requireHelperOrAdmin, (req, res
     `
   ).run(new Date().toISOString(), req.session.user.id, requestId);
 
-  setFlash(req, "success", "Demande acceptee et ajoutee au fichier Excel.");
+  setFlash(req, "success", t(req, "flash.requestAccepted"));
   res.redirect("/requests/review");
 });
 
@@ -1109,12 +1109,12 @@ router.post("/requests/:id/reject", requireAuth, requireHelperOrAdmin, (req, res
     .get(requestId);
 
   if (!requestEntry) {
-    setFlash(req, "error", "Demande introuvable.");
+    setFlash(req, "error", t(req, "flash.requestNotFound"));
     return res.redirect("/requests/review");
   }
 
   if (requestEntry.status !== "pending") {
-    setFlash(req, "error", "Cette demande a deja ete traitee.");
+    setFlash(req, "error", t(req, "flash.requestAlreadyProcessed"));
     return res.redirect("/requests/review");
   }
 
@@ -1126,7 +1126,7 @@ router.post("/requests/:id/reject", requireAuth, requireHelperOrAdmin, (req, res
     `
   ).run(new Date().toISOString(), req.session.user.id, requestId);
 
-  setFlash(req, "success", "Demande refusee.");
+  setFlash(req, "success", t(req, "flash.requestRejected"));
   res.redirect("/requests/review");
 });
 
@@ -1149,7 +1149,7 @@ router.post("/notifications/read-all", requireAuth, (req, res) => {
 
   markAllAsRead();
 
-  setFlash(req, "success", "Notifications marquees comme lues.");
+  setFlash(req, "success", t(req, "flash.notificationsRead"));
   res.redirect("/notifications");
 });
 
@@ -1159,7 +1159,7 @@ router.post("/notifications/:id/read", requireAuth, (req, res) => {
   const notification = notifications.find((entry) => entry.id === notificationId);
 
   if (!notification) {
-    setFlash(req, "error", "Notification introuvable.");
+    setFlash(req, "error", t(req, "flash.notificationNotFound"));
     return res.redirect("/notifications");
   }
 
@@ -1181,13 +1181,13 @@ router.post("/calculations/:id/delete", requireAuth, (req, res) => {
     .get(calculationId, req.session.user.id);
 
   if (!calculation) {
-    setFlash(req, "error", "Calcul introuvable.");
+    setFlash(req, "error", t(req, "flash.calculationNotFound"));
     return res.redirect("/dashboard");
   }
 
   db.prepare("DELETE FROM calculations WHERE id = ?").run(calculationId);
 
-  setFlash(req, "success", "Calcul supprime.");
+  setFlash(req, "success", t(req, "flash.calculationDeleted"));
   res.redirect("/dashboard");
 });
 
@@ -1202,7 +1202,7 @@ router.post("/account/password", requireAuth, (req, res) => {
   }
 
   if (newPasswordValidation.value !== confirmPassword) {
-    setFlash(req, "error", "La confirmation du nouveau mot de passe ne correspond pas.");
+    setFlash(req, "error", t(req, "flash.newPasswordConfirmationMismatch"));
     return res.redirect("/dashboard");
   }
 
@@ -1211,7 +1211,7 @@ router.post("/account/password", requireAuth, (req, res) => {
     .get(req.session.user.id);
 
   if (!user || !bcrypt.compareSync(currentPassword, user.password_hash)) {
-    setFlash(req, "error", "Mot de passe actuel incorrect.");
+    setFlash(req, "error", t(req, "flash.currentPasswordIncorrect"));
     return res.redirect("/dashboard");
   }
 
@@ -1223,7 +1223,7 @@ router.post("/account/password", requireAuth, (req, res) => {
     `
   ).run(bcrypt.hashSync(newPasswordValidation.value, 12), new Date().toISOString(), req.session.user.id);
 
-  setFlash(req, "success", "Mot de passe mis a jour.");
+  setFlash(req, "success", t(req, "flash.passwordUpdated"));
   res.redirect("/dashboard");
 });
 
@@ -1240,7 +1240,7 @@ router.post("/account/username", requireAuth, (req, res) => {
     .get(usernameValidation.value, req.session.user.id);
 
   if (existingUser) {
-    setFlash(req, "error", "Ce nom d'utilisateur est deja utilise.");
+    setFlash(req, "error", t(req, "flash.usernameTaken"));
     return res.redirect("/dashboard");
   }
 
@@ -1254,7 +1254,7 @@ router.post("/account/username", requireAuth, (req, res) => {
 
   req.session.user.username = usernameValidation.value;
 
-  setFlash(req, "success", "Pseudo mis a jour.");
+  setFlash(req, "success", t(req, "flash.usernameUpdated"));
   res.redirect("/dashboard");
 });
 
@@ -1267,7 +1267,7 @@ router.post("/account/delete", requireAuth, (req, res) => {
       .get().total;
 
     if (adminCount <= 1) {
-      setFlash(req, "error", "Impossible de supprimer le dernier admin.");
+      setFlash(req, "error", t(req, "flash.cannotDeleteLastAdmin"));
       return res.redirect("/dashboard");
     }
   }

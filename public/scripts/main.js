@@ -54,6 +54,7 @@ if (form) {
     searchSuggestionSingular: form.dataset.textSearchSuggestionSingular || "suggestion",
     searchSuggestionPlural: form.dataset.textSearchSuggestionPlural || "suggestions",
     waitingRide: form.dataset.textWaitingRide || "Waiting for a ride",
+    peopleTrainShort: form.dataset.textPeopleTrainShort || "people/train",
     trainsTwoMinutes: form.dataset.textTrainsTwoMinutes || "Trains in 2 minutes",
     trainsFiveMinutes: form.dataset.textTrainsFiveMinutes || "Trains in 5 minutes"
   };
@@ -132,7 +133,7 @@ if (form) {
       optionButton.innerHTML = `
         <strong>${result.attractionName}</strong>
         <span>${result.displayName}</span>
-        <small>${result.peoplePerTrain} pers./train</small>
+        <small>${result.peoplePerTrain} ${texts.peopleTrainShort}</small>
       `;
       optionButton.addEventListener("click", () => {
         attractionInput.value = result.displayName;
@@ -302,8 +303,7 @@ if (form) {
     });
   });
 
-  if (resultValue.textContent.trim() === "-- pers/heure") {
-    resultAttraction.textContent = "Attraction en attente";
+  if (resultValue.textContent.trim().startsWith("--")) {
     resultAttraction.textContent = texts.waitingRide;
     resultPeople.textContent = "--";
     resultTrains.textContent = "--";
