@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Roller Flow">
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#8f3f17"/>
+      <stop offset="100%" stop-color="#d7641a"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="url(#bg)"/>
+  <path d="M16 42V21h11.5c7.3 0 11.4 3.7 11.4 10.2 0 6.7-4.2 10.8-11.6 10.8H16Zm8.2-6.1h3c2.8 0 4.8-1.6 4.8-4.6 0-2.9-1.9-4.3-4.7-4.3h-3.1v8.9Z" fill="#fff7ef"/>
+  <path d="M40 42V21h8.1v6.9H56V34h-7.9v8H40Z" fill="#ffd9b0"/>
+</svg>

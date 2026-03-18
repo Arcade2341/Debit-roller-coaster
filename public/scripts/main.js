@@ -46,7 +46,9 @@ if (form) {
   const peopleHelp = form.querySelector("[data-people-help]");
   const trainsInput = form.querySelector("[data-trains-input]");
   const submitButton = form.querySelector("[data-submit-button]");
+  const searchPanel = form.querySelector("[data-search-panel]");
   const searchResults = form.querySelector("[data-search-results]");
+  const searchMeta = form.querySelector("[data-search-meta]");
 
   const resultAttraction = document.querySelector("[data-result-attraction]");
   const resultValue = document.querySelector("[data-result-value]");
@@ -66,22 +68,44 @@ if (form) {
 
   function clearSuggestions() {
     searchResults.innerHTML = "";
-    searchResults.hidden = true;
+    if (searchPanel) {
+      searchPanel.hidden = true;
+    }
   }
 
   function renderSuggestions(results) {
     searchResults.innerHTML = "";
 
     if (results.length === 0) {
-      clearSuggestions();
+      if (searchPanel) {
+        searchPanel.hidden = false;
+      }
+      if (searchMeta) {
+        searchMeta.textContent = "Aucun resultat";
+      }
+      const emptyState = document.createElement("div");
+      emptyState.className = "search-empty";
+      emptyState.textContent = "Aucune attraction correspondante.";
+      searchResults.appendChild(emptyState);
       return;
+    }
+
+    if (searchPanel) {
+      searchPanel.hidden = false;
+    }
+    if (searchMeta) {
+      searchMeta.textContent = `${results.length} resultat${results.length > 1 ? "s" : ""}`;
     }
 
     results.forEach((result) => {
       const optionButton = document.createElement("button");
       optionButton.type = "button";
       optionButton.className = "search-result-option";
-      optionButton.innerHTML = `<strong>${result.attractionName}</strong><span>${result.displayName}</span>`;
+      optionButton.innerHTML = `
+        <strong>${result.attractionName}</strong>
+        <span>${result.displayName}</span>
+        <small>${result.peoplePerTrain} pers./train</small>
+      `;
       optionButton.addEventListener("click", () => {
         attractionInput.value = result.displayName;
         catalogIdInput.value = result.id;
@@ -92,7 +116,6 @@ if (form) {
       searchResults.appendChild(optionButton);
     });
 
-    searchResults.hidden = false;
   }
 
   function syncModeUi() {
@@ -166,6 +189,13 @@ if (form) {
     }
 
     const requestId = ++searchRequestId;
+    if (searchPanel) {
+      searchPanel.hidden = false;
+    }
+    if (searchMeta) {
+      searchMeta.textContent = "Recherche...";
+    }
+    searchResults.innerHTML = '<div class="search-empty">Chargement...</div>';
     const response = await fetch(`/api/attractions/search?q=${encodeURIComponent(query)}`);
     const payload = await response.json();
 
