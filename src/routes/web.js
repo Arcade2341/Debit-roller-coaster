@@ -7,7 +7,6 @@ const {
   requireAuth,
   requireAdmin,
   requireHelperOrAdmin,
-  requireBoundIp,
   redirectIfAuthenticated
 } = require("../middleware/auth");
 const {
@@ -354,18 +353,7 @@ router.post("/calculate", calculationLimiter, (req, res) => {
   const ipAddress = getClientIp(req);
   const timestamp = createTimestampParts(appTimeZone);
 
-  if (req.session.user) {
-    const boundUser = db
-      .prepare("SELECT locked_ip FROM users WHERE id = ? LIMIT 1")
-      .get(req.session.user.id);
-
-    if (boundUser && boundUser.locked_ip && boundUser.locked_ip !== ipAddress) {
-      req.session.destroy(() => {
-        res.redirect("/login");
-      });
-      return;
-    }
-  } else {
+  if (!req.session.user) {
     const anonymousDailyCount = getAnonymousDailyCount(ipAddress, timestamp.date);
 
     if (anonymousDailyCount >= 2) {
@@ -436,8 +424,7 @@ router.post("/login", authLimiter, redirectIfAuthenticated, (req, res) => {
   const user = db
     .prepare(
       `
-        SELECT id, username, password_hash, is_admin, locked_ip
-             , is_helper
+        SELECT id, username, password_hash, is_admin, is_helper
         FROM users
         WHERE LOWER(username) = LOWER(?)
         LIMIT 1
@@ -448,21 +435,6 @@ router.post("/login", authLimiter, redirectIfAuthenticated, (req, res) => {
   if (!user || !bcrypt.compareSync(password, user.password_hash)) {
     setFlash(req, "error", "Identifiants invalides.");
     return res.redirect("/login");
-  }
-
-  const currentIp = getClientIp(req);
-
-  if (user.locked_ip && user.locked_ip !== currentIp) {
-    setFlash(req, "error", "Ce compte est deja associe a une autre adresse IP.");
-    return res.redirect("/login");
-  }
-
-  if (!user.locked_ip) {
-    db.prepare("UPDATE users SET locked_ip = ?, updated_at = ? WHERE id = ?").run(
-      currentIp,
-      new Date().toISOString(),
-      user.id
-    );
   }
 
   req.session.user = buildSessionUser(user);
@@ -477,13 +449,13 @@ router.get("/register", redirectIfAuthenticated, (req, res) => {
   });
 });
 
-router.get("/attraction-requests/new", requireAuth, requireBoundIp, (req, res) => {
+router.get("/attraction-requests/new", requireAuth, (req, res) => {
   res.render("attraction-request", {
     pageTitle: "Demander une attraction"
   });
 });
 
-router.post("/attraction-requests", requireAuth, requireBoundIp, (req, res) => {
+router.post("/attraction-requests", requireAuth, (req, res) => {
   const attractionValidation = validateAttractionName(req.body.attractionName);
   const parkName = cleanText(req.body.parkName);
   const countryName = cleanText(req.body.countryName);
@@ -547,7 +519,6 @@ router.post("/register", registerLimiter, redirectIfAuthenticated, (req, res) =>
   const usernameValidation = validateUsername(req.body.username);
   const passwordValidation = validatePassword(req.body.password);
   const confirmPassword = String(req.body.confirmPassword || "");
-  const currentIp = getClientIp(req);
 
   if (!usernameValidation.valid) {
     setFlash(req, "error", usernameValidation.message);
@@ -573,15 +544,6 @@ router.post("/register", registerLimiter, redirectIfAuthenticated, (req, res) =>
     return res.redirect("/register");
   }
 
-  const existingIpUser = db
-    .prepare("SELECT id FROM users WHERE locked_ip = ? LIMIT 1")
-    .get(currentIp);
-
-  if (existingIpUser) {
-    setFlash(req, "error", "Un compte existe deja pour cette adresse IP.");
-    return res.redirect("/login");
-  }
-
   const now = new Date().toISOString();
   const passwordHash = bcrypt.hashSync(passwordValidation.value, 12);
   const result = db
@@ -591,7 +553,7 @@ router.post("/register", registerLimiter, redirectIfAuthenticated, (req, res) =>
         VALUES (?, ?, ?, 0, ?, ?)
       `
     )
-    .run(usernameValidation.value, passwordHash, currentIp, now, now);
+    .run(usernameValidation.value, passwordHash, null, now, now);
 
   req.session.user = {
     id: Number(result.lastInsertRowid),
@@ -610,7 +572,7 @@ router.post("/logout", requireAuth, (req, res) => {
   });
 });
 
-router.get("/dashboard", requireAuth, requireBoundIp, (req, res) => {
+router.get("/dashboard", requireAuth, (req, res) => {
   const calculations = db
     .prepare(
       `
@@ -631,7 +593,7 @@ router.get("/dashboard", requireAuth, requireBoundIp, (req, res) => {
   });
 });
 
-router.get("/notifications", requireAuth, requireBoundIp, (req, res) => {
+router.get("/notifications", requireAuth, (req, res) => {
   const notifications = getNotificationsForUser(req.session.user.id, req.session.user);
 
   res.render("notifications", {
@@ -641,7 +603,7 @@ router.get("/notifications", requireAuth, requireBoundIp, (req, res) => {
   });
 });
 
-router.get("/admin/accounts", requireAuth, requireBoundIp, requireAdmin, (req, res) => {
+router.get("/admin/accounts", requireAuth, requireAdmin, (req, res) => {
   const users = db
     .prepare(
       `
@@ -668,7 +630,7 @@ router.get("/admin/accounts", requireAuth, requireBoundIp, requireAdmin, (req, r
   });
 });
 
-router.post("/admin/notifications", requireAuth, requireBoundIp, requireAdmin, (req, res) => {
+router.post("/admin/notifications", requireAuth, requireAdmin, (req, res) => {
   const title = cleanText(req.body.title);
   const message = cleanText(req.body.message);
   const allowedTargets = new Set(["all", "helpers", "admins"]);
@@ -700,7 +662,7 @@ router.post("/admin/notifications", requireAuth, requireBoundIp, requireAdmin, (
   res.redirect("/admin/accounts");
 });
 
-router.post("/admin/users/:id/toggle-admin", requireAuth, requireBoundIp, requireAdmin, (req, res) => {
+router.post("/admin/users/:id/toggle-admin", requireAuth, requireAdmin, (req, res) => {
   const userId = Number(req.params.id);
   const targetUser = db
     .prepare("SELECT id, is_admin, username FROM users WHERE id = ? LIMIT 1")
@@ -745,7 +707,7 @@ router.post("/admin/users/:id/toggle-admin", requireAuth, requireBoundIp, requir
   res.redirect("/admin/accounts");
 });
 
-router.post("/admin/users/:id/toggle-helper", requireAuth, requireBoundIp, requireAdmin, (req, res) => {
+router.post("/admin/users/:id/toggle-helper", requireAuth, requireAdmin, (req, res) => {
   const userId = Number(req.params.id);
   const targetUser = db
     .prepare("SELECT id, is_helper FROM users WHERE id = ? LIMIT 1")
@@ -778,7 +740,7 @@ router.post("/admin/users/:id/toggle-helper", requireAuth, requireBoundIp, requi
   res.redirect("/admin/accounts");
 });
 
-router.get("/requests/review", requireAuth, requireBoundIp, requireHelperOrAdmin, (req, res) => {
+router.get("/requests/review", requireAuth, requireHelperOrAdmin, (req, res) => {
   const attractionRequests = db
     .prepare(
       `
@@ -801,7 +763,7 @@ router.get("/requests/review", requireAuth, requireBoundIp, requireHelperOrAdmin
   });
 });
 
-router.post("/requests/:id/accept", requireAuth, requireBoundIp, requireHelperOrAdmin, (req, res) => {
+router.post("/requests/:id/accept", requireAuth, requireHelperOrAdmin, (req, res) => {
   const requestId = Number(req.params.id);
   const requestEntry = db
     .prepare("SELECT * FROM attraction_requests WHERE id = ? LIMIT 1")
@@ -836,7 +798,7 @@ router.post("/requests/:id/accept", requireAuth, requireBoundIp, requireHelperOr
   res.redirect("/requests/review");
 });
 
-router.post("/requests/:id/reject", requireAuth, requireBoundIp, requireHelperOrAdmin, (req, res) => {
+router.post("/requests/:id/reject", requireAuth, requireHelperOrAdmin, (req, res) => {
   const requestId = Number(req.params.id);
   const requestEntry = db
     .prepare("SELECT id, status FROM attraction_requests WHERE id = ? LIMIT 1")
@@ -864,7 +826,7 @@ router.post("/requests/:id/reject", requireAuth, requireBoundIp, requireHelperOr
   res.redirect("/requests/review");
 });
 
-router.post("/notifications/read-all", requireAuth, requireBoundIp, (req, res) => {
+router.post("/notifications/read-all", requireAuth, (req, res) => {
   const notifications = getNotificationsForUser(req.session.user.id, req.session.user);
   const unreadNotifications = notifications.filter((notification) => !notification.is_read);
   const insertRead = db.prepare(
@@ -887,7 +849,7 @@ router.post("/notifications/read-all", requireAuth, requireBoundIp, (req, res) =
   res.redirect("/notifications");
 });
 
-router.post("/notifications/:id/read", requireAuth, requireBoundIp, (req, res) => {
+router.post("/notifications/:id/read", requireAuth, (req, res) => {
   const notificationId = Number(req.params.id);
   const notifications = getNotificationsForUser(req.session.user.id, req.session.user);
   const notification = notifications.find((entry) => entry.id === notificationId);
@@ -907,7 +869,7 @@ router.post("/notifications/:id/read", requireAuth, requireBoundIp, (req, res) =
   res.redirect("/notifications");
 });
 
-router.post("/calculations/:id/delete", requireAuth, requireBoundIp, (req, res) => {
+router.post("/calculations/:id/delete", requireAuth, (req, res) => {
   const calculationId = Number(req.params.id);
 
   const calculation = db
@@ -925,7 +887,7 @@ router.post("/calculations/:id/delete", requireAuth, requireBoundIp, (req, res) 
   res.redirect("/dashboard");
 });
 
-router.post("/account/password", requireAuth, requireBoundIp, (req, res) => {
+router.post("/account/password", requireAuth, (req, res) => {
   const currentPassword = String(req.body.currentPassword || "");
   const newPasswordValidation = validatePassword(req.body.newPassword);
   const confirmPassword = String(req.body.confirmNewPassword || "");
@@ -961,7 +923,7 @@ router.post("/account/password", requireAuth, requireBoundIp, (req, res) => {
   res.redirect("/dashboard");
 });
 
-router.post("/account/username", requireAuth, requireBoundIp, (req, res) => {
+router.post("/account/username", requireAuth, (req, res) => {
   const usernameValidation = validateUsername(req.body.username);
 
   if (!usernameValidation.valid) {
@@ -992,7 +954,7 @@ router.post("/account/username", requireAuth, requireBoundIp, (req, res) => {
   res.redirect("/dashboard");
 });
 
-router.post("/account/delete", requireAuth, requireBoundIp, (req, res) => {
+router.post("/account/delete", requireAuth, (req, res) => {
   const userId = req.session.user.id;
 
   if (req.session.user.isAdmin) {
