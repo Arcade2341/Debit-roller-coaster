@@ -1,21 +1,28 @@
 <!DOCTYPE html>
 <html lang="fr">
   <head>
+    <% const resolvedSeoDescription = typeof seoDescription !== "undefined"
+      ? seoDescription
+      : "Calculateur de debit roller coaster avec comptes utilisateurs et historique personnel."; %>
+    <% const resolvedMetaRobots = typeof metaRobots !== "undefined" ? metaRobots : "index,follow"; %>
+    <% const resolvedSiteUrl = typeof siteUrl !== "undefined" ? siteUrl : "https://roller-flow.xyz"; %>
+    <% const resolvedCurrentPath = typeof currentPath !== "undefined" ? currentPath : "/"; %>
+    <% const resolvedCanonicalUrl = typeof canonicalUrl !== "undefined"
+      ? canonicalUrl
+      : `${resolvedSiteUrl}${resolvedCurrentPath === "/" ? "" : resolvedCurrentPath}`; %>
+    <% const resolvedSeoTitle = typeof seoTitle !== "undefined" ? seoTitle : pageTitle; %>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="<%= seoDescription || 'Calculateur de debit roller coaster avec comptes utilisateurs et historique personnel.' %>"
-    />
-    <meta name="robots" content="<%= metaRobots || 'index,follow' %>" />
-    <link rel="canonical" href="<%= canonicalUrl || `${siteUrl}${currentPath === '/' ? '' : currentPath}` %>" />
+    <meta name="description" content="<%= resolvedSeoDescription %>" />
+    <meta name="robots" content="<%= resolvedMetaRobots %>" />
+    <link rel="canonical" href="<%= resolvedCanonicalUrl %>" />
     <meta property="og:site_name" content="Roller Flow" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="<%= seoTitle || pageTitle %>" />
-    <meta property="og:description" content="<%= seoDescription || 'Calculateur de debit roller coaster avec comptes utilisateurs et historique personnel.' %>" />
-    <meta property="og:url" content="<%= canonicalUrl || `${siteUrl}${currentPath === '/' ? '' : currentPath}` %>" />
+    <meta property="og:title" content="<%= resolvedSeoTitle %>" />
+    <meta property="og:description" content="<%= resolvedSeoDescription %>" />
+    <meta property="og:url" content="<%= resolvedCanonicalUrl %>" />
     <meta name="color-scheme" content="light dark" />
-    <title><%= seoTitle || pageTitle %></title>
+    <title><%= resolvedSeoTitle %></title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
