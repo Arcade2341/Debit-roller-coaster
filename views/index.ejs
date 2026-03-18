@@ -69,16 +69,14 @@
                   class="mode-button"
                   data-mode-button
                   data-mode-value="auto"
-                  <%= !user || !catalogInfo.available ? "disabled" : "" %>
+                  <%= !catalogInfo.available ? "disabled" : "" %>
                 >
                   <%= t("home.auto") %>
                 </button>
               </div>
 
               <div class="catalog-state">
-                <% if (!user) { %>
-                  <span><%= t("home.autoLoginRequired") %></span>
-                <% } else if (!catalogInfo.available) { %>
+                <% if (!catalogInfo.available) { %>
                   <span><%= t("home.autoMissingFile") %></span>
                 <% } else { %>
                   <span><%= t("home.autoAvailable") %></span>

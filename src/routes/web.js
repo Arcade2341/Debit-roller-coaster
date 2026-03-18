@@ -594,10 +594,6 @@ ${pages
 });
 
 router.get("/api/attractions/search", (req, res) => {
-  if (!req.session.user) {
-    return res.json({ results: [] });
-  }
-
   const catalogInfo = getCatalogInfo();
 
   if (!catalogInfo.available) {
@@ -615,11 +611,6 @@ router.post("/calculate", calculationLimiter, (req, res) => {
   let peoplePerTrain = 0;
 
   if (calculationMode === "auto") {
-    if (!req.session.user) {
-      setFlash(req, "error", "Connectez-vous pour utiliser le mode auto.");
-      return res.redirect("/login");
-    }
-
     const selectedAttraction = findAttractionById(req.body.catalogAttractionId);
 
     if (!selectedAttraction) {
