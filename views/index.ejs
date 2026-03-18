@@ -83,9 +83,9 @@
                 <% } %>
               </div>
 
-              <% if (user) { %>
-                <a href="/attraction-requests/new" class="request-link"><%= t("home.requestMissingRide") %></a>
-              <% } %>
+                <% if (user) { %>
+                 <a href="/attraction-requests/new" class="request-link" data-auto-only hidden><%= t("home.requestMissingRide") %></a>
+                <% } %>
 
               <label class="field">
                 <span data-attraction-label><%= t("home.attractionName") %></span>
@@ -102,7 +102,7 @@
                 <small class="field-help" data-attraction-help>
                   <%= t("home.attractionHelp") %>
                 </small>
-                <div class="search-panel" data-search-panel hidden>
+                  <div class="search-panel" data-search-panel data-auto-only hidden>
                   <div class="search-panel-head">
                     <span><%= t("home.results") %></span>
                     <small data-search-meta><%= t("home.startTyping") %></small>

@@ -68,6 +68,7 @@ if (form) {
   const searchPanel = form.querySelector("[data-search-panel]");
   const searchResults = form.querySelector("[data-search-results]");
   const searchMeta = form.querySelector("[data-search-meta]");
+  const autoOnlyElements = form.querySelectorAll("[data-auto-only]");
 
   const resultAttraction = document.querySelector("[data-result-attraction]");
   const resultValue = document.querySelector("[data-result-value]");
@@ -142,6 +143,7 @@ if (form) {
 
   function syncModeUi() {
     const mode = modeInput.value;
+    const isAutoMode = mode === "auto";
 
     modeButtons.forEach((button) => {
       const isActive = button.dataset.modeValue === mode;
@@ -149,7 +151,11 @@ if (form) {
       button.setAttribute("aria-pressed", isActive ? "true" : "false");
     });
 
-    if (mode === "auto") {
+    autoOnlyElements.forEach((element) => {
+      element.hidden = !isAutoMode;
+    });
+
+    if (isAutoMode) {
       attractionLabel.textContent = "Rechercher une attraction";
       attractionLabel.textContent = texts.attractionSearch;
       attractionHelp.textContent = texts.attractionAutoHelp;
