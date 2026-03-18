@@ -67,20 +67,6 @@ const calculationLimiter = makeRedirectLimiter({
   redirectTo: "/"
 });
 
-function getAnonymousDailyCount(ipAddress, currentDate) {
-  const row = db
-    .prepare(
-      `
-        SELECT COUNT(*) AS total
-        FROM calculations
-        WHERE ip_address = ? AND user_id IS NULL AND recorded_date = ?
-      `
-    )
-    .get(ipAddress, currentDate);
-
-  return row ? row.total : 0;
-}
-
 function buildSessionUser(user) {
   return {
     id: user.id,
@@ -158,14 +144,10 @@ function renderSeoPage(res, options) {
 }
 
 router.get("/", (req, res) => {
-  const ipAddress = getClientIp(req);
-  const today = createTimestampParts(appTimeZone).date;
-  const anonymousDailyCount = req.session.user ? 0 : getAnonymousDailyCount(ipAddress, today);
   const catalogInfo = getCatalogInfo();
 
   res.render("index", {
     pageTitle: t(req, "home.title"),
-    anonymousDailyCount,
     catalogInfo
   });
 });
@@ -302,15 +284,8 @@ router.get("/faq", (req, res) => {
       {
         title: "Faut-il creer un compte ?",
         paragraphs: [
-          "Non, une partie de l'outil peut etre utilisee en visiteur.",
+          "Non, le calculateur peut etre utilise sans compte.",
           "En revanche, creer un compte permet d'acceder a plus de fonctionnalites, comme l'historique et l'enregistrement des calculs."
-        ]
-      },
-      {
-        title: "Pourquoi suis-je limite en mode visiteur ?",
-        paragraphs: [
-          "Le mode visiteur permet de tester rapidement l'outil.",
-          "La creation d'un compte debloque une utilisation plus complete et un meilleur suivi de vos calculs."
         ]
       },
       {
@@ -691,19 +666,6 @@ router.post("/calculate", calculationLimiter, (req, res) => {
 
   const ipAddress = getClientIp(req);
   const timestamp = createTimestampParts(appTimeZone);
-
-  if (!req.session.user) {
-    const anonymousDailyCount = getAnonymousDailyCount(ipAddress, timestamp.date);
-
-    if (anonymousDailyCount >= 2) {
-      setFlash(
-        req,
-        "error",
-        "Les visiteurs sont limites a 2 calculs par jour. Connectez-vous pour continuer."
-      );
-      return res.redirect("/register");
-    }
-  }
 
   const throughput = peoplePerTrain * 30 * trainsValidation.value;
 

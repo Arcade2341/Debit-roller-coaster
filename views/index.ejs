@@ -16,15 +16,6 @@
             <p><%= t("home.intro") %></p>
           </div>
 
-          <div class="hero-summary-grid">
-            <% if (!user) { %>
-              <div class="summary-card">
-                <span class="summary-label"><%= t("home.visitor") %></span>
-                <strong><%= t("home.visitorCount", { count: anonymousDailyCount }) %></strong>
-              </div>
-            <% } %>
-          </div>
-
           <div class="hero-actions hero-actions-stack">
             <% if (!user) { %>
               <a href="/register" class="primary-button button-link"><%= t("home.createAccount") %></a>
