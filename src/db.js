@@ -29,6 +29,7 @@ db.exec(`
     attraction_name TEXT NOT NULL,
     people_per_train INTEGER NOT NULL,
     trains_in_two_minutes INTEGER NOT NULL,
+    train_window_minutes INTEGER NOT NULL DEFAULT 2,
     throughput_per_hour INTEGER NOT NULL,
     recorded_date TEXT NOT NULL,
     recorded_time TEXT NOT NULL,
@@ -92,6 +93,8 @@ db.exec(`
 const userColumns = db.prepare("PRAGMA table_info(users)").all();
 const hasLockedIpColumn = userColumns.some((column) => column.name === "locked_ip");
 const hasHelperColumn = userColumns.some((column) => column.name === "is_helper");
+const calculationColumns = db.prepare("PRAGMA table_info(calculations)").all();
+const hasTrainWindowColumn = calculationColumns.some((column) => column.name === "train_window_minutes");
 
 if (!hasLockedIpColumn) {
   db.exec("ALTER TABLE users ADD COLUMN locked_ip TEXT");
@@ -99,6 +102,10 @@ if (!hasLockedIpColumn) {
 
 if (!hasHelperColumn) {
   db.exec("ALTER TABLE users ADD COLUMN is_helper INTEGER NOT NULL DEFAULT 0");
+}
+
+if (!hasTrainWindowColumn) {
+  db.exec("ALTER TABLE calculations ADD COLUMN train_window_minutes INTEGER NOT NULL DEFAULT 2");
 }
 
 module.exports = db;

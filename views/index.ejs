@@ -52,9 +52,19 @@
               data-text-search-suggestion-singular="<%= currentLang === 'en' ? 'suggestion' : 'proposition' %>"
               data-text-search-suggestion-plural="<%= currentLang === 'en' ? 'suggestions' : 'propositions' %>"
               data-text-waiting-ride="<%= t('home.waitingRide') %>"
+              data-text-trains-two-minutes="<%= t('home.trainsInTwoMinutes') %>"
+              data-text-trains-five-minutes="<%= t('home.trainsInFiveMinutes') %>"
+              data-text-trains-two-short="<%= t('home.trains2min') %>"
+              data-text-trains-five-short="<%= t('home.trains5min') %>"
             >
               <input type="hidden" name="calculationMode" value="manual" data-mode-input />
               <input type="hidden" name="catalogAttractionId" value="" data-catalog-id-input />
+              <input
+                type="hidden"
+                name="trainWindowMinutes"
+                value="<%= lastCalculation ? (lastCalculation.trainWindowMinutes || 2) : 2 %>"
+                data-train-window-input
+              />
 
               <div class="section-head">
                 <h2><%= t("home.formTitle") %></h2>
@@ -73,6 +83,18 @@
                 >
                   <%= t("home.auto") %>
                 </button>
+              </div>
+
+              <div class="field interval-field">
+                <span><%= t("home.intervalTitle") %></span>
+                <div class="mode-switch interval-switch">
+                  <button type="button" class="mode-button is-active" data-train-window-button data-train-window-value="2">
+                    <%= t("home.intervalTwoMinutes") %>
+                  </button>
+                  <button type="button" class="mode-button" data-train-window-button data-train-window-value="5">
+                    <%= t("home.intervalFiveMinutes") %>
+                  </button>
+                </div>
               </div>
 
               <% if (!catalogInfo.available) { %>
@@ -127,12 +149,12 @@
                 </label>
 
                 <label class="field">
-                  <span><%= t("home.trainsInTwoMinutes") %></span>
+                  <span data-trains-label><%= t("home.trainsInTwoMinutes") %></span>
                   <input
                     type="number"
                     name="trainsInTwoMinutes"
                     min="1"
-                    max="50"
+                    max="120"
                     required
                     placeholder="<%= t('home.trainsPlaceholder') %>"
                     data-trains-input
@@ -168,7 +190,7 @@
                   <dd data-result-people><%= lastCalculation ? lastCalculation.peoplePerTrain : "--" %></dd>
                 </div>
                 <div>
-                  <dt><%= t("home.trains2min") %></dt>
+                  <dt data-result-trains-label><%= t("home.trainsPeriod", { minutes: lastCalculation ? (lastCalculation.trainWindowMinutes || 2) : 2 }) %></dt>
                   <dd data-result-trains><%= lastCalculation ? lastCalculation.trainsInTwoMinutes : "--" %></dd>
                 </div>
                 <div>

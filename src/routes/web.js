@@ -607,6 +607,7 @@ router.get("/api/attractions/search", (req, res) => {
 
 router.post("/calculate", calculationLimiter, (req, res) => {
   const calculationMode = req.body.calculationMode === "auto" ? "auto" : "manual";
+  const trainWindowMinutes = req.body.trainWindowMinutes === "5" ? 5 : 2;
   let attractionName = "";
   let peoplePerTrain = 0;
 
@@ -643,10 +644,10 @@ router.post("/calculate", calculationLimiter, (req, res) => {
 
   const trainsValidation = validateInteger(
     req.body.trainsInTwoMinutes,
-    "Le nombre de trains en 2 minutes",
+    "Le nombre de trains observe",
     {
       min: 1,
-      max: 50
+      max: 120
     }
   );
 
@@ -657,8 +658,8 @@ router.post("/calculate", calculationLimiter, (req, res) => {
 
   const ipAddress = getClientIp(req);
   const timestamp = createTimestampParts(appTimeZone);
-
-  const throughput = peoplePerTrain * 30 * trainsValidation.value;
+  const throughputMultiplier = trainWindowMinutes === 5 ? 12 : 30;
+  const throughput = peoplePerTrain * throughputMultiplier * trainsValidation.value;
 
   db.prepare(
     `
@@ -666,6 +667,7 @@ router.post("/calculate", calculationLimiter, (req, res) => {
         attraction_name,
         people_per_train,
         trains_in_two_minutes,
+        train_window_minutes,
         throughput_per_hour,
         recorded_date,
         recorded_time,
@@ -679,6 +681,7 @@ router.post("/calculate", calculationLimiter, (req, res) => {
     attractionName,
     peoplePerTrain,
     trainsValidation.value,
+    trainWindowMinutes,
     throughput,
     timestamp.date,
     timestamp.time,
@@ -691,7 +694,8 @@ router.post("/calculate", calculationLimiter, (req, res) => {
     attractionName,
     throughput,
     peoplePerTrain,
-    trainsInTwoMinutes: trainsValidation.value
+    trainsInTwoMinutes: trainsValidation.value,
+    trainWindowMinutes
   };
 
   setFlash(req, "success", "Calcul enregistre avec succes.");
@@ -876,8 +880,8 @@ router.get("/dashboard", requireAuth, (req, res) => {
   const calculations = db
     .prepare(
       `
-        SELECT id, attraction_name, people_per_train, trains_in_two_minutes, throughput_per_hour, recorded_date, recorded_time
-        FROM calculations
+          SELECT id, attraction_name, people_per_train, trains_in_two_minutes, train_window_minutes, throughput_per_hour, recorded_date, recorded_time
+          FROM calculations
         WHERE user_id = ?
         ORDER BY id DESC
       `

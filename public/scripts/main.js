@@ -53,17 +53,22 @@ if (form) {
     searchNoResultBody: form.dataset.textSearchNoResultBody || "No matching ride found.",
     searchSuggestionSingular: form.dataset.textSearchSuggestionSingular || "suggestion",
     searchSuggestionPlural: form.dataset.textSearchSuggestionPlural || "suggestions",
-    waitingRide: form.dataset.textWaitingRide || "Waiting for a ride"
+    waitingRide: form.dataset.textWaitingRide || "Waiting for a ride",
+    trainsTwoMinutes: form.dataset.textTrainsTwoMinutes || "Trains in 2 minutes",
+    trainsFiveMinutes: form.dataset.textTrainsFiveMinutes || "Trains in 5 minutes"
   };
   const modeInput = form.querySelector("[data-mode-input]");
   const catalogIdInput = form.querySelector("[data-catalog-id-input]");
+  const trainWindowInput = form.querySelector("[data-train-window-input]");
   const modeButtons = form.querySelectorAll("[data-mode-button]");
+  const trainWindowButtons = form.querySelectorAll("[data-train-window-button]");
   const attractionInput = form.querySelector("[data-attraction-input]");
   const attractionLabel = form.querySelector("[data-attraction-label]");
   const attractionHelp = form.querySelector("[data-attraction-help]");
   const peopleInput = form.querySelector("[data-people-input]");
   const peopleHelp = form.querySelector("[data-people-help]");
   const trainsInput = form.querySelector("[data-trains-input]");
+  const trainsLabel = form.querySelector("[data-trains-label]");
   const submitButton = form.querySelector("[data-submit-button]");
   const searchPanel = form.querySelector("[data-search-panel]");
   const searchResults = form.querySelector("[data-search-results]");
@@ -139,6 +144,21 @@ if (form) {
       searchResults.appendChild(optionButton);
     });
 
+  }
+
+  function syncTrainWindowUi() {
+    const trainWindowMinutes = trainWindowInput && trainWindowInput.value === "5" ? "5" : "2";
+    const isFiveMinutes = trainWindowMinutes === "5";
+
+    trainWindowButtons.forEach((button) => {
+      const isActive = button.dataset.trainWindowValue === trainWindowMinutes;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+
+    if (trainsLabel) {
+      trainsLabel.textContent = isFiveMinutes ? texts.trainsFiveMinutes : texts.trainsTwoMinutes;
+    }
   }
 
   function syncModeUi() {
@@ -255,6 +275,18 @@ if (form) {
     }, 150);
   });
 
+  trainWindowButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!trainWindowInput) {
+        return;
+      }
+
+      trainWindowInput.value = button.dataset.trainWindowValue === "5" ? "5" : "2";
+      syncTrainWindowUi();
+      syncFormState();
+    });
+  });
+
   modeButtons.forEach((button) => {
     button.addEventListener("click", () => {
       if (button.disabled) {
@@ -278,6 +310,7 @@ if (form) {
     resultStatus.textContent = texts.fillAllFields;
   }
 
+  syncTrainWindowUi();
   syncModeUi();
   syncFormState();
 }
