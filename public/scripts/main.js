@@ -9,7 +9,9 @@ if (themeToggles.length > 0) {
       const themeToggleLabel = themeToggle.querySelector(".theme-switch-label");
       themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
       if (themeToggleLabel) {
-        themeToggleLabel.textContent = isDark ? "Mode clair" : "Mode sombre";
+        themeToggleLabel.textContent = isDark
+          ? themeToggle.dataset.labelLight || "Light mode"
+          : themeToggle.dataset.labelDark || "Dark mode";
       }
     });
   }
@@ -36,6 +38,23 @@ if (themeToggles.length > 0) {
 const form = document.querySelector("[data-calculator-form]");
 
 if (form) {
+  const texts = {
+    attractionName: form.dataset.textAttractionName || "Ride name",
+    attractionSearch: form.dataset.textAttractionSearch || "Search for a ride",
+    attractionHelp: form.dataset.textAttractionHelp || "Enter the ride name freely.",
+    attractionAutoHelp: form.dataset.textAttractionAutoHelp || "Choose a ride from the Excel file.",
+    peopleHelp: form.dataset.textPeopleHelp || "Enter the train capacity manually.",
+    peopleAutoHelp: form.dataset.textPeopleAutoHelp || "Filled automatically from the catalog.",
+    selectAttraction: form.dataset.textSelectAttraction || "Choose a ride and then enter the trains.",
+    fillAllFields: form.dataset.textFillAllFields || "Fill in all fields.",
+    clickSubmit: form.dataset.textClickSubmit || "Click the button to show the result.",
+    searchLoading: form.dataset.textSearchLoading || "Searching...",
+    searchNoResult: form.dataset.textSearchNoResult || "No results",
+    searchNoResultBody: form.dataset.textSearchNoResultBody || "No matching ride found.",
+    searchSuggestionSingular: form.dataset.textSearchSuggestionSingular || "suggestion",
+    searchSuggestionPlural: form.dataset.textSearchSuggestionPlural || "suggestions",
+    waitingRide: form.dataset.textWaitingRide || "Waiting for a ride"
+  };
   const modeInput = form.querySelector("[data-mode-input]");
   const catalogIdInput = form.querySelector("[data-catalog-id-input]");
   const modeButtons = form.querySelectorAll("[data-mode-button]");
@@ -82,11 +101,11 @@ if (form) {
         searchPanel.hidden = false;
       }
       if (searchMeta) {
-        searchMeta.textContent = "Aucun resultat";
+        searchMeta.textContent = texts.searchNoResult;
       }
       const emptyState = document.createElement("div");
       emptyState.className = "search-empty";
-      emptyState.textContent = "Aucune attraction correspondante.";
+      emptyState.textContent = texts.searchNoResultBody;
       searchResults.appendChild(emptyState);
       return;
     }
@@ -95,7 +114,9 @@ if (form) {
       searchPanel.hidden = false;
     }
     if (searchMeta) {
-      searchMeta.textContent = `${limitedResults.length} proposition${limitedResults.length > 1 ? "s" : ""}`;
+      searchMeta.textContent = `${limitedResults.length} ${
+        limitedResults.length > 1 ? texts.searchSuggestionPlural : texts.searchSuggestionSingular
+      }`;
     }
 
     limitedResults.forEach((result) => {
@@ -130,15 +151,16 @@ if (form) {
 
     if (mode === "auto") {
       attractionLabel.textContent = "Rechercher une attraction";
-      attractionHelp.textContent = "Choisissez une attraction dans le fichier Excel.";
-      peopleHelp.textContent = "Rempli automatiquement depuis la base.";
-      attractionInput.placeholder = "Ex. Attraction 1";
+      attractionLabel.textContent = texts.attractionSearch;
+      attractionHelp.textContent = texts.attractionAutoHelp;
+      peopleHelp.textContent = texts.peopleAutoHelp;
+      attractionInput.placeholder = texts.attractionSearch;
       peopleInput.readOnly = true;
     } else {
-      attractionLabel.textContent = "Nom de l'attraction";
-      attractionHelp.textContent = "Saisissez librement le nom de l'attraction.";
-      peopleHelp.textContent = "Entrez manuellement la capacite d'un train.";
-      attractionInput.placeholder = "Ex. Dragon Rush";
+      attractionLabel.textContent = texts.attractionName;
+      attractionHelp.textContent = texts.attractionHelp;
+      peopleHelp.textContent = texts.peopleHelp;
+      attractionInput.placeholder = texts.attractionName;
       peopleInput.readOnly = false;
       catalogIdInput.value = "";
       clearSuggestions();
@@ -168,12 +190,12 @@ if (form) {
     if (!formReady) {
       resultStatus.textContent =
         mode === "auto"
-          ? "Choisissez une attraction puis entrez les trains."
-          : "Remplissez tous les champs.";
+          ? texts.selectAttraction
+          : texts.fillAllFields;
       return;
     }
 
-    resultStatus.textContent = "Cliquez sur le bouton pour afficher le resultat.";
+    resultStatus.textContent = texts.clickSubmit;
   }
 
   async function fetchSuggestions() {
@@ -194,9 +216,9 @@ if (form) {
       searchPanel.hidden = false;
     }
     if (searchMeta) {
-      searchMeta.textContent = "Recherche...";
+      searchMeta.textContent = texts.searchLoading;
     }
-    searchResults.innerHTML = '<div class="search-empty">Chargement...</div>';
+    searchResults.innerHTML = `<div class="search-empty">${texts.searchLoading}</div>`;
     const response = await fetch(`/api/attractions/search?q=${encodeURIComponent(query)}`);
     const payload = await response.json();
 
@@ -244,9 +266,10 @@ if (form) {
 
   if (resultValue.textContent.trim() === "-- pers/heure") {
     resultAttraction.textContent = "Attraction en attente";
+    resultAttraction.textContent = texts.waitingRide;
     resultPeople.textContent = "--";
     resultTrains.textContent = "--";
-    resultStatus.textContent = "Remplissez les champs puis validez.";
+    resultStatus.textContent = texts.fillAllFields;
   }
 
   syncModeUi();

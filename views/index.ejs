@@ -1,7 +1,7 @@
 <%- include("partials/head", {
   pageTitle,
-  seoTitle: "Calculateur de debit roller coaster | Roller Flow",
-  seoDescription: "Calculez le debit horaire d'une attraction avec un mode manuel ou auto, un historique personnel et une gestion simple des demandes d'ajout."
+  seoTitle: t("home.title") + " | Roller Flow",
+  seoDescription: t("home.seoBlock1P1")
 }) %>
 <%- include("partials/header") %>
 
@@ -11,26 +11,26 @@
       <div class="hero-copy">
         <div class="hero-copy-shell">
           <div class="section-head hero-head">
-            <span class="eyebrow">Version 1</span>
-            <h1>Calculateur de debit</h1>
-            <p>Choisissez votre mode, validez le calcul et retrouvez-le ensuite dans votre historique.</p>
+            <span class="eyebrow"><%= t("home.version") %></span>
+            <h1><%= t("home.title") %></h1>
+            <p><%= t("home.intro") %></p>
           </div>
 
           <div class="hero-summary-grid">
             <% if (!user) { %>
               <div class="summary-card">
-                <span class="summary-label">Visiteur</span>
-                <strong><%= anonymousDailyCount %>/2 calculs</strong>
+                <span class="summary-label"><%= t("home.visitor") %></span>
+                <strong><%= t("home.visitorCount", { count: anonymousDailyCount }) %></strong>
               </div>
             <% } %>
           </div>
 
           <div class="hero-actions hero-actions-stack">
             <% if (!user) { %>
-              <a href="/register" class="primary-button button-link">Creer un compte</a>
-              <a href="/login" class="ghost-button button-link">Connexion</a>
+              <a href="/register" class="primary-button button-link"><%= t("home.createAccount") %></a>
+              <a href="/login" class="ghost-button button-link"><%= t("nav.login") %></a>
             <% } else { %>
-              <a href="/dashboard" class="primary-button button-link">Mon historique</a>
+              <a href="/dashboard" class="primary-button button-link"><%= t("home.myHistory") %></a>
             <% } %>
           </div>
         </div>
@@ -41,17 +41,37 @@
           <%- include("partials/flash") %>
 
           <div class="panel-grid">
-            <form action="/calculate" method="post" class="calculator-card" data-calculator-form>
+            <form
+              action="/calculate"
+              method="post"
+              class="calculator-card"
+              data-calculator-form
+              data-text-attraction-name="<%= t('home.attractionName') %>"
+              data-text-attraction-search="<%= t('home.attractionSearch') %>"
+              data-text-attraction-help="<%= t('home.attractionHelp') %>"
+              data-text-attraction-auto-help="<%= t('home.attractionAutoHelp') %>"
+              data-text-people-help="<%= t('home.peopleHelp') %>"
+              data-text-people-auto-help="<%= t('home.peopleAutoHelp') %>"
+              data-text-select-attraction="<%= t('home.selectAttractionThenTrains') %>"
+              data-text-fill-all-fields="<%= t('home.fillAllFields') %>"
+              data-text-click-submit="<%= t('home.clickToShowResult') %>"
+              data-text-search-loading="<%= t('home.searchLoading') %>"
+              data-text-search-no-result="<%= t('home.searchNoResult') %>"
+              data-text-search-no-result-body="<%= t('home.searchNoResultText') %>"
+              data-text-search-suggestion-singular="<%= currentLang === 'en' ? 'suggestion' : 'proposition' %>"
+              data-text-search-suggestion-plural="<%= currentLang === 'en' ? 'suggestions' : 'propositions' %>"
+              data-text-waiting-ride="<%= t('home.waitingRide') %>"
+            >
               <input type="hidden" name="calculationMode" value="manual" data-mode-input />
               <input type="hidden" name="catalogAttractionId" value="" data-catalog-id-input />
 
               <div class="section-head">
-                <h2>Saisie du calcul</h2>
+                <h2><%= t("home.formTitle") %></h2>
               </div>
 
               <div class="mode-switch" data-mode-switch>
                 <button type="button" class="mode-button is-active" data-mode-button data-mode-value="manual">
-                  Manuel
+                  <%= t("home.manual") %>
                 </button>
                 <button
                   type="button"
@@ -60,43 +80,43 @@
                   data-mode-value="auto"
                   <%= !user || !catalogInfo.available ? "disabled" : "" %>
                 >
-                  Auto
+                  <%= t("home.auto") %>
                 </button>
               </div>
 
               <div class="catalog-state">
                 <% if (!user) { %>
-                  <span>Connectez-vous pour utiliser le mode auto.</span>
+                  <span><%= t("home.autoLoginRequired") %></span>
                 <% } else if (!catalogInfo.available) { %>
-                  <span>Ajoutez `data/attractions.xlsx` pour activer le mode auto.</span>
+                  <span><%= t("home.autoMissingFile") %></span>
                 <% } else { %>
-                  <span>Mode auto disponible.</span>
+                  <span><%= t("home.autoAvailable") %></span>
                 <% } %>
               </div>
 
               <% if (user) { %>
-                <a href="/attraction-requests/new" class="request-link">Pas trouve ? Cliquez ici</a>
+                <a href="/attraction-requests/new" class="request-link"><%= t("home.requestMissingRide") %></a>
               <% } %>
 
               <label class="field">
-                <span data-attraction-label>Nom de l'attraction</span>
+                <span data-attraction-label><%= t("home.attractionName") %></span>
                 <input
                   type="text"
                   name="attractionName"
                   maxlength="80"
                   minlength="3"
                   required
-                  placeholder="Ex. Dragon Rush"
+                  placeholder="<%= t('home.attractionPlaceholder') %>"
                   autocomplete="off"
                   data-attraction-input
                 />
                 <small class="field-help" data-attraction-help>
-                  Saisissez librement le nom de l'attraction.
+                  <%= t("home.attractionHelp") %>
                 </small>
                 <div class="search-panel" data-search-panel hidden>
                   <div class="search-panel-head">
-                    <span>Resultats</span>
-                    <small data-search-meta>Commencez a taper.</small>
+                    <span><%= t("home.results") %></span>
+                    <small data-search-meta><%= t("home.startTyping") %></small>
                   </div>
                   <div class="search-results" data-search-results></div>
                 </div>
@@ -104,69 +124,69 @@
 
               <div class="field-split">
                 <label class="field">
-                  <span>Personnes par train</span>
+                  <span><%= t("home.peoplePerTrain") %></span>
                   <input
                     type="number"
                     name="peoplePerTrain"
                     min="1"
                     max="100"
                     required
-                    placeholder="Ex. 24"
+                    placeholder="<%= t('home.peoplePlaceholder') %>"
                     data-people-input
                   />
                   <small class="field-help" data-people-help>
-                    Entrez manuellement la capacite d'un train.
+                    <%= t("home.peopleHelp") %>
                   </small>
                 </label>
 
                 <label class="field">
-                  <span>Trains en 2 minutes</span>
+                  <span><%= t("home.trainsInTwoMinutes") %></span>
                   <input
                     type="number"
                     name="trainsInTwoMinutes"
                     min="1"
                     max="50"
                     required
-                    placeholder="Ex. 3"
+                    placeholder="<%= t('home.trainsPlaceholder') %>"
                     data-trains-input
                   />
                 </label>
               </div>
 
               <button type="submit" class="primary-button" disabled data-submit-button>
-                Enregistrer le calcul
+                <%= t("home.submit") %>
               </button>
             </form>
 
             <aside class="result-card" aria-live="polite">
               <div class="section-head">
-                <h2>Resultat</h2>
-                <p>Le dernier calcul valide reste affiche ici.</p>
+                <h2><%= t("home.result") %></h2>
+                <p><%= t("home.resultIntro") %></p>
               </div>
 
-              <div class="result-badge">Dernier calcul</div>
+              <div class="result-badge"><%= t("home.lastCalculation") %></div>
 
               <div class="result-metric">
                 <span data-result-attraction>
-                  <%= lastCalculation ? lastCalculation.attractionName : "Attraction en attente" %>
+                  <%= lastCalculation ? lastCalculation.attractionName : t("home.waitingRide") %>
                 </span>
                 <strong data-result-value>
-                  <%= lastCalculation ? `${lastCalculation.throughput} pers/heure` : "-- pers/heure" %>
+                  <%= lastCalculation ? `${lastCalculation.throughput} ${t("home.peopleHour")}` : `-- ${t("home.peopleHour")}` %>
                 </strong>
               </div>
 
               <dl class="result-details">
                 <div>
-                  <dt>Personnes / train</dt>
+                  <dt><%= t("home.peopleTrain") %></dt>
                   <dd data-result-people><%= lastCalculation ? lastCalculation.peoplePerTrain : "--" %></dd>
                 </div>
                 <div>
-                  <dt>Trains / 2 min</dt>
+                  <dt><%= t("home.trains2min") %></dt>
                   <dd data-result-trains><%= lastCalculation ? lastCalculation.trainsInTwoMinutes : "--" %></dd>
                 </div>
                 <div>
-                  <dt>Statut</dt>
-                  <dd data-result-status>Remplissez les champs puis validez.</dd>
+                  <dt><%= t("home.status") %></dt>
+                  <dd data-result-status><%= t("home.fillThenSubmit") %></dd>
                 </div>
               </dl>
 
@@ -180,27 +200,15 @@
   <section class="container seo-section">
     <div class="dashboard-card content-card">
       <article class="content-block">
-        <h2>Calculer le debit d'un roller coaster</h2>
-        <p>
-          Roller Flow permet de calculer rapidement le debit horaire d'une attraction a partir du nombre
-          de personnes par train et du nombre de trains qui passent en deux minutes.
-        </p>
-        <p>
-          L'outil est pense pour un usage simple sur ordinateur ou mobile, avec un historique personnel,
-          un mode manuel et un mode auto base sur un catalogue d'attractions.
-        </p>
+        <h2><%= t("home.seoBlock1Title") %></h2>
+        <p><%= t("home.seoBlock1P1") %></p>
+        <p><%= t("home.seoBlock1P2") %></p>
       </article>
 
       <article class="content-block">
-        <h2>Formule de calcul</h2>
-        <p>
-          La formule utilisee est : personnes par train x 30 x nombre de trains en 2 minutes. Le resultat
-          donne une estimation du debit par heure.
-        </p>
-        <p>
-          Cette base est utile pour comparer l'exploitation de plusieurs attractions, suivre une capacite
-          theorique et centraliser les calculs dans un seul espace.
-        </p>
+        <h2><%= t("home.seoBlock2Title") %></h2>
+        <p><%= t("home.seoBlock2P1") %></p>
+        <p><%= t("home.seoBlock2P2") %></p>
       </article>
     </div>
   </section>

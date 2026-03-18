@@ -5,24 +5,24 @@
   <section class="container form-page">
     <div class="form-shell">
       <div class="section-head">
-        <span class="eyebrow">Connexion</span>
-        <h1>Acceder a votre espace</h1>
+        <span class="eyebrow"><%= t("auth.loginEyebrow") %></span>
+        <h1><%= t("auth.loginTitle") %></h1>
       </div>
 
       <%- include("partials/flash") %>
 
       <form action="/login" method="post" class="stack-form">
         <label class="field">
-          <span>Nom d'utilisateur</span>
+          <span><%= t("auth.username") %></span>
           <input type="text" name="username" minlength="3" maxlength="30" required />
         </label>
 
         <label class="field">
-          <span>Mot de passe</span>
+          <span><%= t("auth.password") %></span>
           <input type="password" name="password" required />
         </label>
 
-        <button type="submit" class="primary-button">Connexion</button>
+        <button type="submit" class="primary-button"><%= t("auth.loginButton") %></button>
       </form>
     </div>
   </section>

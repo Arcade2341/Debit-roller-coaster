@@ -5,33 +5,33 @@
   <section class="container form-page">
     <div class="form-shell">
       <div class="section-head">
-        <h1>Demander une attraction</h1>
+        <h1><%= t("requests.requestRide") %></h1>
       </div>
 
       <%- include("partials/flash") %>
 
       <form action="/attraction-requests" method="post" class="stack-form">
         <label class="field">
-          <span>Nom de l'attraction</span>
+          <span><%= t("requests.ride") %></span>
           <input type="text" name="attractionName" minlength="3" maxlength="80" required />
         </label>
 
         <label class="field">
-          <span>Parc</span>
+          <span><%= t("requests.park") %></span>
           <input type="text" name="parkName" minlength="2" maxlength="80" required />
         </label>
 
         <label class="field">
-          <span>Pays</span>
+          <span><%= t("requests.country") %></span>
           <input type="text" name="countryName" minlength="2" maxlength="60" required />
         </label>
 
         <label class="field">
-          <span>Personnes par train</span>
+          <span><%= t("requests.peopleTrain") %></span>
           <input type="number" name="peoplePerTrain" min="1" max="100" required />
         </label>
 
-        <button type="submit" class="primary-button">Envoyer la demande</button>
+        <button type="submit" class="primary-button"><%= t("requests.sendRequest") %></button>
       </form>
     </div>
   </section>

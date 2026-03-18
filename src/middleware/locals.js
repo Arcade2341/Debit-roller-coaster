@@ -1,4 +1,5 @@
 const db = require("../db");
+const { getLanguage, translate } = require("../i18n");
 
 function getNotificationFilter(user) {
   const targets = ["all"];
@@ -15,6 +16,8 @@ function getNotificationFilter(user) {
 }
 
 function attachLocals(req, res, next) {
+  req.session.lang = getLanguage(req.session.lang);
+
   if (req.session.user) {
     const freshUser = db
       .prepare("SELECT id, username, is_admin, is_helper FROM users WHERE id = ? LIMIT 1")
@@ -38,6 +41,8 @@ function attachLocals(req, res, next) {
   res.locals.lastCalculation = req.session.lastCalculation || null;
   res.locals.unreadNotificationsCount = 0;
   res.locals.siteUrl = process.env.SITE_URL || "https://roller-flow.xyz";
+  res.locals.currentLang = req.session.lang;
+  res.locals.t = (key, params) => translate(req.session.lang, key, params);
 
   if (req.session.user) {
     const targets = getNotificationFilter(req.session.user);

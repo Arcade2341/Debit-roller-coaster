@@ -3,31 +3,33 @@
     <a class="brand" href="/">
       <span class="brand-mark">RC</span>
       <span class="brand-text">
-        <strong>Roller Flow</strong>
-        <small>Calculateur</small>
+        <strong><%= t("common.siteName") %></strong>
+        <small><%= t("common.calculator") %></small>
       </span>
     </a>
 
     <nav class="nav-links" aria-label="Navigation principale">
-      <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>">Calcul</a>
+      <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>"><%= t("nav.calculate") %></a>
       <% if (user) { %>
         <a href="/notifications" class="<%= currentPath === '/notifications' ? 'is-active' : '' %>">
-          Notifications
+          <%= t("nav.notifications") %>
           <% if (unreadNotificationsCount > 0) { %>
             <span class="nav-badge"><%= unreadNotificationsCount %></span>
           <% } %>
         </a>
-        <a href="/dashboard" class="<%= currentPath === '/dashboard' ? 'is-active' : '' %>">Mon espace</a>
+        <a href="/dashboard" class="<%= currentPath === '/dashboard' ? 'is-active' : '' %>"><%= t("nav.dashboard") %></a>
         <% if (user.isAdmin || user.isHelper) { %>
-          <a href="/requests/review" class="<%= currentPath === '/requests/review' ? 'is-active' : '' %>">Demandes</a>
+          <a href="/requests/review" class="<%= currentPath === '/requests/review' ? 'is-active' : '' %>"><%= t("nav.requests") %></a>
         <% } %>
         <% if (user.isAdmin) { %>
-          <a href="/admin/accounts" class="<%= currentPath === '/admin/accounts' ? 'is-active' : '' %>">Comptes</a>
+          <a href="/admin/accounts" class="<%= currentPath === '/admin/accounts' ? 'is-active' : '' %>"><%= t("nav.accounts") %></a>
         <% } %>
       <% } else { %>
-        <a href="/login" class="<%= currentPath === '/login' ? 'is-active' : '' %>">Connexion</a>
-        <a href="/register" class="cta-link <%= currentPath === '/register' ? 'is-active' : '' %>">Creer un compte</a>
+        <a href="/login" class="<%= currentPath === '/login' ? 'is-active' : '' %>"><%= t("nav.login") %></a>
+        <a href="/register" class="cta-link <%= currentPath === '/register' ? 'is-active' : '' %>"><%= t("nav.register") %></a>
       <% } %>
+      <a href="/lang/fr" class="<%= currentLang === 'fr' ? 'is-active' : '' %>"><%= t("nav.languageFr") %></a>
+      <a href="/lang/en" class="<%= currentLang === 'en' ? 'is-active' : '' %>"><%= t("nav.languageEn") %></a>
     </nav>
   </div>
 </header>
@@ -36,11 +38,13 @@
   type="button"
   class="theme-switch theme-switch-floating"
   data-theme-toggle
-  aria-label="Activer ou desactiver le mode sombre"
+  aria-label="<%= t('common.darkMode') %>"
+  data-label-dark="<%= t('common.darkMode') %>"
+  data-label-light="<%= t('common.lightMode') %>"
   aria-pressed="false"
 >
   <span class="theme-switch-track">
     <span class="theme-switch-thumb"></span>
   </span>
-  <span class="theme-switch-label">Mode sombre</span>
+  <span class="theme-switch-label"><%= t("common.darkMode") %></span>
 </button>

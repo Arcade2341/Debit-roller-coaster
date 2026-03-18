@@ -5,15 +5,15 @@
   <section class="container">
     <div class="page-intro">
       <div class="section-head">
-        <h1>Demandes</h1>
-        <p>Validez ou refusez les ajouts d'attractions.</p>
+        <h1><%= t("requests.title") %></h1>
+        <p><%= t("requests.intro") %></p>
       </div>
     </div>
 
     <div class="dashboard-grid">
       <section class="dashboard-card">
         <div class="section-head">
-          <h2>Demandes d'ajout</h2>
+          <h2><%= t("requests.list") %></h2>
         </div>
 
         <%- include("partials/flash") %>
@@ -22,19 +22,19 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th>Attraction</th>
-                <th>Parc</th>
-                <th>Pays</th>
-                <th>Pers./train</th>
-                <th>Demandeur</th>
-                <th>Statut</th>
-                <th>Action</th>
+                <th><%= t("requests.ride") %></th>
+                <th><%= t("requests.park") %></th>
+                <th><%= t("requests.country") %></th>
+                <th><%= t("requests.peopleTrain") %></th>
+                <th><%= t("requests.requester") %></th>
+                <th><%= t("requests.status") %></th>
+                <th><%= t("requests.action") %></th>
               </tr>
             </thead>
             <tbody>
               <% if (attractionRequests.length === 0) { %>
                 <tr>
-                  <td colspan="7">Aucune demande pour le moment.</td>
+                  <td colspan="7"><%= t("requests.none") %></td>
                 </tr>
               <% } else { %>
                 <% attractionRequests.forEach((requestEntry) => { %>
@@ -43,20 +43,20 @@
                     <td><%= requestEntry.park_name %></td>
                     <td><%= requestEntry.country_name %></td>
                     <td><%= requestEntry.people_per_train %></td>
-                    <td><%= requestEntry.requested_by_username || "Utilisateur" %></td>
+                    <td><%= requestEntry.requested_by_username || t("admin.user") %></td>
                     <td><%= requestEntry.status %></td>
                     <td>
                       <% if (requestEntry.status === "pending") { %>
                         <div class="table-actions">
                           <form action="/requests/<%= requestEntry.id %>/accept" method="post">
-                            <button type="submit" class="history-delete-button">Accepter</button>
+                            <button type="submit" class="history-delete-button"><%= t("requests.accept") %></button>
                           </form>
                           <form action="/requests/<%= requestEntry.id %>/reject" method="post">
-                            <button type="submit" class="history-delete-button">Refuser</button>
+                            <button type="submit" class="history-delete-button"><%= t("requests.reject") %></button>
                           </form>
                         </div>
                       <% } else { %>
-                        <span>Traitee</span>
+                        <span><%= t("requests.processed") %></span>
                       <% } %>
                     </td>
                   </tr>
@@ -69,10 +69,10 @@
 
       <aside class="dashboard-card">
         <div class="section-head">
-          <h2>Rappel</h2>
+          <h2><%= t("requests.reminder") %></h2>
         </div>
 
-        <p class="empty-state">Cette page sert seulement a accepter ou refuser les demandes.</p>
+        <p class="empty-state"><%= t("requests.reminderText") %></p>
       </aside>
     </div>
   </section>

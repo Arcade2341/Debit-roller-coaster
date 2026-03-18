@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const rateLimit = require("express-rate-limit");
 
 const db = require("../db");
+const { getLanguage, translate } = require("../i18n");
 const {
   requireAuth,
   requireAdmin,
@@ -27,6 +28,10 @@ const {
 const router = express.Router();
 const appTimeZone = process.env.APP_TIMEZONE || "Europe/Paris";
 const siteUrl = process.env.SITE_URL || "https://roller-flow.xyz";
+
+function t(req, key, params) {
+  return translate(req.session.lang, key, params);
+}
 
 function makeRedirectLimiter({ windowMs, max, message, redirectTo }) {
   return rateLimit({
@@ -126,16 +131,17 @@ function getNotificationsForUser(userId, sessionUser) {
     .all(userId, ...targets);
 }
 
-function resolveNotificationTargetLabel(targetRole) {
+function resolveNotificationTargetLabel(targetRole, lang) {
+  const normalizedLang = getLanguage(lang);
   if (targetRole === "admins") {
-    return "Admins";
+    return translate(normalizedLang, "admin.admins");
   }
 
   if (targetRole === "helpers") {
-    return "Helpers";
+    return translate(normalizedLang, "admin.helpers");
   }
 
-  return "Tous les comptes";
+  return translate(normalizedLang, "admin.allAccounts");
 }
 
 function renderSeoPage(res, options) {
@@ -158,10 +164,21 @@ router.get("/", (req, res) => {
   const catalogInfo = getCatalogInfo();
 
   res.render("index", {
-    pageTitle: "Calculateur de debit roller coaster",
+    pageTitle: t(req, "home.title"),
     anonymousDailyCount,
     catalogInfo
   });
+});
+
+router.get("/lang/:lang", (req, res) => {
+  req.session.lang = getLanguage(req.params.lang);
+  const referer = req.get("referer");
+
+  if (referer && referer.startsWith(siteUrl)) {
+    return res.redirect(referer);
+  }
+
+  res.redirect("/");
 });
 
 router.get("/fonctionnement", (req, res) => {
@@ -730,7 +747,7 @@ router.post("/calculate", calculationLimiter, (req, res) => {
 
 router.get("/login", redirectIfAuthenticated, (req, res) => {
   res.render("login", {
-    pageTitle: "Connexion"
+    pageTitle: t(req, "nav.login")
   });
 });
 
@@ -767,13 +784,13 @@ router.post("/login", authLimiter, redirectIfAuthenticated, (req, res) => {
 
 router.get("/register", redirectIfAuthenticated, (req, res) => {
   res.render("register", {
-    pageTitle: "Creer un compte"
+    pageTitle: t(req, "nav.register")
   });
 });
 
 router.get("/attraction-requests/new", requireAuth, (req, res) => {
   res.render("attraction-request", {
-    pageTitle: "Demander une attraction"
+    pageTitle: t(req, "requests.requestRide")
   });
 });
 
@@ -916,10 +933,10 @@ router.get("/dashboard", requireAuth, (req, res) => {
   const notifications = getNotificationsForUser(req.session.user.id, req.session.user).slice(0, 3);
 
   res.render("dashboard", {
-    pageTitle: "Mon espace",
+    pageTitle: t(req, "dashboard.title"),
     calculations,
     notifications,
-    resolveNotificationTargetLabel
+    resolveNotificationTargetLabel: (targetRole) => resolveNotificationTargetLabel(targetRole, req.session.lang)
   });
 });
 
@@ -927,9 +944,9 @@ router.get("/notifications", requireAuth, (req, res) => {
   const notifications = getNotificationsForUser(req.session.user.id, req.session.user);
 
   res.render("notifications", {
-    pageTitle: "Notifications",
+    pageTitle: t(req, "notifications.title"),
     notifications,
-    resolveNotificationTargetLabel
+    resolveNotificationTargetLabel: (targetRole) => resolveNotificationTargetLabel(targetRole, req.session.lang)
   });
 });
 
@@ -955,7 +972,7 @@ router.get("/admin/accounts", requireAuth, requireAdmin, (req, res) => {
     .all();
 
   res.render("admin-accounts", {
-    pageTitle: "Comptes",
+    pageTitle: t(req, "admin.title"),
     users
   });
 });
@@ -1088,7 +1105,7 @@ router.get("/requests/review", requireAuth, requireHelperOrAdmin, (req, res) => 
     .all();
 
   res.render("requests-review", {
-    pageTitle: "Demandes",
+    pageTitle: t(req, "requests.title"),
     attractionRequests
   });
 });

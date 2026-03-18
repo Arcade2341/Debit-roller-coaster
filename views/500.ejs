@@ -4,10 +4,10 @@
 <main class="status-page">
   <section class="container status-shell">
     <div class="form-shell">
-      <span class="eyebrow">Erreur 500</span>
-      <h1>Un probleme serveur est survenu</h1>
-      <p>Veuillez reessayer dans quelques instants.</p>
-      <a href="/" class="primary-button button-link">Retour a l'accueil</a>
+      <span class="eyebrow"><%= t("status.errorEyebrow") %></span>
+      <h1><%= t("status.errorTitle") %></h1>
+      <p><%= t("status.errorText") %></p>
+      <a href="/" class="primary-button button-link"><%= t("status.backWelcome") %></a>
     </div>
   </section>
 </main>

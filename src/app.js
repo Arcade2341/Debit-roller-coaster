@@ -5,6 +5,7 @@ const session = require("express-session");
 const helmet = require("helmet");
 const FileStoreFactory = require("session-file-store");
 
+const { getLanguage, translate } = require("./i18n");
 const { attachLocals } = require("./middleware/locals");
 const { router } = require("./routes/web");
 require("./db");
@@ -66,15 +67,17 @@ app.use(attachLocals);
 app.use(router);
 
 app.use((req, res) => {
+  const lang = getLanguage(req.session ? req.session.lang : "fr");
   res.status(404).render("404", {
-    pageTitle: "Page introuvable"
+    pageTitle: translate(lang, "status.notFoundTitle")
   });
 });
 
 app.use((error, req, res, next) => {
   console.error(error);
+  const lang = getLanguage(req.session ? req.session.lang : "fr");
   res.status(500).render("500", {
-    pageTitle: "Erreur serveur"
+    pageTitle: translate(lang, "status.errorTitle")
   });
 });
 

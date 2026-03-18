@@ -4,10 +4,10 @@
 <main class="status-page">
   <section class="container status-shell">
     <div class="form-shell">
-      <span class="eyebrow">Erreur 404</span>
-      <h1>Page introuvable</h1>
-      <p>Le contenu demande n'existe pas ou a ete deplace.</p>
-      <a href="/" class="primary-button button-link">Retour au calculateur</a>
+      <span class="eyebrow"><%= t("status.notFoundEyebrow") %></span>
+      <h1><%= t("status.notFoundTitle") %></h1>
+      <p><%= t("status.notFoundText") %></p>
+      <a href="/" class="primary-button button-link"><%= t("status.backHome") %></a>
     </div>
   </section>
 </main>

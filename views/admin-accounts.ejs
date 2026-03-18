@@ -5,15 +5,15 @@
   <section class="container">
     <div class="page-intro">
       <div class="section-head">
-        <h1>Comptes</h1>
-        <p>Gerez les acces et envoyez des notifications ciblees.</p>
+        <h1><%= t("admin.title") %></h1>
+        <p><%= t("admin.intro") %></p>
       </div>
     </div>
 
     <div class="dashboard-grid">
       <section class="dashboard-card">
         <div class="section-head">
-          <h2>Liste des comptes</h2>
+          <h2><%= t("admin.list") %></h2>
         </div>
 
         <%- include("partials/flash") %>
@@ -22,32 +22,32 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th>Pseudo</th>
-                <th>Statut</th>
-                <th>Helper</th>
-                <th>Calculs</th>
-                <th>Date de creation</th>
-                <th>Actions</th>
+                <th><%= t("admin.username") %></th>
+                <th><%= t("admin.status") %></th>
+                <th><%= t("admin.helper") %></th>
+                <th><%= t("admin.calculations") %></th>
+                <th><%= t("admin.createdAt") %></th>
+                <th><%= t("admin.actions") %></th>
               </tr>
             </thead>
             <tbody>
               <% users.forEach((account) => { %>
                 <tr>
                   <td><%= account.username %></td>
-                  <td><%= account.is_admin ? "Admin" : "Utilisateur" %></td>
-                  <td><%= account.is_helper ? "Oui" : "Non" %></td>
+                  <td><%= account.is_admin ? t("admin.admin") : t("admin.user") %></td>
+                  <td><%= account.is_helper ? t("admin.yes") : t("admin.no") %></td>
                   <td><%= account.calculations_count %></td>
                   <td><%= account.created_at.slice(0, 10) %></td>
                   <td>
                     <div class="table-actions">
                       <form action="/admin/users/<%= account.id %>/toggle-admin" method="post">
                         <button type="submit" class="history-delete-button">
-                          <%= account.is_admin ? "Retirer admin" : "Passer admin" %>
+                          <%= account.is_admin ? t("admin.removeAdmin") : t("admin.makeAdmin") %>
                         </button>
                       </form>
                       <form action="/admin/users/<%= account.id %>/toggle-helper" method="post">
                         <button type="submit" class="history-delete-button">
-                          <%= account.is_helper ? "Retirer helper" : "Passer helper" %>
+                          <%= account.is_helper ? t("admin.removeHelper") : t("admin.makeHelper") %>
                         </button>
                       </form>
                     </div>
@@ -61,39 +61,39 @@
 
       <aside class="dashboard-card">
         <div class="section-head">
-          <h2>Envoyer une notification</h2>
+          <h2><%= t("admin.sendNotification") %></h2>
         </div>
 
         <form action="/admin/notifications" method="post" class="stack-form">
           <label class="field">
-            <span>Titre</span>
+            <span><%= t("admin.titleField") %></span>
             <input type="text" name="title" minlength="3" maxlength="80" required />
           </label>
 
           <label class="field">
-            <span>Cible</span>
+            <span><%= t("admin.target") %></span>
             <select name="targetRole" class="field-select" required>
-              <option value="all">Tous les comptes</option>
-              <option value="helpers">Helpers</option>
-              <option value="admins">Admins</option>
+              <option value="all"><%= t("admin.allAccounts") %></option>
+              <option value="helpers"><%= t("admin.helpers") %></option>
+              <option value="admins"><%= t("admin.admins") %></option>
             </select>
           </label>
 
           <label class="field">
-            <span>Message</span>
+            <span><%= t("admin.message") %></span>
             <textarea name="message" rows="5" maxlength="500" required></textarea>
           </label>
 
-          <button type="submit" class="primary-button">Envoyer</button>
+          <button type="submit" class="primary-button"><%= t("admin.send") %></button>
         </form>
 
         <div class="section-head compact">
-          <h2>Roles</h2>
+          <h2><%= t("admin.roles") %></h2>
         </div>
 
         <div class="info-stack">
-          <p class="empty-state">Le role helper sert uniquement a traiter les demandes d'ajout.</p>
-          <p class="empty-state">Les admins gardent la gestion des comptes et peuvent nommer les helpers.</p>
+          <p class="empty-state"><%= t("admin.helperInfo") %></p>
+          <p class="empty-state"><%= t("admin.adminInfo") %></p>
         </div>
       </aside>
     </div>

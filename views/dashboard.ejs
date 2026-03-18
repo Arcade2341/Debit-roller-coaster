@@ -5,33 +5,33 @@
   <section class="container">
     <div class="page-intro">
       <div class="section-head">
-        <h1>Mon espace</h1>
-        <p>Historique, notifications et reglages du compte.</p>
+        <h1><%= t("dashboard.title") %></h1>
+        <p><%= t("dashboard.intro") %></p>
       </div>
     </div>
 
     <div class="dashboard-grid">
       <section class="dashboard-card">
         <div class="section-head">
-          <h2>Vos calculs</h2>
+          <h2><%= t("dashboard.calculations") %></h2>
         </div>
 
         <%- include("partials/flash") %>
 
         <% if (calculations.length === 0) { %>
-          <p class="empty-state">Aucun calcul enregistre pour le moment.</p>
+          <p class="empty-state"><%= t("dashboard.noCalculations") %></p>
         <% } else { %>
           <div class="table-wrap">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Attraction</th>
-                  <th>Personnes/train</th>
-                  <th>Trains/2 min</th>
-                  <th>Debit/heure</th>
-                  <th>Date</th>
-                  <th>Heure</th>
-                  <th>Action</th>
+                  <th><%= t("dashboard.ride") %></th>
+                  <th><%= t("dashboard.peopleTrain") %></th>
+                  <th><%= t("dashboard.trains2min") %></th>
+                  <th><%= t("dashboard.throughputHour") %></th>
+                  <th><%= t("dashboard.date") %></th>
+                  <th><%= t("dashboard.time") %></th>
+                  <th><%= t("dashboard.action") %></th>
                 </tr>
               </thead>
               <tbody>
@@ -45,7 +45,7 @@
                     <td><%= entry.recorded_time %></td>
                     <td>
                       <form action="/calculations/<%= entry.id %>/delete" method="post">
-                        <button type="submit" class="history-delete-button">Supprimer</button>
+                        <button type="submit" class="history-delete-button"><%= t("dashboard.delete") %></button>
                       </form>
                     </td>
                   </tr>
@@ -58,26 +58,26 @@
         <div class="account-actions">
           <div class="account-actions-head">
             <span class="account-actions-label">Compte</span>
-            <strong>Actions sensibles</strong>
+            <strong><%= t("dashboard.sensitiveActions") %></strong>
           </div>
 
           <form action="/logout" method="post">
-            <button type="submit" class="account-action-button account-action-logout">Deconnexion</button>
+            <button type="submit" class="account-action-button account-action-logout"><%= t("dashboard.logout") %></button>
           </form>
 
           <form action="/account/delete" method="post">
-            <button type="submit" class="account-action-button account-action-delete">Supprimer le compte</button>
+            <button type="submit" class="account-action-button account-action-delete"><%= t("dashboard.deleteAccount") %></button>
           </form>
         </div>
       </section>
 
       <aside class="dashboard-card">
         <div class="section-head">
-          <h2>Notifications</h2>
+          <h2><%= t("dashboard.notifications") %></h2>
         </div>
 
         <% if (notifications.length === 0) { %>
-          <p class="empty-state">Aucune notification.</p>
+          <p class="empty-state"><%= t("dashboard.noNotifications") %></p>
         <% } else { %>
           <div class="notifications-list compact">
             <% notifications.forEach((notification) => { %>
@@ -92,43 +92,43 @@
             <% }) %>
           </div>
 
-          <a href="/notifications" class="ghost-button button-link">Voir toutes les notifications</a>
+          <a href="/notifications" class="ghost-button button-link"><%= t("dashboard.viewAllNotifications") %></a>
         <% } %>
 
         <div class="section-head compact">
-          <h2>Modifier le pseudo</h2>
+          <h2><%= t("dashboard.updateUsername") %></h2>
         </div>
 
         <form action="/account/username" method="post" class="stack-form">
           <label class="field">
-            <span>Nouveau pseudo</span>
+            <span><%= t("dashboard.newUsername") %></span>
             <input type="text" name="username" value="<%= user.username %>" minlength="3" maxlength="30" required />
           </label>
 
-          <button type="submit" class="ghost-button">Mettre a jour le pseudo</button>
+          <button type="submit" class="ghost-button"><%= t("dashboard.updateUsernameButton") %></button>
         </form>
 
         <div class="section-head compact">
-          <h2>Changer le mot de passe</h2>
+          <h2><%= t("dashboard.changePassword") %></h2>
         </div>
 
         <form action="/account/password" method="post" class="stack-form">
           <label class="field">
-            <span>Mot de passe actuel</span>
+            <span><%= t("auth.currentPassword") %></span>
             <input type="password" name="currentPassword" required />
           </label>
 
           <label class="field">
-            <span>Nouveau mot de passe</span>
+            <span><%= t("auth.newPassword") %></span>
             <input type="password" name="newPassword" minlength="8" required />
           </label>
 
           <label class="field">
-            <span>Confirmation</span>
+            <span><%= t("auth.confirmation") %></span>
             <input type="password" name="confirmNewPassword" minlength="8" required />
           </label>
 
-          <button type="submit" class="primary-button">Mettre a jour</button>
+          <button type="submit" class="primary-button"><%= t("dashboard.updateButton") %></button>
         </form>
       </aside>
     </div>

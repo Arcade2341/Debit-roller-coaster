@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="<%= currentLang || 'fr' %>">
   <head>
     <% const resolvedSeoDescription = typeof seoDescription !== "undefined"
       ? seoDescription

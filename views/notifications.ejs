@@ -5,23 +5,23 @@
   <section class="container">
     <div class="page-intro">
       <div class="section-head">
-        <h1>Notifications</h1>
-        <p>Messages recus selon votre role et votre compte.</p>
+        <h1><%= t("notifications.title") %></h1>
+        <p><%= t("notifications.intro") %></p>
       </div>
     </div>
 
     <section class="dashboard-card">
         <div class="section-head">
-          <h2>Boite de reception</h2>
+          <h2><%= t("notifications.inbox") %></h2>
         </div>
 
         <%- include("partials/flash") %>
 
         <% if (notifications.length === 0) { %>
-          <p class="empty-state">Aucune notification pour le moment.</p>
+          <p class="empty-state"><%= t("notifications.none") %></p>
         <% } else { %>
           <form action="/notifications/read-all" method="post" class="notifications-toolbar">
-            <button type="submit" class="ghost-button">Tout marquer comme lu</button>
+            <button type="submit" class="ghost-button"><%= t("notifications.markAllRead") %></button>
           </form>
 
           <div class="notifications-list">
@@ -30,7 +30,7 @@
                 <div class="notification-meta">
                   <span><%= resolveNotificationTargetLabel(notification.target_role) %></span>
                   <span><%= notification.created_at.slice(0, 10) %></span>
-                  <span><%= notification.sender_username || "Systeme" %></span>
+                  <span><%= notification.sender_username || t("notifications.system") %></span>
                 </div>
 
                 <h2><%= notification.title %></h2>
@@ -38,7 +38,7 @@
 
                 <% if (!notification.is_read) { %>
                   <form action="/notifications/<%= notification.id %>/read" method="post">
-                    <button type="submit" class="history-delete-button">Marquer comme lu</button>
+                    <button type="submit" class="history-delete-button"><%= t("notifications.markRead") %></button>
                   </form>
                 <% } %>
               </article>
