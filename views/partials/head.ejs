@@ -5,10 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Calculateur de debit roller coaster avec comptes utilisateurs et historique personnel."
+      content="<%= seoDescription || 'Calculateur de debit roller coaster avec comptes utilisateurs et historique personnel.' %>"
     />
+    <meta name="robots" content="<%= metaRobots || 'index,follow' %>" />
+    <link rel="canonical" href="<%= canonicalUrl || `${siteUrl}${currentPath === '/' ? '' : currentPath}` %>" />
+    <meta property="og:site_name" content="Roller Flow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="<%= seoTitle || pageTitle %>" />
+    <meta property="og:description" content="<%= seoDescription || 'Calculateur de debit roller coaster avec comptes utilisateurs et historique personnel.' %>" />
+    <meta property="og:url" content="<%= canonicalUrl || `${siteUrl}${currentPath === '/' ? '' : currentPath}` %>" />
     <meta name="color-scheme" content="light dark" />
-    <title><%= pageTitle %></title>
+    <title><%= seoTitle || pageTitle %></title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

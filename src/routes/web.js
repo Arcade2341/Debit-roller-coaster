@@ -27,6 +27,7 @@ const {
 
 const router = express.Router();
 const appTimeZone = process.env.APP_TIMEZONE || "Europe/Paris";
+const siteUrl = process.env.SITE_URL || "https://roller-flow.xyz";
 
 function makeRedirectLimiter({ windowMs, max, message, redirectTo }) {
   return rateLimit({
@@ -138,6 +139,19 @@ function resolveNotificationTargetLabel(targetRole) {
   return "Tous les comptes";
 }
 
+function renderSeoPage(res, options) {
+  res.render("content-page", {
+    pageTitle: options.pageTitle,
+    seoTitle: options.seoTitle,
+    seoDescription: options.seoDescription,
+    canonicalUrl: `${siteUrl}${options.path}`,
+    eyebrow: options.eyebrow,
+    title: options.title,
+    intro: options.intro,
+    sections: options.sections
+  });
+}
+
 router.get("/", (req, res) => {
   const ipAddress = getClientIp(req);
   const today = createTimestampParts(appTimeZone).date;
@@ -149,6 +163,121 @@ router.get("/", (req, res) => {
     anonymousDailyCount,
     catalogInfo
   });
+});
+
+router.get("/fonctionnement", (req, res) => {
+  renderSeoPage(res, {
+    path: "/fonctionnement",
+    pageTitle: "Fonctionnement",
+    seoTitle: "Fonctionnement du calculateur de debit | Roller Flow",
+    seoDescription: "Comprenez comment fonctionne le calculateur de debit Roller Flow pour les roller coasters et attractions.",
+    eyebrow: "Guide",
+    title: "Fonctionnement du calculateur",
+    intro: "Une vue simple de la formule et de l'usage du site.",
+    sections: [
+      {
+        title: "Comment le debit est calcule",
+        paragraphs: [
+          "Le site utilise une formule directe : personnes par train x 30 x nombre de trains en deux minutes.",
+          "Le resultat obtenu correspond a une estimation du debit horaire de l'attraction."
+        ]
+      },
+      {
+        title: "Mode manuel et mode auto",
+        paragraphs: [
+          "Le mode manuel permet de saisir librement le nom de l'attraction et sa capacite.",
+          "Le mode auto permet de rechercher une attraction dans un catalogue et de recuperer automatiquement le nombre de personnes par train."
+        ]
+      }
+    ]
+  });
+});
+
+router.get("/faq", (req, res) => {
+  renderSeoPage(res, {
+    path: "/faq",
+    pageTitle: "FAQ",
+    seoTitle: "FAQ calculateur de debit attraction | Roller Flow",
+    seoDescription: "Questions frequentes sur le calcul du debit d'un roller coaster, le mode auto et l'historique personnel.",
+    eyebrow: "FAQ",
+    title: "Questions frequentes",
+    intro: "Les reponses rapides aux questions les plus utiles.",
+    sections: [
+      {
+        title: "A quoi sert Roller Flow",
+        paragraphs: [
+          "Roller Flow sert a calculer et archiver le debit horaire d'une attraction de type roller coaster ou autre attraction a trains.",
+          "L'outil permet de centraliser les calculs dans un espace personnel."
+        ]
+      },
+      {
+        title: "Pourquoi creer un compte",
+        paragraphs: [
+          "Un compte permet d'acceder au mode auto, de conserver son historique et de proposer de nouvelles attractions au catalogue.",
+          "Les visiteurs sans compte restent limites en nombre de calculs quotidiens."
+        ]
+      }
+    ]
+  });
+});
+
+router.get("/a-propos", (req, res) => {
+  renderSeoPage(res, {
+    path: "/a-propos",
+    pageTitle: "A propos",
+    seoTitle: "A propos de Roller Flow | Calculateur de debit attraction",
+    seoDescription: "Presentation de Roller Flow, outil de calcul de debit attraction pour roller coasters et parcs.",
+    eyebrow: "Site",
+    title: "A propos de Roller Flow",
+    intro: "Un outil simple pour estimer le debit d'une attraction et suivre ses calculs.",
+    sections: [
+      {
+        title: "Le but du site",
+        paragraphs: [
+          "Roller Flow a ete concu pour rendre le calcul de debit rapide, clair et reutilisable.",
+          "Le site melange une interface simple, un historique personnel et un catalogue d'attractions pour gagner du temps."
+        ]
+      },
+      {
+        title: "Pour qui",
+        paragraphs: [
+          "Le site peut servir aux passionnes de parcs, aux exploitants, aux equipes d'operations ou a toute personne qui souhaite comparer des capacites theoriques.",
+          "L'objectif est de proposer une base pratique, directe et accessible en ligne."
+        ]
+      }
+    ]
+  });
+});
+
+router.get("/robots.txt", (req, res) => {
+  res.type("text/plain").send(`User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /notifications
+Disallow: /admin
+Disallow: /requests
+Disallow: /login
+Disallow: /register
+Disallow: /attraction-requests
+
+Sitemap: ${siteUrl}/sitemap.xml
+`);
+});
+
+router.get("/sitemap.xml", (req, res) => {
+  const pages = ["/", "/fonctionnement", "/faq", "/a-propos"];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${pages
+  .map(
+    (page) => `  <url>
+    <loc>${siteUrl}${page === "/" ? "" : page}</loc>
+  </url>`
+  )
+  .join("\n")}
+</urlset>`;
+
+  res.type("application/xml").send(xml);
 });
 
 router.get("/api/attractions/search", (req, res) => {

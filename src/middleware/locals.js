@@ -37,6 +37,7 @@ function attachLocals(req, res, next) {
   res.locals.currentPath = req.path;
   res.locals.lastCalculation = req.session.lastCalculation || null;
   res.locals.unreadNotificationsCount = 0;
+  res.locals.siteUrl = process.env.SITE_URL || "https://roller-flow.xyz";
 
   if (req.session.user) {
     const targets = getNotificationFilter(req.session.user);

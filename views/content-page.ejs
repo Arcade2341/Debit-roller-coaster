@@ -1,0 +1,31 @@
+<%- include("partials/head", { pageTitle, seoTitle, seoDescription, metaRobots, canonicalUrl }) %>
+<%- include("partials/header") %>
+
+<main class="dashboard-page">
+  <section class="container">
+    <div class="page-intro">
+      <div class="section-head">
+        <% if (eyebrow) { %>
+          <span class="eyebrow"><%= eyebrow %></span>
+        <% } %>
+        <h1><%= title %></h1>
+        <% if (intro) { %>
+          <p><%= intro %></p>
+        <% } %>
+      </div>
+    </div>
+
+    <section class="dashboard-card content-card">
+      <% sections.forEach((section) => { %>
+        <article class="content-block">
+          <h2><%= section.title %></h2>
+          <% section.paragraphs.forEach((paragraph) => { %>
+            <p><%= paragraph %></p>
+          <% }) %>
+        </article>
+      <% }) %>
+    </section>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

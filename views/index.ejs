@@ -1,4 +1,8 @@
-<%- include("partials/head", { pageTitle }) %>
+<%- include("partials/head", {
+  pageTitle,
+  seoTitle: "Calculateur de debit roller coaster | Roller Flow",
+  seoDescription: "Calculez le debit horaire d'une attraction avec un mode manuel ou auto, un historique personnel et une gestion simple des demandes d'ajout."
+}) %>
 <%- include("partials/header") %>
 
 <main>
@@ -175,6 +179,34 @@
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section class="container seo-section">
+    <div class="dashboard-card content-card">
+      <article class="content-block">
+        <h2>Calculer le debit d'un roller coaster</h2>
+        <p>
+          Roller Flow permet de calculer rapidement le debit horaire d'une attraction a partir du nombre
+          de personnes par train et du nombre de trains qui passent en deux minutes.
+        </p>
+        <p>
+          L'outil est pense pour un usage simple sur ordinateur ou mobile, avec un historique personnel,
+          un mode manuel et un mode auto base sur un catalogue d'attractions.
+        </p>
+      </article>
+
+      <article class="content-block">
+        <h2>Formule de calcul</h2>
+        <p>
+          La formule utilisee est : personnes par train x 30 x nombre de trains en 2 minutes. Le resultat
+          donne une estimation du debit par heure.
+        </p>
+        <p>
+          Cette base est utile pour comparer l'exploitation de plusieurs attractions, suivre une capacite
+          theorique et centraliser les calculs dans un seul espace.
+        </p>
+      </article>
     </div>
   </section>
 </main>
