@@ -41,7 +41,6 @@
               <a href="/login" class="ghost-button button-link">Connexion</a>
             <% } else { %>
               <a href="/dashboard" class="primary-button button-link">Mon historique</a>
-              <a href="/" class="ghost-button button-link">Nouveau calcul</a>
             <% } %>
           </div>
         </div>
@@ -78,10 +77,10 @@
               <div class="catalog-state">
                 <% if (!user) { %>
                   <span>Connectez-vous pour utiliser le mode auto.</span>
-                <% } else if (catalogInfo.available) { %>
-                  <span><%= catalogInfo.total %> attractions chargees depuis le fichier Excel.</span>
-                <% } else { %>
+                <% } else if (!catalogInfo.available) { %>
                   <span>Ajoutez `data/attractions.xlsx` pour activer le mode auto.</span>
+                <% } else { %>
+                  <span>Mode auto disponible.</span>
                 <% } %>
               </div>
 

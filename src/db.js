@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const bcrypt = require("bcryptjs");
 const Database = require("better-sqlite3");
 
 const dataPath = path.join(__dirname, "..", "data");
@@ -100,21 +99,6 @@ if (!hasLockedIpColumn) {
 
 if (!hasHelperColumn) {
   db.exec("ALTER TABLE users ADD COLUMN is_helper INTEGER NOT NULL DEFAULT 0");
-}
-
-const existingAdmin = db
-  .prepare("SELECT id FROM users WHERE LOWER(username) = LOWER(?) LIMIT 1")
-  .get("admin");
-
-if (!existingAdmin) {
-  const now = new Date().toISOString();
-
-  db.prepare(
-    `
-      INSERT INTO users (username, password_hash, locked_ip, is_admin, created_at, updated_at)
-      VALUES (?, ?, NULL, 1, ?, ?)
-    `
-  ).run("admin", bcrypt.hashSync("admin", 12), now, now);
 }
 
 module.exports = db;
