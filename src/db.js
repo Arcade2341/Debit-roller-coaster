@@ -30,6 +30,8 @@ db.exec(`
     people_per_train INTEGER NOT NULL,
     trains_in_two_minutes INTEGER NOT NULL,
     train_window_minutes INTEGER NOT NULL DEFAULT 2,
+    average_dispatch_seconds REAL,
+    time_samples_count INTEGER,
     throughput_per_hour INTEGER NOT NULL,
     recorded_date TEXT NOT NULL,
     recorded_time TEXT NOT NULL,
@@ -95,6 +97,8 @@ const hasLockedIpColumn = userColumns.some((column) => column.name === "locked_i
 const hasHelperColumn = userColumns.some((column) => column.name === "is_helper");
 const calculationColumns = db.prepare("PRAGMA table_info(calculations)").all();
 const hasTrainWindowColumn = calculationColumns.some((column) => column.name === "train_window_minutes");
+const hasAverageDispatchColumn = calculationColumns.some((column) => column.name === "average_dispatch_seconds");
+const hasTimeSamplesCountColumn = calculationColumns.some((column) => column.name === "time_samples_count");
 
 if (!hasLockedIpColumn) {
   db.exec("ALTER TABLE users ADD COLUMN locked_ip TEXT");
@@ -106,6 +110,14 @@ if (!hasHelperColumn) {
 
 if (!hasTrainWindowColumn) {
   db.exec("ALTER TABLE calculations ADD COLUMN train_window_minutes INTEGER NOT NULL DEFAULT 2");
+}
+
+if (!hasAverageDispatchColumn) {
+  db.exec("ALTER TABLE calculations ADD COLUMN average_dispatch_seconds REAL");
+}
+
+if (!hasTimeSamplesCountColumn) {
+  db.exec("ALTER TABLE calculations ADD COLUMN time_samples_count INTEGER");
 }
 
 module.exports = db;

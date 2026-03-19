@@ -27,7 +27,8 @@
                 <tr>
                   <th><%= t("dashboard.ride") %></th>
                   <th><%= t("dashboard.peopleTrain") %></th>
-                  <th><%= t("dashboard.trainsPeriod") %></th>
+                  <th><%= t("dashboard.averageSeconds") %></th>
+                  <th><%= t("dashboard.samples") %></th>
                   <th><%= t("dashboard.throughputHour") %></th>
                   <th><%= t("dashboard.date") %></th>
                   <th><%= t("dashboard.time") %></th>
@@ -39,7 +40,8 @@
                   <tr>
                     <td><%= entry.attraction_name %></td>
                     <td><%= entry.people_per_train %></td>
-                    <td><%= `${entry.trains_in_two_minutes} / ${entry.train_window_minutes || 2} min` %></td>
+                    <td><%= entry.average_dispatch_seconds ?? "--" %></td>
+                    <td><%= entry.time_samples_count ?? "--" %></td>
                     <td><%= entry.throughput_per_hour %></td>
                     <td><%= entry.recorded_date %></td>
                     <td><%= entry.recorded_time %></td>

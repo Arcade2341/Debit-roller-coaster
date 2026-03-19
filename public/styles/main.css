@@ -588,6 +588,46 @@ textarea {
   gap: 0.9rem;
 }
 
+.time-panel {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.time-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.time-panel-head span {
+  font-size: 0.94rem;
+  font-weight: 800;
+  color: var(--orange-deep);
+}
+
+.time-input-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.time-field {
+  margin-bottom: 0;
+}
+
+.time-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.add-time-button,
+.time-remove-button {
+  white-space: nowrap;
+}
+
 .field {
   display: flex;
   flex-direction: column;
@@ -785,6 +825,10 @@ textarea {
 
 :root[data-theme="dark"] .field-help {
   color: #dcbda4;
+}
+
+:root[data-theme="dark"] .time-panel-head span {
+  color: #ffe1c3;
 }
 
 :root[data-theme="dark"] .search-result-option {
@@ -1454,6 +1498,12 @@ code {
 
   .field-split {
     grid-template-columns: 1fr;
+  }
+
+  .time-panel-head,
+  .time-input-row {
+    grid-template-columns: 1fr;
+    display: grid;
   }
 
   .result-details div {

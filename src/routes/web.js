@@ -606,60 +606,48 @@ router.get("/api/attractions/search", (req, res) => {
 });
 
 router.post("/calculate", calculationLimiter, (req, res) => {
-  const calculationMode = req.body.calculationMode === "auto" ? "auto" : "manual";
-  const trainWindowMinutes = req.body.trainWindowMinutes === "5" ? 5 : 2;
-  let attractionName = "";
-  let peoplePerTrain = 0;
+  const selectedAttraction = findAttractionById(req.body.catalogAttractionId);
 
-  if (calculationMode === "auto") {
-    const selectedAttraction = findAttractionById(req.body.catalogAttractionId);
-
-    if (!selectedAttraction) {
-      setFlash(req, "error", t(req, "flash.selectValidAutoRide"));
-      return res.redirect("/");
-    }
-
-    attractionName = selectedAttraction.displayName;
-    peoplePerTrain = selectedAttraction.peoplePerTrain;
-  } else {
-    const attractionValidation = validateAttractionName(req.body.attractionName);
-    const peopleValidation = validateInteger(req.body.peoplePerTrain, "Le nombre de personnes par train", {
-      min: 1,
-      max: 100
-    });
-
-    if (!attractionValidation.valid) {
-      setFlash(req, "error", attractionValidation.message);
-      return res.redirect("/");
-    }
-
-    if (!peopleValidation.valid) {
-      setFlash(req, "error", peopleValidation.message);
-      return res.redirect("/");
-    }
-
-    attractionName = attractionValidation.value;
-    peoplePerTrain = peopleValidation.value;
-  }
-
-  const trainsValidation = validateInteger(
-    req.body.trainsInTwoMinutes,
-    t(req, "flash.trainsObservedLabel"),
-    {
-      min: 1,
-      max: 120
-    }
-  );
-
-  if (!trainsValidation.valid) {
-    setFlash(req, "error", trainsValidation.message);
+  if (!selectedAttraction) {
+    setFlash(req, "error", t(req, "flash.selectValidRide"));
     return res.redirect("/");
   }
 
+  const rawDispatchTimes = (Array.isArray(req.body.dispatchTimes) ? req.body.dispatchTimes : [req.body.dispatchTimes])
+    .map((value) => String(value || "").trim())
+    .filter(Boolean);
+
+  const dispatchTimes = rawDispatchTimes.map((value) =>
+    validateInteger(value, t(req, "flash.dispatchTimeLabel"), { min: 1, max: 600 })
+  );
+
+  if (dispatchTimes.length === 0) {
+    setFlash(req, "error", t(req, "flash.enterAtLeastOneTime"));
+    return res.redirect("/");
+  }
+
+  if (dispatchTimes.length > 10) {
+    setFlash(req, "error", t(req, "flash.maxTenTimes"));
+    return res.redirect("/");
+  }
+
+  const invalidDispatchTime = dispatchTimes.find((entry) => !entry.valid);
+
+  if (invalidDispatchTime) {
+    setFlash(req, "error", invalidDispatchTime.message);
+    return res.redirect("/");
+  }
+
+  const validDispatchTimes = dispatchTimes.map((entry) => entry.value);
+  const averageDispatchSeconds = Number(
+    (validDispatchTimes.reduce((sum, value) => sum + value, 0) / validDispatchTimes.length).toFixed(2)
+  );
+  const attractionName = selectedAttraction.displayName;
+  const peoplePerTrain = selectedAttraction.peoplePerTrain;
+
   const ipAddress = getClientIp(req);
   const timestamp = createTimestampParts(appTimeZone);
-  const throughputMultiplier = trainWindowMinutes === 5 ? 12 : 30;
-  const throughput = peoplePerTrain * throughputMultiplier * trainsValidation.value;
+  const throughput = Math.round((3600 / averageDispatchSeconds) * peoplePerTrain);
 
   db.prepare(
     `
@@ -668,6 +656,8 @@ router.post("/calculate", calculationLimiter, (req, res) => {
         people_per_train,
         trains_in_two_minutes,
         train_window_minutes,
+        average_dispatch_seconds,
+        time_samples_count,
         throughput_per_hour,
         recorded_date,
         recorded_time,
@@ -680,8 +670,10 @@ router.post("/calculate", calculationLimiter, (req, res) => {
   ).run(
     attractionName,
     peoplePerTrain,
-    trainsValidation.value,
-    trainWindowMinutes,
+    0,
+    0,
+    averageDispatchSeconds,
+    validDispatchTimes.length,
     throughput,
     timestamp.date,
     timestamp.time,
@@ -694,8 +686,8 @@ router.post("/calculate", calculationLimiter, (req, res) => {
     attractionName,
     throughput,
     peoplePerTrain,
-    trainsInTwoMinutes: trainsValidation.value,
-    trainWindowMinutes
+    averageDispatchSeconds,
+    timeSamplesCount: validDispatchTimes.length
   };
 
   setFlash(req, "success", t(req, "flash.calculationSaved"));
@@ -879,8 +871,8 @@ router.post("/logout", requireAuth, (req, res) => {
 router.get("/dashboard", requireAuth, (req, res) => {
   const calculations = db
     .prepare(
-      `
-          SELECT id, attraction_name, people_per_train, trains_in_two_minutes, train_window_minutes, throughput_per_hour, recorded_date, recorded_time
+        `
+          SELECT id, attraction_name, people_per_train, average_dispatch_seconds, time_samples_count, throughput_per_hour, recorded_date, recorded_time
           FROM calculations
         WHERE user_id = ?
         ORDER BY id DESC

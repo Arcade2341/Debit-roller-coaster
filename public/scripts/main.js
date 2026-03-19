@@ -42,10 +42,7 @@ if (form) {
     attractionName: form.dataset.textAttractionName || "Ride name",
     attractionSearch: form.dataset.textAttractionSearch || "Search for a ride",
     attractionHelp: form.dataset.textAttractionHelp || "Enter the ride name freely.",
-    attractionAutoHelp: form.dataset.textAttractionAutoHelp || "Choose a ride from the Excel file.",
-    peopleHelp: form.dataset.textPeopleHelp || "Enter the train capacity manually.",
-    peopleAutoHelp: form.dataset.textPeopleAutoHelp || "Filled automatically from the catalog.",
-    selectAttraction: form.dataset.textSelectAttraction || "Choose a ride and then enter the trains.",
+    selectAttraction: form.dataset.textSelectAttraction || "Choose a ride and enter your times.",
     fillAllFields: form.dataset.textFillAllFields || "Fill in all fields.",
     clickSubmit: form.dataset.textClickSubmit || "Click the button to show the result.",
     searchLoading: form.dataset.textSearchLoading || "Searching...",
@@ -55,33 +52,32 @@ if (form) {
     searchSuggestionPlural: form.dataset.textSearchSuggestionPlural || "suggestions",
     waitingRide: form.dataset.textWaitingRide || "Waiting for a ride",
     peopleTrainShort: form.dataset.textPeopleTrainShort || "people/train",
-    trainsTwoMinutes: form.dataset.textTrainsTwoMinutes || "Trains in 2 minutes",
-    trainsFiveMinutes: form.dataset.textTrainsFiveMinutes || "Trains in 5 minutes"
+    timeLabel: form.dataset.textTimeLabel || "Time",
+    averageSeconds: form.dataset.textAverageSeconds || "Average (s)",
+    timeHelp: form.dataset.textTimeHelp || "Add between 1 and 10 times in seconds.",
+    addTime: form.dataset.textAddTime || "Add time",
+    removeTime: form.dataset.textRemoveTime || "Remove",
+    maxTimes: form.dataset.textMaxTimes || "Maximum reached.",
+    timePlaceholder: form.dataset.textTimePlaceholder || "e.g. 45"
   };
-  const modeInput = form.querySelector("[data-mode-input]");
   const catalogIdInput = form.querySelector("[data-catalog-id-input]");
-  const trainWindowInput = form.querySelector("[data-train-window-input]");
-  const modeButtons = form.querySelectorAll("[data-mode-button]");
-  const trainWindowButtons = form.querySelectorAll("[data-train-window-button]");
   const attractionInput = form.querySelector("[data-attraction-input]");
-  const attractionLabel = form.querySelector("[data-attraction-label]");
-  const attractionHelp = form.querySelector("[data-attraction-help]");
-  const peopleInput = form.querySelector("[data-people-input]");
-  const peopleHelp = form.querySelector("[data-people-help]");
-  const trainsInput = form.querySelector("[data-trains-input]");
-  const trainsLabel = form.querySelector("[data-trains-label]");
+  const addTimeButton = form.querySelector("[data-add-time-button]");
+  const timeInputList = form.querySelector("[data-time-input-list]");
+  const timeHelp = form.querySelector("[data-time-help]");
   const submitButton = form.querySelector("[data-submit-button]");
   const searchPanel = form.querySelector("[data-search-panel]");
   const searchResults = form.querySelector("[data-search-results]");
   const searchMeta = form.querySelector("[data-search-meta]");
-  const autoOnlyElements = form.querySelectorAll("[data-auto-only]");
 
   const resultAttraction = document.querySelector("[data-result-attraction]");
   const resultValue = document.querySelector("[data-result-value]");
   const resultPeople = document.querySelector("[data-result-people]");
-  const resultTrains = document.querySelector("[data-result-trains]");
+  const resultAverage = document.querySelector("[data-result-average]");
+  const resultSamples = document.querySelector("[data-result-samples]");
   const resultStatus = document.querySelector("[data-result-status]");
   let searchRequestId = 0;
+  const maxTimeInputs = 10;
 
   function isFilled(value) {
     return String(value || "").trim().length > 0;
@@ -90,6 +86,72 @@ if (form) {
   function toInteger(value) {
     const parsed = Number(value);
     return Number.isInteger(parsed) ? parsed : NaN;
+  }
+
+  function getTimeInputs() {
+    return Array.from(form.querySelectorAll("[data-time-input]"));
+  }
+
+  function updateTimeLabels() {
+    getTimeInputs().forEach((input, index) => {
+      const label = input.closest(".time-field")?.querySelector("span");
+      if (label) {
+        label.textContent = `${texts.timeLabel} ${index + 1}`;
+      }
+    });
+  }
+
+  function syncTimeUi() {
+    const timeInputs = getTimeInputs();
+    const canAddMore = timeInputs.length < maxTimeInputs;
+
+    if (addTimeButton) {
+      addTimeButton.disabled = !canAddMore;
+    }
+
+    if (timeHelp) {
+      timeHelp.textContent = canAddMore ? texts.timeHelp : texts.maxTimes;
+    }
+
+    timeInputs.forEach((input) => {
+      const removeButton = input.closest(".time-field")?.querySelector("[data-remove-time-button]");
+      if (removeButton) {
+        removeButton.hidden = timeInputs.length <= 1;
+      }
+    });
+  }
+
+  function createTimeField() {
+    const wrapper = document.createElement("label");
+    wrapper.className = "field time-field";
+    wrapper.innerHTML = `
+      <span>${texts.timeLabel}</span>
+      <div class="time-input-row">
+        <input
+          type="number"
+          name="dispatchTimes"
+          min="1"
+          max="600"
+          required
+          placeholder="${texts.timePlaceholder}"
+          data-time-input
+        />
+        <button type="button" class="history-delete-button time-remove-button" data-remove-time-button>${texts.removeTime}</button>
+      </div>
+    `;
+
+    const input = wrapper.querySelector("[data-time-input]");
+    const removeButton = wrapper.querySelector("[data-remove-time-button]");
+
+    input.addEventListener("input", syncFormState);
+    removeButton.addEventListener("click", () => {
+      wrapper.remove();
+      updateTimeLabels();
+      syncTimeUi();
+      syncFormState();
+    });
+
+    return wrapper;
   }
 
   function clearSuggestions() {
@@ -138,87 +200,25 @@ if (form) {
       optionButton.addEventListener("click", () => {
         attractionInput.value = result.displayName;
         catalogIdInput.value = result.id;
-        peopleInput.value = String(result.peoplePerTrain);
         clearSuggestions();
         syncFormState();
       });
       searchResults.appendChild(optionButton);
     });
-
-  }
-
-  function syncTrainWindowUi() {
-    const trainWindowMinutes = trainWindowInput && trainWindowInput.value === "5" ? "5" : "2";
-    const isFiveMinutes = trainWindowMinutes === "5";
-
-    trainWindowButtons.forEach((button) => {
-      const isActive = button.dataset.trainWindowValue === trainWindowMinutes;
-      button.classList.toggle("is-active", isActive);
-      button.setAttribute("aria-pressed", isActive ? "true" : "false");
-    });
-
-    if (trainsLabel) {
-      trainsLabel.textContent = isFiveMinutes ? texts.trainsFiveMinutes : texts.trainsTwoMinutes;
-    }
-  }
-
-  function syncModeUi() {
-    const mode = modeInput.value;
-    const isAutoMode = mode === "auto";
-
-    modeButtons.forEach((button) => {
-      const isActive = button.dataset.modeValue === mode;
-      button.classList.toggle("is-active", isActive);
-      button.setAttribute("aria-pressed", isActive ? "true" : "false");
-    });
-
-    autoOnlyElements.forEach((element) => {
-      element.hidden = !isAutoMode;
-    });
-
-    if (isAutoMode) {
-      attractionLabel.textContent = "Rechercher une attraction";
-      attractionLabel.textContent = texts.attractionSearch;
-      attractionHelp.textContent = texts.attractionAutoHelp;
-      peopleHelp.textContent = texts.peopleAutoHelp;
-      attractionInput.placeholder = texts.attractionSearch;
-      peopleInput.readOnly = true;
-    } else {
-      attractionLabel.textContent = texts.attractionName;
-      attractionHelp.textContent = texts.attractionHelp;
-      peopleHelp.textContent = texts.peopleHelp;
-      attractionInput.placeholder = texts.attractionName;
-      peopleInput.readOnly = false;
-      catalogIdInput.value = "";
-      clearSuggestions();
-    }
   }
 
   function syncFormState() {
-    const mode = modeInput.value;
     const attractionName = attractionInput.value.trim();
-    const peoplePerTrain = toInteger(peopleInput.value);
-    const trainsInTwoMinutes = toInteger(trainsInput.value);
-    const modeReady =
-      mode === "auto"
-        ? isFilled(catalogIdInput.value) && isFilled(attractionName)
-        : isFilled(attractionName) &&
-          Number.isInteger(peoplePerTrain) &&
-          peoplePerTrain >= 1 &&
-          peoplePerTrain <= 100;
-    const formReady =
-      modeReady &&
-      Number.isInteger(trainsInTwoMinutes) &&
-      trainsInTwoMinutes >= 1 &&
-      trainsInTwoMinutes <= 50;
+    const timeValues = getTimeInputs().map((input) => toInteger(input.value));
+    const timesReady =
+      timeValues.length >= 1 &&
+      timeValues.every((value) => Number.isInteger(value) && value >= 1 && value <= 600);
+    const formReady = isFilled(catalogIdInput.value) && isFilled(attractionName) && timesReady;
 
     submitButton.disabled = !formReady;
 
     if (!formReady) {
-      resultStatus.textContent =
-        mode === "auto"
-          ? texts.selectAttraction
-          : texts.fillAllFields;
+      resultStatus.textContent = isFilled(catalogIdInput.value) ? texts.fillAllFields : texts.selectAttraction;
       return;
     }
 
@@ -226,11 +226,6 @@ if (form) {
   }
 
   async function fetchSuggestions() {
-    if (modeInput.value !== "auto") {
-      clearSuggestions();
-      return;
-    }
-
     const query = attractionInput.value.trim();
 
     if (query.length < 2) {
@@ -256,18 +251,10 @@ if (form) {
     renderSuggestions(payload.results || []);
   }
 
-  [attractionInput, peopleInput, trainsInput].forEach((input) => {
-    input.addEventListener("input", syncFormState);
-  });
-
   attractionInput.addEventListener("input", () => {
-    if (modeInput.value !== "auto") {
-      return;
-    }
-
     catalogIdInput.value = "";
-    peopleInput.value = "";
     fetchSuggestions().catch(() => clearSuggestions());
+    syncFormState();
   });
 
   attractionInput.addEventListener("blur", () => {
@@ -276,41 +263,35 @@ if (form) {
     }, 150);
   });
 
-  trainWindowButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      if (!trainWindowInput) {
+  getTimeInputs().forEach((input) => {
+    input.addEventListener("input", syncFormState);
+  });
+
+  if (addTimeButton) {
+    addTimeButton.addEventListener("click", () => {
+      if (getTimeInputs().length >= maxTimeInputs) {
+        syncTimeUi();
         return;
       }
 
-      trainWindowInput.value = button.dataset.trainWindowValue === "5" ? "5" : "2";
-      syncTrainWindowUi();
+      const newField = createTimeField();
+      timeInputList.appendChild(newField);
+      updateTimeLabels();
+      syncTimeUi();
       syncFormState();
+      newField.querySelector("[data-time-input]")?.focus();
     });
-  });
-
-  modeButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      if (button.disabled) {
-        return;
-      }
-
-      modeInput.value = button.dataset.modeValue;
-      attractionInput.value = "";
-      peopleInput.value = "";
-      catalogIdInput.value = "";
-      syncModeUi();
-      syncFormState();
-    });
-  });
+  }
 
   if (resultValue.textContent.trim().startsWith("--")) {
     resultAttraction.textContent = texts.waitingRide;
     resultPeople.textContent = "--";
-    resultTrains.textContent = "--";
+    resultAverage.textContent = "--";
+    resultSamples.textContent = "--";
     resultStatus.textContent = texts.fillAllFields;
   }
 
-  syncTrainWindowUi();
-  syncModeUi();
+  updateTimeLabels();
+  syncTimeUi();
   syncFormState();
 }
