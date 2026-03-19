@@ -88,31 +88,6 @@
                 </div>
               <% } %>
 
-              <div class="time-panel" data-manual-panel>
-                <div class="time-panel-head">
-                  <span><%= t("home.dispatchTimesTitle") %></span>
-                </div>
-
-                <div class="time-input-list" data-time-input-list>
-                  <label class="field time-field">
-                    <span><%= t("home.dispatchTimeLabel", { index: 1 }) %></span>
-                    <div class="time-input-row">
-                      <input
-                        type="number"
-                        name="dispatchTimes"
-                        min="1"
-                        max="600"
-                        required
-                        placeholder="<%= t('home.dispatchTimePlaceholder') %>"
-                        data-time-input
-                      />
-                    </div>
-                  </label>
-                </div>
-
-                <small class="field-help" data-time-help><%= t("home.dispatchTimeHelp") %></small>
-              </div>
-
               <div class="chrono-panel" data-chrono-panel hidden>
                 <div class="chrono-display" data-chrono-display>00:00</div>
                 <div class="chrono-controls">
