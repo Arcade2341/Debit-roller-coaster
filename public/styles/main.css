@@ -594,6 +594,58 @@ textarea {
   margin-bottom: 1rem;
 }
 
+.chrono-panel {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1.1rem;
+  border-radius: 24px;
+  border: 1px solid rgba(143, 63, 23, 0.1);
+  background: linear-gradient(180deg, rgba(255, 248, 241, 0.94), rgba(255, 236, 216, 0.82));
+}
+
+.chrono-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 112px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(143, 63, 23, 0.08);
+  font-family: "Sora", sans-serif;
+  font-size: clamp(2.2rem, 6vw, 3.8rem);
+  font-weight: 800;
+  color: var(--orange-deep);
+  letter-spacing: -0.05em;
+}
+
+.chrono-controls {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.chrono-running-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.chrono-times-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.chrono-time-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.chrono-time-item strong {
+  color: var(--orange-deep);
+}
+
 .time-panel-head {
   display: flex;
   align-items: center;
@@ -828,6 +880,21 @@ textarea {
 }
 
 :root[data-theme="dark"] .time-panel-head span {
+  color: #ffe1c3;
+}
+
+:root[data-theme="dark"] .chrono-panel {
+  background: linear-gradient(180deg, rgba(42, 28, 19, 0.96), rgba(78, 42, 22, 0.78));
+  border-color: rgba(255, 191, 133, 0.14);
+}
+
+:root[data-theme="dark"] .chrono-display {
+  background: rgba(24, 16, 12, 0.82);
+  border-color: rgba(255, 191, 133, 0.14);
+  color: #fff0e0;
+}
+
+:root[data-theme="dark"] .chrono-time-item strong {
   color: #ffe1c3;
 }
 
@@ -1504,6 +1571,10 @@ code {
   .time-input-row {
     grid-template-columns: 1fr;
     display: grid;
+  }
+
+  .chrono-running-controls {
+    grid-template-columns: 1fr;
   }
 
   .result-details div {

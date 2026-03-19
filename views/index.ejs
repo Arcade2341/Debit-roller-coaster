@@ -57,11 +57,29 @@
               data-text-remove-time="<%= t('home.removeTime') %>"
               data-text-max-times="<%= t('home.maxTimesReached') %>"
               data-text-time-placeholder="<%= t('home.dispatchTimePlaceholder') %>"
+              data-text-chrono-start="<%= t('home.chronoStart') %>"
+              data-text-chrono-stop="<%= t('home.chronoStop') %>"
+              data-text-chrono-plus-one="<%= t('home.chronoPlusOne') %>"
+              data-text-chrono-help="<%= t('home.chronoHelp') %>"
+              data-text-chrono-empty="<%= t('home.chronoEmpty') %>"
+              data-text-chrono-running="<%= t('home.chronoRunning') %>"
+              data-text-mode-manual="<%= t('home.manual') %>"
+              data-text-mode-chrono="<%= t('home.chrono') %>"
             >
               <input type="hidden" name="catalogAttractionId" value="" data-catalog-id-input />
+              <input type="hidden" value="manual" data-entry-mode-input />
 
               <div class="section-head">
                 <h2><%= t("home.formTitle") %></h2>
+              </div>
+
+              <div class="mode-switch">
+                <button type="button" class="mode-button is-active" data-entry-mode-button data-entry-mode-value="manual">
+                  <%= t("home.manual") %>
+                </button>
+                <button type="button" class="mode-button" data-entry-mode-button data-entry-mode-value="chrono">
+                  <%= t("home.chrono") %>
+                </button>
               </div>
 
               <% if (!catalogInfo.available) { %>
@@ -70,35 +88,7 @@
                 </div>
               <% } %>
 
-              <% if (user) { %>
-                <a href="/attraction-requests/new" class="request-link"><%= t("home.requestMissingRide") %></a>
-              <% } %>
-
-              <label class="field">
-                <span><%= t("home.attractionSearch") %></span>
-                <input
-                  type="text"
-                  name="attractionName"
-                  maxlength="80"
-                  minlength="3"
-                  required
-                  placeholder="<%= t('home.attractionPlaceholder') %>"
-                  autocomplete="off"
-                  data-attraction-input
-                />
-                <small class="field-help">
-                  <%= t("home.attractionHelp") %>
-                </small>
-                <div class="search-panel" data-search-panel hidden>
-                  <div class="search-panel-head">
-                    <span><%= t("home.results") %></span>
-                    <small data-search-meta><%= t("home.startTyping") %></small>
-                  </div>
-                  <div class="search-results" data-search-results></div>
-                </div>
-              </label>
-
-              <div class="time-panel">
+              <div class="time-panel" data-manual-panel>
                 <div class="time-panel-head">
                   <span><%= t("home.dispatchTimesTitle") %></span>
                   <button type="button" class="ghost-button add-time-button" data-add-time-button>
@@ -125,6 +115,56 @@
 
                 <small class="field-help" data-time-help><%= t("home.dispatchTimeHelp") %></small>
               </div>
+
+              <div class="chrono-panel" data-chrono-panel hidden>
+                <div class="chrono-display" data-chrono-display>00:00</div>
+                <div class="chrono-controls">
+                  <button type="button" class="primary-button chrono-start-button" data-chrono-start-button>
+                    <%= t("home.chronoStart") %>
+                  </button>
+                  <div class="chrono-running-controls" data-chrono-running-controls hidden>
+                    <button type="button" class="ghost-button chrono-stop-button" data-chrono-stop-button>
+                      <%= t("home.chronoStop") %>
+                    </button>
+                    <button type="button" class="primary-button chrono-lap-button" data-chrono-lap-button>
+                      <%= t("home.chronoPlusOne") %>
+                    </button>
+                  </div>
+                </div>
+                <div class="chrono-times-list" data-chrono-times-list>
+                  <p class="empty-state" data-chrono-empty><%= t("home.chronoEmpty") %></p>
+                </div>
+                <div data-chrono-hidden-inputs></div>
+                <small class="field-help" data-chrono-help><%= t("home.chronoHelp") %></small>
+              </div>
+
+              <label class="field">
+                <span><%= t("home.attractionSearch") %></span>
+                <input
+                  type="text"
+                  name="attractionName"
+                  maxlength="80"
+                  minlength="3"
+                  required
+                  placeholder="<%= t('home.attractionPlaceholder') %>"
+                  autocomplete="off"
+                  data-attraction-input
+                />
+                <small class="field-help">
+                  <%= t("home.attractionHelp") %>
+                </small>
+                <div class="search-panel" data-search-panel hidden>
+                  <div class="search-panel-head">
+                    <span><%= t("home.results") %></span>
+                    <small data-search-meta><%= t("home.startTyping") %></small>
+                  </div>
+                  <div class="search-results" data-search-results></div>
+                </div>
+              </label>
+
+              <% if (user) { %>
+                <a href="/attraction-requests/new" class="request-link"><%= t("home.requestMissingRide") %></a>
+              <% } %>
 
               <button type="submit" class="primary-button" disabled data-submit-button>
                 <%= t("home.submit") %>

@@ -58,13 +58,32 @@ if (form) {
     addTime: form.dataset.textAddTime || "Add time",
     removeTime: form.dataset.textRemoveTime || "Remove",
     maxTimes: form.dataset.textMaxTimes || "Maximum reached.",
-    timePlaceholder: form.dataset.textTimePlaceholder || "e.g. 45"
+    timePlaceholder: form.dataset.textTimePlaceholder || "e.g. 45",
+    chronoStart: form.dataset.textChronoStart || "Start",
+    chronoStop: form.dataset.textChronoStop || "Stop",
+    chronoPlusOne: form.dataset.textChronoPlusOne || "+1 train",
+    chronoHelp: form.dataset.textChronoHelp || "Start the stopwatch, then record each train.",
+    chronoEmpty: form.dataset.textChronoEmpty || "No recorded times yet.",
+    chronoRunning: form.dataset.textChronoRunning || "Chrono running..."
   };
   const catalogIdInput = form.querySelector("[data-catalog-id-input]");
+  const entryModeInput = form.querySelector("[data-entry-mode-input]");
+  const entryModeButtons = form.querySelectorAll("[data-entry-mode-button]");
   const attractionInput = form.querySelector("[data-attraction-input]");
   const addTimeButton = form.querySelector("[data-add-time-button]");
   const timeInputList = form.querySelector("[data-time-input-list]");
   const timeHelp = form.querySelector("[data-time-help]");
+  const manualPanel = form.querySelector("[data-manual-panel]");
+  const chronoPanel = form.querySelector("[data-chrono-panel]");
+  const chronoDisplay = form.querySelector("[data-chrono-display]");
+  const chronoStartButton = form.querySelector("[data-chrono-start-button]");
+  const chronoRunningControls = form.querySelector("[data-chrono-running-controls]");
+  const chronoStopButton = form.querySelector("[data-chrono-stop-button]");
+  const chronoLapButton = form.querySelector("[data-chrono-lap-button]");
+  const chronoTimesList = form.querySelector("[data-chrono-times-list]");
+  const chronoEmpty = form.querySelector("[data-chrono-empty]");
+  const chronoHelp = form.querySelector("[data-chrono-help]");
+  const chronoHiddenInputs = form.querySelector("[data-chrono-hidden-inputs]");
   const submitButton = form.querySelector("[data-submit-button]");
   const searchPanel = form.querySelector("[data-search-panel]");
   const searchResults = form.querySelector("[data-search-results]");
@@ -78,6 +97,10 @@ if (form) {
   const resultStatus = document.querySelector("[data-result-status]");
   let searchRequestId = 0;
   const maxTimeInputs = 10;
+  let chronoStartTime = null;
+  let chronoLastTrainTime = null;
+  let chronoIntervalId = null;
+  let chronoValues = [];
 
   function isFilled(value) {
     return String(value || "").trim().length > 0;
@@ -92,12 +115,64 @@ if (form) {
     return Array.from(form.querySelectorAll("[data-time-input]"));
   }
 
+  function getActiveMode() {
+    return entryModeInput ? entryModeInput.value : "manual";
+  }
+
+  function getChronoInputs() {
+    return Array.from(form.querySelectorAll("[data-chrono-time-input]"));
+  }
+
+  function getActiveTimeInputs() {
+    return getActiveMode() === "chrono" ? getChronoInputs() : getTimeInputs();
+  }
+
+  function formatChrono(ms) {
+    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+    const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+    const seconds = String(totalSeconds % 60).padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  }
+
   function updateTimeLabels() {
     getTimeInputs().forEach((input, index) => {
       const label = input.closest(".time-field")?.querySelector("span");
       if (label) {
         label.textContent = `${texts.timeLabel} ${index + 1}`;
       }
+    });
+  }
+
+  function renderChronoValues() {
+    if (!chronoTimesList || !chronoHiddenInputs) {
+      return;
+    }
+
+    chronoTimesList.innerHTML = "";
+    chronoHiddenInputs.innerHTML = "";
+
+    if (chronoValues.length === 0) {
+      if (chronoEmpty) {
+        chronoTimesList.appendChild(chronoEmpty);
+        chronoEmpty.hidden = false;
+      }
+    } else if (chronoEmpty) {
+      chronoEmpty.hidden = true;
+    }
+
+    chronoValues.forEach((value, index) => {
+      const item = document.createElement("div");
+      item.className = "search-empty chrono-time-item";
+      item.innerHTML = `<strong>${texts.timeLabel} ${index + 1}</strong><span>${value} s</span>`;
+      chronoTimesList.appendChild(item);
+
+      const hiddenInput = document.createElement("input");
+      hiddenInput.type = "hidden";
+      hiddenInput.name = "dispatchTimes";
+      hiddenInput.value = String(value);
+      hiddenInput.disabled = getActiveMode() !== "chrono";
+      hiddenInput.setAttribute("data-chrono-time-input", "");
+      chronoHiddenInputs.appendChild(hiddenInput);
     });
   }
 
@@ -118,6 +193,87 @@ if (form) {
       if (removeButton) {
         removeButton.hidden = timeInputs.length <= 1;
       }
+    });
+  }
+
+  function setChronoRunning(isRunning) {
+    if (chronoStartButton) {
+      chronoStartButton.hidden = isRunning;
+    }
+    if (chronoRunningControls) {
+      chronoRunningControls.hidden = !isRunning;
+    }
+    if (chronoHelp) {
+      chronoHelp.textContent = isRunning ? texts.chronoRunning : texts.chronoHelp;
+    }
+  }
+
+  function startChrono() {
+    const now = Date.now();
+    chronoStartTime = now;
+    chronoLastTrainTime = now;
+    setChronoRunning(true);
+
+    if (chronoIntervalId) {
+      clearInterval(chronoIntervalId);
+    }
+
+    chronoIntervalId = window.setInterval(() => {
+      if (chronoDisplay && chronoLastTrainTime) {
+        chronoDisplay.textContent = formatChrono(Date.now() - chronoLastTrainTime);
+      }
+    }, 250);
+  }
+
+  function stopChrono() {
+    if (chronoIntervalId) {
+      clearInterval(chronoIntervalId);
+      chronoIntervalId = null;
+    }
+    chronoStartTime = null;
+    chronoLastTrainTime = null;
+    setChronoRunning(false);
+    if (chronoDisplay) {
+      chronoDisplay.textContent = "00:00";
+    }
+  }
+
+  function recordChronoTrain() {
+    if (!chronoLastTrainTime || chronoValues.length >= maxTimeInputs) {
+      return;
+    }
+
+    const now = Date.now();
+    const seconds = Math.max(1, Math.round((now - chronoLastTrainTime) / 1000));
+    chronoValues.push(seconds);
+    chronoLastTrainTime = now;
+    renderChronoValues();
+    syncFormState();
+  }
+
+  function syncEntryModeUi() {
+    const mode = getActiveMode();
+    const isChrono = mode === "chrono";
+
+    entryModeButtons.forEach((button) => {
+      const isActive = button.dataset.entryModeValue === mode;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+
+    if (manualPanel) {
+      manualPanel.hidden = isChrono;
+    }
+    if (chronoPanel) {
+      chronoPanel.hidden = !isChrono;
+    }
+
+    getTimeInputs().forEach((input) => {
+      input.disabled = isChrono;
+    });
+
+    getChronoInputs().forEach((input) => {
+      input.disabled = !isChrono;
     });
   }
 
@@ -209,7 +365,7 @@ if (form) {
 
   function syncFormState() {
     const attractionName = attractionInput.value.trim();
-    const timeValues = getTimeInputs().map((input) => toInteger(input.value));
+    const timeValues = getActiveTimeInputs().map((input) => toInteger(input.value));
     const timesReady =
       timeValues.length >= 1 &&
       timeValues.every((value) => Number.isInteger(value) && value >= 1 && value <= 600);
@@ -267,6 +423,23 @@ if (form) {
     input.addEventListener("input", syncFormState);
   });
 
+  entryModeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!entryModeInput) {
+        return;
+      }
+
+      const nextMode = button.dataset.entryModeValue === "chrono" ? "chrono" : "manual";
+      if (getActiveMode() === "chrono" && nextMode === "manual") {
+        stopChrono();
+      }
+
+      entryModeInput.value = nextMode;
+      syncEntryModeUi();
+      syncFormState();
+    });
+  });
+
   if (addTimeButton) {
     addTimeButton.addEventListener("click", () => {
       if (getTimeInputs().length >= maxTimeInputs) {
@@ -283,6 +456,23 @@ if (form) {
     });
   }
 
+  if (chronoStartButton) {
+    chronoStartButton.addEventListener("click", startChrono);
+  }
+
+  if (chronoStopButton) {
+    chronoStopButton.addEventListener("click", stopChrono);
+  }
+
+  if (chronoLapButton) {
+    chronoLapButton.addEventListener("click", () => {
+      recordChronoTrain();
+      if (chronoValues.length >= maxTimeInputs) {
+        stopChrono();
+      }
+    });
+  }
+
   if (resultValue.textContent.trim().startsWith("--")) {
     resultAttraction.textContent = texts.waitingRide;
     resultPeople.textContent = "--";
@@ -293,5 +483,8 @@ if (form) {
 
   updateTimeLabels();
   syncTimeUi();
+  renderChronoValues();
+  setChronoRunning(false);
+  syncEntryModeUi();
   syncFormState();
 }
