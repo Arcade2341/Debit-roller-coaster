@@ -665,7 +665,7 @@ router.post("/calculate", calculationLimiter, (req, res) => {
         ip_address,
         user_id
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `
   ).run(
     attractionName,
