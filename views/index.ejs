@@ -138,32 +138,34 @@
                 <small class="field-help" data-chrono-help><%= t("home.chronoHelp") %></small>
               </div>
 
-              <label class="field">
-                <span><%= t("home.attractionSearch") %></span>
-                <input
-                  type="text"
-                  name="attractionName"
-                  maxlength="80"
-                  minlength="3"
-                  required
-                  placeholder="<%= t('home.attractionPlaceholder') %>"
-                  autocomplete="off"
-                  data-attraction-input
-                />
-                <small class="field-help">
-                  <%= t("home.attractionHelp") %>
-                </small>
-                <div class="search-panel" data-search-panel hidden>
-                  <div class="search-panel-head">
-                    <span><%= t("home.results") %></span>
-                    <small data-search-meta><%= t("home.startTyping") %></small>
+              <div data-search-block>
+                <label class="field">
+                  <span><%= t("home.attractionSearch") %></span>
+                  <input
+                    type="text"
+                    name="attractionName"
+                    maxlength="80"
+                    minlength="3"
+                    required
+                    placeholder="<%= t('home.attractionPlaceholder') %>"
+                    autocomplete="off"
+                    data-attraction-input
+                  />
+                  <small class="field-help">
+                    <%= t("home.attractionHelp") %>
+                  </small>
+                  <div class="search-panel" data-search-panel hidden>
+                    <div class="search-panel-head">
+                      <span><%= t("home.results") %></span>
+                      <small data-search-meta><%= t("home.startTyping") %></small>
+                    </div>
+                    <div class="search-results" data-search-results></div>
                   </div>
-                  <div class="search-results" data-search-results></div>
-                </div>
-              </label>
+                </label>
+              </div>
 
               <% if (user) { %>
-                <a href="/attraction-requests/new" class="request-link"><%= t("home.requestMissingRide") %></a>
+                <a href="/attraction-requests/new" class="request-link" data-request-link><%= t("home.requestMissingRide") %></a>
               <% } %>
 
               <button type="submit" class="primary-button" disabled data-submit-button>

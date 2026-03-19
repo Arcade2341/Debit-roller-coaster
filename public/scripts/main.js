@@ -70,6 +70,8 @@ if (form) {
   const entryModeInput = form.querySelector("[data-entry-mode-input]");
   const entryModeButtons = form.querySelectorAll("[data-entry-mode-button]");
   const attractionInput = form.querySelector("[data-attraction-input]");
+  const searchBlock = form.querySelector("[data-search-block]");
+  const requestLink = form.querySelector("[data-request-link]");
   const addTimeButton = form.querySelector("[data-add-time-button]");
   const timeInputList = form.querySelector("[data-time-input-list]");
   const timeHelp = form.querySelector("[data-time-help]");
@@ -255,6 +257,9 @@ if (form) {
     const mode = getActiveMode();
     const isChrono = mode === "chrono";
 
+    form.classList.toggle("is-chrono-mode", isChrono);
+    form.classList.toggle("is-manual-mode", !isChrono);
+
     entryModeButtons.forEach((button) => {
       const isActive = button.dataset.entryModeValue === mode;
       button.classList.toggle("is-active", isActive);
@@ -266,6 +271,12 @@ if (form) {
     }
     if (chronoPanel) {
       chronoPanel.hidden = !isChrono;
+    }
+    if (searchBlock) {
+      searchBlock.hidden = false;
+    }
+    if (requestLink) {
+      requestLink.hidden = false;
     }
 
     getTimeInputs().forEach((input) => {
