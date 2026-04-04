@@ -1,4 +1,36 @@
 const themeToggles = document.querySelectorAll("[data-theme-toggle]");
+const navToggle = document.querySelector("[data-nav-toggle]");
+const navLinks = document.querySelector("[data-nav-links]");
+
+if (navToggle && navLinks) {
+  function setNavOpen(isOpen) {
+    navToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    navToggle.setAttribute(
+      "aria-label",
+      isOpen ? navToggle.dataset.labelClose || "Close menu" : navToggle.dataset.labelOpen || "Open menu"
+    );
+    navLinks.classList.toggle("is-open", isOpen);
+  }
+
+  navToggle.addEventListener("click", () => {
+    const isOpen = navToggle.getAttribute("aria-expanded") === "true";
+    setNavOpen(!isOpen);
+  });
+
+  navLinks.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      if (window.innerWidth <= 720) {
+        setNavOpen(false);
+      }
+    });
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 720) {
+      setNavOpen(false);
+    }
+  });
+}
 
 if (themeToggles.length > 0) {
   const root = document.documentElement;

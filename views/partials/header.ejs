@@ -8,7 +8,22 @@
       </span>
     </a>
 
-    <nav class="nav-links" aria-label="<%= currentLang === 'en' ? 'Main navigation' : 'Navigation principale' %>">
+    <button
+      type="button"
+      class="nav-menu-toggle"
+      data-nav-toggle
+      aria-expanded="false"
+      aria-controls="site-nav"
+      aria-label="<%= currentLang === 'en' ? 'Open menu' : 'Ouvrir le menu' %>"
+      data-label-open="<%= currentLang === 'en' ? 'Open menu' : 'Ouvrir le menu' %>"
+      data-label-close="<%= currentLang === 'en' ? 'Close menu' : 'Fermer le menu' %>"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav id="site-nav" class="nav-links" data-nav-links aria-label="<%= currentLang === 'en' ? 'Main navigation' : 'Navigation principale' %>">
       <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>"><%= t("nav.calculate") %></a>
       <% if (user) { %>
         <a href="/notifications" class="<%= currentPath === '/notifications' ? 'is-active' : '' %>">
