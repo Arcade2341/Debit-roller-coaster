@@ -52,34 +52,17 @@
               data-text-people-train-short="<%= t('home.peopleTrainShort') %>"
               data-text-time-label="<%= t('home.dispatchTimeLabel') %>"
               data-text-average-seconds="<%= t('home.averageSeconds') %>"
-              data-text-time-help="<%= t('home.dispatchTimeHelp') %>"
-              data-text-add-time="<%= t('home.addTime') %>"
-              data-text-remove-time="<%= t('home.removeTime') %>"
-              data-text-max-times="<%= t('home.maxTimesReached') %>"
-              data-text-time-placeholder="<%= t('home.dispatchTimePlaceholder') %>"
               data-text-chrono-start="<%= t('home.chronoStart') %>"
               data-text-chrono-stop="<%= t('home.chronoStop') %>"
               data-text-chrono-plus-one="<%= t('home.chronoPlusOne') %>"
               data-text-chrono-help="<%= t('home.chronoHelp') %>"
               data-text-chrono-empty="<%= t('home.chronoEmpty') %>"
               data-text-chrono-running="<%= t('home.chronoRunning') %>"
-              data-text-mode-manual="<%= t('home.manual') %>"
-              data-text-mode-chrono="<%= t('home.chrono') %>"
             >
               <input type="hidden" name="catalogAttractionId" value="" data-catalog-id-input />
-              <input type="hidden" value="manual" data-entry-mode-input />
 
               <div class="section-head">
                 <h2><%= t("home.formTitle") %></h2>
-              </div>
-
-              <div class="mode-switch">
-                <button type="button" class="mode-button is-active" data-entry-mode-button data-entry-mode-value="manual">
-                  <%= t("home.manual") %>
-                </button>
-                <button type="button" class="mode-button" data-entry-mode-button data-entry-mode-value="chrono">
-                  <%= t("home.chrono") %>
-                </button>
               </div>
 
               <% if (!catalogInfo.available) { %>
@@ -88,7 +71,7 @@
                 </div>
               <% } %>
 
-              <div class="chrono-panel" data-chrono-panel hidden>
+              <div class="chrono-panel" data-chrono-panel>
                 <div class="chrono-display" data-chrono-display>00:00</div>
                 <div class="chrono-controls">
                   <button type="button" class="primary-button chrono-start-button" data-chrono-start-button>
@@ -140,9 +123,11 @@
                 <a href="/attraction-requests/new" class="request-link" data-request-link><%= t("home.requestMissingRide") %></a>
               <% } %>
 
-              <button type="submit" class="primary-button" disabled data-submit-button>
-                <%= t("home.submit") %>
-              </button>
+              <div class="calculator-actions">
+                <button type="submit" class="primary-button" disabled data-submit-button>
+                  <%= t("home.submit") %>
+                </button>
+              </div>
             </form>
 
             <aside class="result-card" aria-live="polite">

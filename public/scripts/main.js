@@ -54,11 +54,6 @@ if (form) {
     peopleTrainShort: form.dataset.textPeopleTrainShort || "people/train",
     timeLabel: form.dataset.textTimeLabel || "Time",
     averageSeconds: form.dataset.textAverageSeconds || "Average (s)",
-    timeHelp: form.dataset.textTimeHelp || "Add between 1 and 10 times in seconds.",
-    addTime: form.dataset.textAddTime || "Add time",
-    removeTime: form.dataset.textRemoveTime || "Remove",
-    maxTimes: form.dataset.textMaxTimes || "Maximum reached.",
-    timePlaceholder: form.dataset.textTimePlaceholder || "e.g. 45",
     chronoStart: form.dataset.textChronoStart || "Start",
     chronoStop: form.dataset.textChronoStop || "Stop",
     chronoPlusOne: form.dataset.textChronoPlusOne || "+1 train",
@@ -67,15 +62,9 @@ if (form) {
     chronoRunning: form.dataset.textChronoRunning || "Chrono running..."
   };
   const catalogIdInput = form.querySelector("[data-catalog-id-input]");
-  const entryModeInput = form.querySelector("[data-entry-mode-input]");
-  const entryModeButtons = form.querySelectorAll("[data-entry-mode-button]");
   const attractionInput = form.querySelector("[data-attraction-input]");
   const searchBlock = form.querySelector("[data-search-block]");
   const requestLink = form.querySelector("[data-request-link]");
-  const addTimeButton = form.querySelector("[data-add-time-button]");
-  const timeInputList = form.querySelector("[data-time-input-list]");
-  const timeHelp = form.querySelector("[data-time-help]");
-  const manualPanel = form.querySelector("[data-manual-panel]");
   const chronoPanel = form.querySelector("[data-chrono-panel]");
   const chronoDisplay = form.querySelector("[data-chrono-display]");
   const chronoStartButton = form.querySelector("[data-chrono-start-button]");
@@ -113,20 +102,8 @@ if (form) {
     return Number.isInteger(parsed) ? parsed : NaN;
   }
 
-  function getTimeInputs() {
-    return Array.from(form.querySelectorAll("[data-time-input]"));
-  }
-
-  function getActiveMode() {
-    return entryModeInput ? entryModeInput.value : "manual";
-  }
-
   function getChronoInputs() {
     return Array.from(form.querySelectorAll("[data-chrono-time-input]"));
-  }
-
-  function getActiveTimeInputs() {
-    return getActiveMode() === "chrono" ? getChronoInputs() : getTimeInputs();
   }
 
   function formatChrono(ms) {
@@ -134,15 +111,6 @@ if (form) {
     const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
     const seconds = String(totalSeconds % 60).padStart(2, "0");
     return `${minutes}:${seconds}`;
-  }
-
-  function updateTimeLabels() {
-    getTimeInputs().forEach((input, index) => {
-      const label = input.closest(".time-field")?.querySelector("span");
-      if (label) {
-        label.textContent = `${texts.timeLabel} ${index + 1}`;
-      }
-    });
   }
 
   function renderChronoValues() {
@@ -172,29 +140,8 @@ if (form) {
       hiddenInput.type = "hidden";
       hiddenInput.name = "dispatchTimes";
       hiddenInput.value = String(value);
-      hiddenInput.disabled = getActiveMode() !== "chrono";
       hiddenInput.setAttribute("data-chrono-time-input", "");
       chronoHiddenInputs.appendChild(hiddenInput);
-    });
-  }
-
-  function syncTimeUi() {
-    const timeInputs = getTimeInputs();
-    const canAddMore = timeInputs.length < maxTimeInputs;
-
-    if (addTimeButton) {
-      addTimeButton.disabled = !canAddMore;
-    }
-
-    if (timeHelp) {
-      timeHelp.textContent = canAddMore ? texts.timeHelp : texts.maxTimes;
-    }
-
-    timeInputs.forEach((input) => {
-      const removeButton = input.closest(".time-field")?.querySelector("[data-remove-time-button]");
-      if (removeButton) {
-        removeButton.hidden = timeInputs.length <= 1;
-      }
     });
   }
 
@@ -253,74 +200,6 @@ if (form) {
     syncFormState();
   }
 
-  function syncEntryModeUi() {
-    const mode = getActiveMode();
-    const isChrono = mode === "chrono";
-
-    form.classList.toggle("is-chrono-mode", isChrono);
-    form.classList.toggle("is-manual-mode", !isChrono);
-
-    entryModeButtons.forEach((button) => {
-      const isActive = button.dataset.entryModeValue === mode;
-      button.classList.toggle("is-active", isActive);
-      button.setAttribute("aria-pressed", isActive ? "true" : "false");
-    });
-
-    if (manualPanel) {
-      manualPanel.hidden = isChrono;
-    }
-    if (chronoPanel) {
-      chronoPanel.hidden = !isChrono;
-    }
-    if (searchBlock) {
-      searchBlock.hidden = false;
-    }
-    if (requestLink) {
-      requestLink.hidden = false;
-    }
-
-    getTimeInputs().forEach((input) => {
-      input.disabled = isChrono;
-    });
-
-    getChronoInputs().forEach((input) => {
-      input.disabled = !isChrono;
-    });
-  }
-
-  function createTimeField() {
-    const wrapper = document.createElement("label");
-    wrapper.className = "field time-field";
-    wrapper.innerHTML = `
-      <span>${texts.timeLabel}</span>
-      <div class="time-input-row">
-        <input
-          type="number"
-          name="dispatchTimes"
-          min="1"
-          max="600"
-          required
-          placeholder="${texts.timePlaceholder}"
-          data-time-input
-        />
-        <button type="button" class="history-delete-button time-remove-button" data-remove-time-button>${texts.removeTime}</button>
-      </div>
-    `;
-
-    const input = wrapper.querySelector("[data-time-input]");
-    const removeButton = wrapper.querySelector("[data-remove-time-button]");
-
-    input.addEventListener("input", syncFormState);
-    removeButton.addEventListener("click", () => {
-      wrapper.remove();
-      updateTimeLabels();
-      syncTimeUi();
-      syncFormState();
-    });
-
-    return wrapper;
-  }
-
   function clearSuggestions() {
     searchResults.innerHTML = "";
     if (searchPanel) {
@@ -376,7 +255,7 @@ if (form) {
 
   function syncFormState() {
     const attractionName = attractionInput.value.trim();
-    const timeValues = getActiveTimeInputs().map((input) => toInteger(input.value));
+    const timeValues = getChronoInputs().map((input) => toInteger(input.value));
     const timesReady =
       timeValues.length >= 1 &&
       timeValues.every((value) => Number.isInteger(value) && value >= 1 && value <= 600);
@@ -430,43 +309,6 @@ if (form) {
     }, 150);
   });
 
-  getTimeInputs().forEach((input) => {
-    input.addEventListener("input", syncFormState);
-  });
-
-  entryModeButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      if (!entryModeInput) {
-        return;
-      }
-
-      const nextMode = button.dataset.entryModeValue === "chrono" ? "chrono" : "manual";
-      if (getActiveMode() === "chrono" && nextMode === "manual") {
-        stopChrono();
-      }
-
-      entryModeInput.value = nextMode;
-      syncEntryModeUi();
-      syncFormState();
-    });
-  });
-
-  if (addTimeButton) {
-    addTimeButton.addEventListener("click", () => {
-      if (getTimeInputs().length >= maxTimeInputs) {
-        syncTimeUi();
-        return;
-      }
-
-      const newField = createTimeField();
-      timeInputList.appendChild(newField);
-      updateTimeLabels();
-      syncTimeUi();
-      syncFormState();
-      newField.querySelector("[data-time-input]")?.focus();
-    });
-  }
-
   if (chronoStartButton) {
     chronoStartButton.addEventListener("click", startChrono);
   }
@@ -492,10 +334,16 @@ if (form) {
     resultStatus.textContent = texts.fillAllFields;
   }
 
-  updateTimeLabels();
-  syncTimeUi();
   renderChronoValues();
   setChronoRunning(false);
-  syncEntryModeUi();
+  if (chronoPanel) {
+    chronoPanel.hidden = false;
+  }
+  if (searchBlock) {
+    searchBlock.hidden = false;
+  }
+  if (requestLink) {
+    requestLink.hidden = false;
+  }
   syncFormState();
 }

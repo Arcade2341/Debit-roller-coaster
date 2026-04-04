@@ -525,43 +525,6 @@ textarea {
   margin-top: 1.5rem;
 }
 
-.mode-switch {
-  display: inline-grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.55rem;
-  margin-bottom: 1rem;
-  padding: 0.4rem;
-  border-radius: 18px;
-  background: rgba(143, 63, 23, 0.05);
-  border: 1px solid rgba(143, 63, 23, 0.1);
-}
-
-.mode-button {
-  min-height: 46px;
-  padding: 0.7rem 1rem;
-  border: 1px solid transparent;
-  border-radius: 14px;
-  background: transparent;
-  color: var(--orange-deep);
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-}
-
-.mode-button:hover {
-  transform: translateY(-1px);
-}
-
-.mode-button.is-active {
-  background: linear-gradient(135deg, var(--orange-deep), var(--orange));
-  color: white;
-}
-
-.mode-button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
 .catalog-state {
   margin-bottom: 1rem;
   padding: 0.85rem 1rem;
@@ -591,18 +554,10 @@ textarea {
   gap: 0.9rem;
 }
 
-.time-panel {
-  display: grid;
-  gap: 0.85rem;
-  margin-bottom: 1rem;
-  order: 3;
-}
-
 .chrono-panel {
   display: grid;
   gap: 1rem;
   margin-bottom: 1rem;
-  order: 3;
   padding: 1.1rem;
   border-radius: 24px;
   border: 1px solid rgba(143, 63, 23, 0.1);
@@ -651,40 +606,6 @@ textarea {
   color: var(--orange-deep);
 }
 
-.time-panel-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.time-panel-head span {
-  font-size: 0.94rem;
-  font-weight: 800;
-  color: var(--orange-deep);
-}
-
-.time-input-list {
-  display: grid;
-  gap: 0.85rem;
-}
-
-.time-field {
-  margin-bottom: 0;
-}
-
-.time-input-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.add-time-button,
-.time-remove-button {
-  white-space: nowrap;
-}
-
 .field {
   display: flex;
   flex-direction: column;
@@ -692,24 +613,9 @@ textarea {
   margin-bottom: 1rem;
 }
 
-[data-search-block] {
-  order: 2;
-}
-
-.calculator-card.is-chrono-mode [data-search-block] {
-  order: 4;
-}
-
-.calculator-card.is-chrono-mode [data-request-link] {
-  order: 5;
-}
-
-.calculator-card.is-manual-mode .time-panel {
-  order: 3;
-}
-
-.calculator-card.is-chrono-mode .chrono-panel {
-  order: 3;
+.calculator-actions {
+  margin-top: auto;
+  padding-top: 0.35rem;
 }
 
 .field-help {
@@ -889,23 +795,14 @@ textarea {
   color: #ffd8b4;
 }
 
-:root[data-theme="dark"] .mode-switch,
 :root[data-theme="dark"] .catalog-state,
 :root[data-theme="dark"] .search-panel {
   background: rgba(255, 159, 67, 0.08);
   border-color: rgba(255, 191, 133, 0.14);
 }
 
-:root[data-theme="dark"] .mode-button {
-  color: #ffe1c3;
-}
-
 :root[data-theme="dark"] .field-help {
   color: #dcbda4;
-}
-
-:root[data-theme="dark"] .time-panel-head span {
-  color: #ffe1c3;
 }
 
 :root[data-theme="dark"] .chrono-panel {
@@ -1590,12 +1487,6 @@ code {
 
   .field-split {
     grid-template-columns: 1fr;
-  }
-
-  .time-panel-head,
-  .time-input-row {
-    grid-template-columns: 1fr;
-    display: grid;
   }
 
   .chrono-running-controls {
