@@ -954,6 +954,11 @@ textarea {
   border-radius: 30px;
 }
 
+.result-shell {
+  display: grid;
+  gap: 1rem;
+}
+
 .result-card::after {
   content: "";
   position: absolute;
@@ -966,10 +971,10 @@ textarea {
 }
 
 .result-card .section-head p,
-.result-card .result-details dt,
-.result-card .result-details dd,
+.result-card .result-stats-grid dt,
+.result-card .result-stats-grid dd,
 .result-card [data-result-status],
-.result-note {
+.result-status-card span {
   color: rgba(255, 255, 255, 0.8);
 }
 
@@ -987,10 +992,18 @@ textarea {
   font-weight: 800;
 }
 
+.result-hero {
+  padding: 1.15rem;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+}
+
 .result-metric {
   display: grid;
   gap: 0.55rem;
-  margin: 0.5rem 0 1.6rem;
+  margin: 0;
 }
 
 .result-metric span {
@@ -1007,24 +1020,47 @@ textarea {
   overflow-wrap: anywhere;
 }
 
-.result-details {
+.result-stats-grid {
   display: grid;
-  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 0;
 }
 
-.result-details div {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+.result-stat-card {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+  padding: 1rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.result-note {
-  margin-top: 1.3rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+.result-stat-card dt,
+.result-status-card span {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+}
+
+.result-stat-card dd,
+.result-status-card strong {
+  margin: 0;
+  font-family: "Sora", sans-serif;
+  font-size: 1.2rem;
+  color: white;
+  overflow-wrap: anywhere;
+}
+
+.result-status-card {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background: rgba(50, 21, 8, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .dashboard-page,
@@ -1539,9 +1575,9 @@ code {
     grid-template-columns: 1fr;
   }
 
-  .result-details div {
-    flex-direction: column;
-    align-items: flex-start;
+  .result-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
   }
 
   .hero-actions a,
@@ -1591,6 +1627,12 @@ code {
     width: 100%;
     justify-content: center;
     text-align: center;
+  }
+
+  .result-hero,
+  .result-stat-card,
+  .result-status-card {
+    border-radius: 18px;
   }
 
   .calculator-card,
@@ -1769,6 +1811,10 @@ code {
   .chrono-display {
     min-height: 84px;
     font-size: clamp(1.75rem, 11vw, 2.65rem);
+  }
+
+  .result-metric strong {
+    font-size: clamp(2rem, 11vw, 2.8rem);
   }
 
   .chrono-time-item {

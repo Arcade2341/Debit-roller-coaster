@@ -131,41 +131,45 @@
             </form>
 
             <aside class="result-card" aria-live="polite">
-              <div class="section-head">
-                <h2><%= t("home.result") %></h2>
-                <p><%= t("home.resultIntro") %></p>
+              <div class="result-shell">
+                <div class="section-head">
+                  <h2><%= t("home.result") %></h2>
+                  <p><%= t("home.resultIntro") %></p>
+                </div>
+
+                <div class="result-badge"><%= t("home.lastCalculation") %></div>
+
+                <div class="result-hero">
+                  <div class="result-metric">
+                    <span data-result-attraction>
+                      <%= lastCalculation ? lastCalculation.attractionName : t("home.waitingRide") %>
+                    </span>
+                    <strong data-result-value>
+                      <%= lastCalculation ? `${lastCalculation.throughput} ${t("home.peopleHour")}` : `-- ${t("home.peopleHour")}` %>
+                    </strong>
+                  </div>
+                </div>
+
+                <dl class="result-stats-grid">
+                  <div class="result-stat-card">
+                    <dt><%= t("home.peopleTrain") %></dt>
+                    <dd data-result-people><%= lastCalculation ? lastCalculation.peoplePerTrain : "--" %></dd>
+                  </div>
+                  <div class="result-stat-card">
+                    <dt><%= t("home.averageSeconds") %></dt>
+                    <dd data-result-average><%= lastCalculation ? lastCalculation.averageDispatchSeconds : "--" %></dd>
+                  </div>
+                  <div class="result-stat-card">
+                    <dt><%= t("home.samples") %></dt>
+                    <dd data-result-samples><%= lastCalculation ? lastCalculation.timeSamplesCount : "--" %></dd>
+                  </div>
+                </dl>
+
+                <div class="result-status-card">
+                  <span><%= t("home.status") %></span>
+                  <strong data-result-status><%= t("home.fillThenSubmit") %></strong>
+                </div>
               </div>
-
-              <div class="result-badge"><%= t("home.lastCalculation") %></div>
-
-              <div class="result-metric">
-                <span data-result-attraction>
-                  <%= lastCalculation ? lastCalculation.attractionName : t("home.waitingRide") %>
-                </span>
-                <strong data-result-value>
-                  <%= lastCalculation ? `${lastCalculation.throughput} ${t("home.peopleHour")}` : `-- ${t("home.peopleHour")}` %>
-                </strong>
-              </div>
-
-              <dl class="result-details">
-                <div>
-                  <dt><%= t("home.peopleTrain") %></dt>
-                  <dd data-result-people><%= lastCalculation ? lastCalculation.peoplePerTrain : "--" %></dd>
-                </div>
-                <div>
-                  <dt><%= t("home.averageSeconds") %></dt>
-                  <dd data-result-average><%= lastCalculation ? lastCalculation.averageDispatchSeconds : "--" %></dd>
-                </div>
-                <div>
-                  <dt><%= t("home.samples") %></dt>
-                  <dd data-result-samples><%= lastCalculation ? lastCalculation.timeSamplesCount : "--" %></dd>
-                </div>
-                <div>
-                  <dt><%= t("home.status") %></dt>
-                  <dd data-result-status><%= t("home.fillThenSubmit") %></dd>
-                </div>
-              </dl>
-
             </aside>
           </div>
         </div>
