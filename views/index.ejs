@@ -8,25 +8,6 @@
 <main>
   <section class="hero-section">
     <div class="container hero-grid">
-      <div class="hero-copy">
-        <div class="hero-copy-shell">
-          <div class="section-head hero-head">
-            <span class="eyebrow"><%= t("home.version") %></span>
-            <h1><%= t("home.title") %></h1>
-            <p><%= t("home.intro") %></p>
-          </div>
-
-          <div class="hero-actions hero-actions-stack">
-            <% if (!user) { %>
-              <a href="/register" class="primary-button button-link"><%= t("home.createAccount") %></a>
-              <a href="/login" class="ghost-button button-link"><%= t("nav.login") %></a>
-            <% } else { %>
-              <a href="/dashboard" class="primary-button button-link"><%= t("home.myHistory") %></a>
-            <% } %>
-          </div>
-        </div>
-      </div>
-
       <div class="hero-stage">
         <div class="hero-card">
           <%- include("partials/flash") %>

@@ -315,39 +315,16 @@ textarea {
 .hero-grid {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1.28fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.4rem;
   align-items: start;
   min-width: 0;
 }
-
-.hero-copy {
-  position: sticky;
-  top: 6rem;
-  min-width: 0;
-}
-
-.hero-copy-shell {
-  display: grid;
-  gap: 1rem;
-  padding: 1.35rem;
-  border: 1px solid rgba(143, 63, 23, 0.1);
-  border-radius: 30px;
-  background: rgba(255, 250, 244, 0.82);
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(18px);
-}
-
-:root[data-theme="dark"] .hero-copy-shell {
-  border-color: rgba(255, 191, 133, 0.12);
-  background: rgba(41, 27, 19, 0.76);
-}
-
 :root[data-theme="dark"] .hero-head p,
 :root[data-theme="dark"] .brand-text small,
 :root[data-theme="dark"] .empty-state,
 :root[data-theme="dark"] .footer-shell,
-:root[data-theme="dark"] .status-shell p {
+  :root[data-theme="dark"] .status-shell p {
   color: #e6c9b1;
 }
 
@@ -1508,15 +1485,6 @@ code {
     max-width: 100%;
   }
 
-  .hero-copy {
-    position: static;
-    order: 1;
-  }
-
-  .hero-stage {
-    order: 2;
-  }
-
 }
 
 @media (max-width: 720px) {
@@ -1617,10 +1585,6 @@ code {
 
   .summary-card {
     width: 100%;
-  }
-
-  .hero-copy-shell {
-    padding: 0.95rem;
   }
 
   .result-badge {
@@ -1768,7 +1732,6 @@ code {
     gap: 0.9rem;
   }
 
-  .hero-copy-shell,
   .hero-card,
   .calculator-card,
   .result-card {
