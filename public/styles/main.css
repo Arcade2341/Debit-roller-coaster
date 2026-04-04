@@ -494,6 +494,7 @@ textarea {
 .calculator-card {
   display: flex;
   flex-direction: column;
+  gap: 0.2rem;
   border-radius: 30px;
   background: rgba(255, 251, 246, 0.98);
   border: 1px solid rgba(143, 63, 23, 0.1);
@@ -564,6 +565,10 @@ textarea {
   background: linear-gradient(180deg, rgba(255, 248, 241, 0.94), rgba(255, 236, 216, 0.82));
 }
 
+[data-search-block] {
+  margin-bottom: 0.35rem;
+}
+
 .chrono-display {
   display: flex;
   align-items: center;
@@ -615,7 +620,7 @@ textarea {
 
 .calculator-actions {
   margin-top: auto;
-  padding-top: 0.35rem;
+  padding-top: 0.65rem;
 }
 
 .field-help {
@@ -1477,7 +1482,7 @@ code {
   }
 
   .hero-section {
-    padding-top: 2.2rem;
+    padding-top: 1.6rem;
   }
 
   .hero-copy h1,
@@ -1538,7 +1543,7 @@ code {
   }
 
   .hero-copy-shell {
-    padding: 1rem;
+    padding: 0.95rem;
   }
 
   .result-badge {
@@ -1551,11 +1556,76 @@ code {
   .result-card,
   .dashboard-card,
   .form-shell {
-    padding: 1.25rem;
+    padding: 1rem;
   }
 
   .data-table {
     min-width: 640px;
+  }
+
+  .hero-card {
+    padding: 0.8rem;
+    border-radius: 26px;
+  }
+
+  .panel-grid {
+    gap: 0.85rem;
+  }
+
+  .section-head {
+    margin-bottom: 0.9rem;
+  }
+
+  .section-head h2,
+  .section-head h3 {
+    font-size: 1.35rem;
+  }
+
+  .field input,
+  .field-select,
+  .field textarea {
+    padding: 0.92rem 0.95rem;
+    border-radius: 16px;
+  }
+
+  .search-panel {
+    padding: 0.65rem;
+    border-radius: 18px;
+  }
+
+  .search-result-option {
+    padding: 0.8rem 0.85rem;
+  }
+
+  .chrono-panel {
+    gap: 0.85rem;
+    padding: 0.9rem;
+    border-radius: 20px;
+  }
+
+  .chrono-display {
+    min-height: 92px;
+    border-radius: 20px;
+    font-size: clamp(1.9rem, 10vw, 3rem);
+  }
+
+  .chrono-controls {
+    gap: 0.6rem;
+  }
+
+  .chrono-time-item {
+    padding: 0.8rem 0.85rem;
+    border-radius: 16px;
+  }
+
+  .calculator-actions {
+    padding-top: 0.35rem;
+  }
+
+  .calculator-actions .primary-button,
+  .chrono-controls .primary-button,
+  .chrono-controls .ghost-button {
+    width: 100%;
   }
 }
 
@@ -1587,7 +1657,7 @@ code {
 
   .hero-copy h1,
   .section-head h1 {
-    font-size: 2rem;
+    font-size: 1.85rem;
   }
 
   .eyebrow {
@@ -1603,6 +1673,65 @@ code {
   .button-link {
     min-height: 50px;
     padding-inline: 1rem;
+  }
+
+  .hero-grid {
+    gap: 0.9rem;
+  }
+
+  .hero-copy-shell,
+  .hero-card,
+  .calculator-card,
+  .result-card {
+    border-radius: 22px;
+  }
+
+  .hero-card {
+    padding: 0.7rem;
+  }
+
+  .calculator-card,
+  .result-card,
+  .dashboard-card,
+  .form-shell {
+    padding: 0.9rem;
+  }
+
+  .field {
+    margin-bottom: 0.85rem;
+  }
+
+  .field span {
+    font-size: 0.88rem;
+  }
+
+  .field-help {
+    font-size: 0.82rem;
+  }
+
+  .search-panel-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+
+  .chrono-panel {
+    padding: 0.8rem;
+  }
+
+  .chrono-display {
+    min-height: 84px;
+    font-size: clamp(1.75rem, 11vw, 2.65rem);
+  }
+
+  .chrono-time-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .request-link {
+    margin-bottom: 0.7rem;
   }
 
   .data-table {

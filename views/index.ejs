@@ -71,28 +71,6 @@
                 </div>
               <% } %>
 
-              <div class="chrono-panel" data-chrono-panel>
-                <div class="chrono-display" data-chrono-display>00:00</div>
-                <div class="chrono-controls">
-                  <button type="button" class="primary-button chrono-start-button" data-chrono-start-button>
-                    <%= t("home.chronoStart") %>
-                  </button>
-                  <div class="chrono-running-controls" data-chrono-running-controls hidden>
-                    <button type="button" class="ghost-button chrono-stop-button" data-chrono-stop-button>
-                      <%= t("home.chronoStop") %>
-                    </button>
-                    <button type="button" class="primary-button chrono-lap-button" data-chrono-lap-button>
-                      <%= t("home.chronoPlusOne") %>
-                    </button>
-                  </div>
-                </div>
-                <div class="chrono-times-list" data-chrono-times-list>
-                  <p class="empty-state" data-chrono-empty><%= t("home.chronoEmpty") %></p>
-                </div>
-                <div data-chrono-hidden-inputs></div>
-                <small class="field-help" data-chrono-help><%= t("home.chronoHelp") %></small>
-              </div>
-
               <div data-search-block>
                 <label class="field">
                   <span><%= t("home.attractionSearch") %></span>
@@ -117,6 +95,28 @@
                     <div class="search-results" data-search-results></div>
                   </div>
                 </label>
+              </div>
+
+              <div class="chrono-panel" data-chrono-panel>
+                <div class="chrono-display" data-chrono-display>00:00</div>
+                <div class="chrono-controls">
+                  <button type="button" class="primary-button chrono-start-button" data-chrono-start-button>
+                    <%= t("home.chronoStart") %>
+                  </button>
+                  <div class="chrono-running-controls" data-chrono-running-controls hidden>
+                    <button type="button" class="ghost-button chrono-stop-button" data-chrono-stop-button>
+                      <%= t("home.chronoStop") %>
+                    </button>
+                    <button type="button" class="primary-button chrono-lap-button" data-chrono-lap-button>
+                      <%= t("home.chronoPlusOne") %>
+                    </button>
+                  </div>
+                </div>
+                <div class="chrono-times-list" data-chrono-times-list>
+                  <p class="empty-state" data-chrono-empty><%= t("home.chronoEmpty") %></p>
+                </div>
+                <div data-chrono-hidden-inputs></div>
+                <small class="field-help" data-chrono-help><%= t("home.chronoHelp") %></small>
               </div>
 
               <% if (user) { %>
