@@ -52,7 +52,11 @@
                 </div>
               <% } %>
 
-              <div data-search-block>
+              <div class="input-section-card" data-search-block>
+                <div class="mini-section-head">
+                  <h3><%= t("home.rideSectionTitle") %></h3>
+                  <p><%= t("home.rideSectionText") %></p>
+                </div>
                 <label class="field">
                   <span><%= t("home.attractionSearch") %></span>
                   <input
@@ -79,6 +83,10 @@
               </div>
 
               <div class="chrono-panel" data-chrono-panel>
+                <div class="mini-section-head">
+                  <h3><%= t("home.chronoSectionTitle") %></h3>
+                  <p><%= t("home.chronoSectionText") %></p>
+                </div>
                 <div class="chrono-display" data-chrono-display>00:00</div>
                 <div class="chrono-controls">
                   <button type="button" class="primary-button chrono-start-button" data-chrono-start-button>
