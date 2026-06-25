@@ -958,6 +958,21 @@ router.post("/admin/notifications", requireAuth, requireAdmin, (req, res) => {
   res.redirect("/admin/accounts");
 });
 
+router.post("/admin/notifications/clear", requireAuth, requireAdmin, (req, res) => {
+  const deleteReads = db.prepare("DELETE FROM notification_reads");
+  const deleteNotifications = db.prepare("DELETE FROM notifications");
+
+  const transaction = db.transaction(() => {
+    deleteReads.run();
+    deleteNotifications.run();
+  });
+
+  transaction();
+
+  setFlash(req, "success", t(req, "flash.notificationsCleared"));
+  res.redirect("/admin/accounts");
+});
+
 router.post("/admin/users/:id/toggle-admin", requireAuth, requireAdmin, (req, res) => {
   const userId = Number(req.params.id);
   const targetUser = db

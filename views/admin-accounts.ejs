@@ -88,6 +88,15 @@
         </form>
 
         <div class="section-head compact">
+          <h2><%= t("admin.clearNotifications") %></h2>
+          <p><%= t("admin.clearNotificationsText") %></p>
+        </div>
+
+        <form action="/admin/notifications/clear" method="post">
+          <button type="submit" class="history-delete-button"><%= t("admin.clearNotificationsButton") %></button>
+        </form>
+
+        <div class="section-head compact">
           <h2><%= t("admin.roles") %></h2>
         </div>
 
