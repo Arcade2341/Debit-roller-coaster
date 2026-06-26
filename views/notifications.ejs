@@ -10,36 +10,45 @@
       </div>
     </div>
 
-    <section class="dashboard-card">
+    <%- include("partials/flash") %>
+
+    <div class="notification-center-grid">
+      <section class="dashboard-card">
         <div class="section-head">
-          <h2><%= t("notifications.inbox") %></h2>
-          <p><%= t("notifications.inboxIntro") %></p>
+          <h2><%= t("notifications.feed") %></h2>
+          <p><%= t("notifications.feedIntro") %></p>
         </div>
 
-        <%- include("partials/flash") %>
-
-        <% if (notifications.length === 0) { %>
-          <p class="empty-state"><%= t("notifications.none") %></p>
-        <% } else { %>
+        <% if (notifications.length > 0) { %>
           <form action="/notifications/read-all" method="post" class="notifications-toolbar">
             <button type="submit" class="ghost-button"><%= t("notifications.markAllRead") %></button>
           </form>
+        <% } %>
 
+        <% if (feedItems.length === 0) { %>
+          <p class="empty-state"><%= t("notifications.feedEmpty") %></p>
+        <% } else { %>
           <div class="notifications-list">
-            <% notifications.forEach((notification) => { %>
-              <article class="notification-item <%= notification.is_read ? 'is-read' : 'is-unread' %>">
+            <% feedItems.forEach((item) => { %>
+              <article class="notification-item notification-feed-item <%= item.kind === 'notification' && !item.isRead ? 'is-unread' : 'is-read' %>">
                 <div class="notification-meta">
-                  <span><%= resolveNotificationCategoryLabel(notification.category) %></span>
-                  <span><%= resolveNotificationTargetLabel(notification.target_role) %></span>
-                  <span><%= notification.created_at.slice(0, 10) %></span>
-                  <span><%= notification.sender_username || t("notifications.system") %></span>
+                  <% item.pills.forEach((pill) => { %>
+                    <span><%= pill %></span>
+                  <% }) %>
+                  <span><%= item.publishedAt.slice(0, 16).replace("T", " ") %></span>
+                  <span><%= item.author %></span>
                 </div>
 
-                <h2><%= notification.title %></h2>
-                <p><%= notification.message %></p>
+                <h2><%= item.title %></h2>
 
-                <% if (!notification.is_read) { %>
-                  <form action="/notifications/<%= notification.id %>/read" method="post">
+                <% if (item.summary) { %>
+                  <p class="news-summary"><%= item.summary %></p>
+                <% } %>
+
+                <p><%= item.body %></p>
+
+                <% if (item.kind === "notification" && !item.isRead) { %>
+                  <form action="/notifications/<%= item.readActionId %>/read" method="post">
                     <button type="submit" class="history-delete-button"><%= t("notifications.markRead") %></button>
                   </form>
                 <% } %>
@@ -47,33 +56,12 @@
             <% }) %>
           </div>
         <% } %>
+      </section>
 
-        <div class="section-head compact">
-          <h2><%= t("news.title") %></h2>
-          <p><%= t("news.intro") %></p>
-        </div>
-
-        <% if (newsPosts.length === 0) { %>
-          <p class="empty-state"><%= t("news.none") %></p>
-        <% } else { %>
-          <div class="notifications-list compact">
-            <% newsPosts.forEach((post) => { %>
-              <article class="notification-item">
-                <div class="notification-meta">
-                  <span><%= post.created_at.slice(0, 10) %></span>
-                  <span><%= post.author_username || t("notifications.system") %></span>
-                </div>
-                <h2><%= post.title %></h2>
-                <p class="news-summary"><%= post.summary %></p>
-                <p><%= post.content %></p>
-              </article>
-            <% }) %>
-          </div>
-        <% } %>
-
-        <div class="section-head compact">
-          <h2><%= t("polls.title") %></h2>
-          <p><%= t("polls.intro") %></p>
+      <aside class="dashboard-card notification-side-panel">
+        <div class="section-head">
+          <h2><%= t("notifications.activePolls") %></h2>
+          <p><%= t("notifications.activePollsIntro") %></p>
         </div>
 
         <% if (polls.length === 0) { %>
@@ -81,32 +69,38 @@
         <% } else { %>
           <div class="notifications-list compact">
             <% polls.forEach((poll) => { %>
-              <article class="notification-item">
+              <article class="notification-item poll-card">
                 <div class="notification-meta">
+                  <span><%= t("publication.typePoll") %></span>
                   <span><%= poll.allow_multiple ? t("polls.multipleChoice") : t("polls.singleChoice") %></span>
-                  <span><%= poll.created_at.slice(0, 10) %></span>
+                  <span><%= poll.published_at.slice(0, 16).replace("T", " ") %></span>
                 </div>
-                <h2><%= poll.title %></h2>
+
+                <h3><%= poll.title %></h3>
                 <p><%= poll.question %></p>
+
                 <form action="/polls/<%= poll.id %>/respond" method="post" class="stack-form">
                   <% poll.options.forEach((option) => { %>
-                    <label class="consent-check">
+                    <label class="consent-check poll-option-row">
                       <input
                         type="<%= poll.allow_multiple ? 'checkbox' : 'radio' %>"
                         name="optionIds"
                         value="<%= option.id %>"
                         <%= poll.selectedOptionIds.includes(option.id) ? 'checked' : '' %>
                       />
-                      <span><%= option.label %> (<%= option.votes %>)</span>
+                      <span><%= option.label %></span>
+                      <strong class="poll-option-count"><%= option.votes %></strong>
                     </label>
                   <% }) %>
-                  <button type="submit" class="ghost-button"><%= t("polls.answer") %></button>
+
+                  <button type="submit" class="primary-button"><%= t("polls.answer") %></button>
                 </form>
               </article>
             <% }) %>
           </div>
         <% } %>
-    </section>
+      </aside>
+    </div>
   </section>
 </main>
 

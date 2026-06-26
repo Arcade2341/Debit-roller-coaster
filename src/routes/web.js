@@ -244,6 +244,42 @@ function resolveNotificationTargetLabel(targetRole, lang) {
   return translate(normalizedLang, "admin.allAccounts");
 }
 
+function buildNotificationFeedItems(notifications, newsPosts, lang) {
+  const notificationItems = notifications.map((notification) => ({
+    id: `notification-${notification.id}`,
+    kind: "notification",
+    title: notification.title,
+    body: notification.message,
+    summary: "",
+    publishedAt: notification.published_at || notification.created_at,
+    author: notification.sender_username || translate(lang, "notifications.system"),
+    pills: [
+      translate(lang, "notifications.typeNotification"),
+      resolveNotificationCategoryLabel(notification.category, lang),
+      resolveNotificationTargetLabel(notification.target_role, lang)
+    ],
+    isRead: Boolean(notification.is_read),
+    readActionId: notification.id
+  }));
+
+  const newsItems = newsPosts.map((post) => ({
+    id: `news-${post.id}`,
+    kind: "news",
+    title: post.title,
+    body: post.content,
+    summary: post.summary,
+    publishedAt: post.published_at || post.created_at,
+    author: post.author_username || translate(lang, "notifications.system"),
+    pills: [translate(lang, "notifications.typeNews")],
+    isRead: true,
+    readActionId: null
+  }));
+
+  return [...notificationItems, ...newsItems].sort((left, right) => {
+    return new Date(right.publishedAt).getTime() - new Date(left.publishedAt).getTime();
+  });
+}
+
 function renderSeoPage(res, options) {
   res.render("content-page", {
     pageTitle: options.pageTitle,
@@ -1012,12 +1048,14 @@ router.get("/notifications", requireAuth, (req, res) => {
   const notifications = getNotificationsForUser(req.session.user.id, req.session.user);
   const newsPosts = getNewsPosts();
   const polls = getPollsForUser(req.session.user.id);
+  const feedItems = buildNotificationFeedItems(notifications, newsPosts, req.session.lang);
 
   res.render("notifications", {
     pageTitle: t(req, "notifications.title"),
     notifications,
     newsPosts,
     polls,
+    feedItems,
     resolveNotificationTargetLabel: (targetRole) => resolveNotificationTargetLabel(targetRole, req.session.lang),
     resolveNotificationCategoryLabel: (category) => resolveNotificationCategoryLabel(category, req.session.lang)
   });
@@ -1095,8 +1133,7 @@ router.get("/publications/manage", requireAuth, requirePublicationOrAdmin, (req,
   });
 });
 
-router.post("/publications/create", requireAuth, requirePublicationOrAdmin, (req, res) => {
-  const type = String(req.body.type || "");
+router.post("/publications/notifications/create", requireAuth, requirePublicationOrAdmin, (req, res) => {
   const title = cleanText(req.body.title);
   const publishedAt = getPublishedTimestamp(req.body.publishedAt);
 
@@ -1110,255 +1147,307 @@ router.post("/publications/create", requireAuth, requirePublicationOrAdmin, (req
     return res.redirect("/publications/manage");
   }
 
-  if (type === "notification") {
-    const message = cleanText(req.body.message);
-    const allowedTargets = new Set(["all", "helpers", "admins", "publication"]);
-    const allowedCategories = new Set(["site_updates", "polls"]);
-    const targetRole = allowedTargets.has(req.body.targetRole) ? req.body.targetRole : "";
-    const category = allowedCategories.has(req.body.category) ? req.body.category : "";
+  const message = cleanText(req.body.message);
+  const allowedTargets = new Set(["all", "helpers", "admins", "publication"]);
+  const allowedCategories = new Set(["site_updates", "polls"]);
+  const targetRole = allowedTargets.has(req.body.targetRole) ? req.body.targetRole : "";
+  const category = allowedCategories.has(req.body.category) ? req.body.category : "";
 
-    if (message.length < 5 || message.length > 500) {
-      setFlash(req, "error", t(req, "flash.messageLength"));
-      return res.redirect("/publications/manage");
-    }
-
-    if (!targetRole) {
-      setFlash(req, "error", t(req, "flash.chooseValidTarget"));
-      return res.redirect("/publications/manage");
-    }
-
-    if (!category) {
-      setFlash(req, "error", t(req, "flash.chooseValidCategory"));
-      return res.redirect("/publications/manage");
-    }
-
-    const now = new Date().toISOString();
-    db.prepare(
-      `
-        INSERT INTO notifications (title, message, category, target_role, created_at, updated_at, published_at, created_by_user_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `
-    ).run(title, message, category, targetRole, now, now, publishedAt, req.session.user.id);
-
-    setFlash(req, "success", t(req, "flash.notificationSent"));
+  if (message.length < 5 || message.length > 500) {
+    setFlash(req, "error", t(req, "flash.messageLength"));
     return res.redirect("/publications/manage");
   }
 
-  if (type === "news") {
-    const summary = cleanText(req.body.summary);
-    const content = cleanText(req.body.content);
+  if (!targetRole) {
+    setFlash(req, "error", t(req, "flash.chooseValidTarget"));
+    return res.redirect("/publications/manage");
+  }
 
-    if (summary.length < 10 || summary.length > 220) {
-      setFlash(req, "error", t(req, "flash.newsSummaryLength"));
-      return res.redirect("/publications/manage");
-    }
+  if (!category) {
+    setFlash(req, "error", t(req, "flash.chooseValidCategory"));
+    return res.redirect("/publications/manage");
+  }
 
-    if (content.length < 30 || content.length > 5000) {
-      setFlash(req, "error", t(req, "flash.newsContentLength"));
-      return res.redirect("/publications/manage");
-    }
+  const now = new Date().toISOString();
+  db.prepare(
+    `
+      INSERT INTO notifications (title, message, category, target_role, created_at, updated_at, published_at, created_by_user_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `
+  ).run(title, message, category, targetRole, now, now, publishedAt, req.session.user.id);
 
-    const now = new Date().toISOString();
-    db.prepare(
+  setFlash(req, "success", t(req, "flash.notificationSent"));
+  return res.redirect("/publications/manage");
+});
+
+router.post("/publications/news/create", requireAuth, requirePublicationOrAdmin, (req, res) => {
+  const title = cleanText(req.body.title);
+  const summary = cleanText(req.body.summary);
+  const content = cleanText(req.body.content);
+  const publishedAt = getPublishedTimestamp(req.body.publishedAt);
+
+  if (title.length < 3 || title.length > 120) {
+    setFlash(req, "error", t(req, "flash.titleLength"));
+    return res.redirect("/publications/manage");
+  }
+
+  if (!publishedAt) {
+    setFlash(req, "error", t(req, "flash.invalidPublicationDate"));
+    return res.redirect("/publications/manage");
+  }
+
+  if (summary.length < 10 || summary.length > 220) {
+    setFlash(req, "error", t(req, "flash.newsSummaryLength"));
+    return res.redirect("/publications/manage");
+  }
+
+  if (content.length < 30 || content.length > 5000) {
+    setFlash(req, "error", t(req, "flash.newsContentLength"));
+    return res.redirect("/publications/manage");
+  }
+
+  const now = new Date().toISOString();
+  db.prepare(
+    `
+      INSERT INTO news_posts (title, summary, content, created_at, updated_at, published_at, created_by_user_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `
+  ).run(title, summary, content, now, now, publishedAt, req.session.user.id);
+
+  setFlash(req, "success", t(req, "flash.newsPublished"));
+  return res.redirect("/publications/manage");
+});
+
+router.post("/publications/polls/create", requireAuth, requirePublicationOrAdmin, (req, res) => {
+  const title = cleanText(req.body.title);
+  const question = cleanText(req.body.question);
+  const allowMultiple = req.body.allowMultiple === "on" ? 1 : 0;
+  const options = String(req.body.options || "")
+    .split(/\r?\n/)
+    .map((entry) => cleanText(entry))
+    .filter(Boolean);
+  const publishedAt = getPublishedTimestamp(req.body.publishedAt);
+
+  if (title.length < 3 || title.length > 120) {
+    setFlash(req, "error", t(req, "flash.titleLength"));
+    return res.redirect("/publications/manage");
+  }
+
+  if (!publishedAt) {
+    setFlash(req, "error", t(req, "flash.invalidPublicationDate"));
+    return res.redirect("/publications/manage");
+  }
+
+  if (question.length < 10 || question.length > 300) {
+    setFlash(req, "error", t(req, "flash.pollQuestionLength"));
+    return res.redirect("/publications/manage");
+  }
+
+  if (options.length < 2 || options.length > 10) {
+    setFlash(req, "error", t(req, "flash.pollOptionsLength"));
+    return res.redirect("/publications/manage");
+  }
+
+  const now = new Date().toISOString();
+  const transaction = db.transaction(() => {
+    const result = db.prepare(
       `
-        INSERT INTO news_posts (title, summary, content, created_at, updated_at, published_at, created_by_user_id)
+        INSERT INTO polls (title, question, allow_multiple, created_at, updated_at, published_at, created_by_user_id)
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `
-    ).run(title, summary, content, now, now, publishedAt, req.session.user.id);
+    ).run(title, question, allowMultiple, now, now, publishedAt, req.session.user.id);
 
-    setFlash(req, "success", t(req, "flash.newsPublished"));
-    return res.redirect("/publications/manage");
-  }
+    const pollId = Number(result.lastInsertRowid);
+    const insertOption = db.prepare(
+      `
+        INSERT INTO poll_options (poll_id, label, position)
+        VALUES (?, ?, ?)
+      `
+    );
 
-  if (type === "poll") {
-    const question = cleanText(req.body.question);
-    const allowMultiple = req.body.allowMultiple === "on" ? 1 : 0;
-    const options = String(req.body.options || "")
-      .split(/\r?\n/)
-      .map((entry) => cleanText(entry))
-      .filter(Boolean);
-
-    if (question.length < 10 || question.length > 300) {
-      setFlash(req, "error", t(req, "flash.pollQuestionLength"));
-      return res.redirect("/publications/manage");
-    }
-
-    if (options.length < 2 || options.length > 10) {
-      setFlash(req, "error", t(req, "flash.pollOptionsLength"));
-      return res.redirect("/publications/manage");
-    }
-
-    const now = new Date().toISOString();
-    const transaction = db.transaction(() => {
-      const result = db.prepare(
-        `
-          INSERT INTO polls (title, question, allow_multiple, created_at, updated_at, published_at, created_by_user_id)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
-        `
-      ).run(title, question, allowMultiple, now, now, publishedAt, req.session.user.id);
-
-      const pollId = Number(result.lastInsertRowid);
-      const insertOption = db.prepare(
-        `
-          INSERT INTO poll_options (poll_id, label, position)
-          VALUES (?, ?, ?)
-        `
-      );
-
-      options.forEach((option, index) => {
-        insertOption.run(pollId, option, index + 1);
-      });
+    options.forEach((option, index) => {
+      insertOption.run(pollId, option, index + 1);
     });
+  });
 
-    transaction();
-    setFlash(req, "success", t(req, "flash.pollPublished"));
+  transaction();
+  setFlash(req, "success", t(req, "flash.pollPublished"));
+  return res.redirect("/publications/manage");
+});
+
+router.get("/publications/notifications/:id/edit", requireAuth, requirePublicationOrAdmin, (req, res) => {
+  const item = db.prepare("SELECT * FROM notifications WHERE id = ? LIMIT 1").get(Number(req.params.id));
+  if (!item) {
+    setFlash(req, "error", t(req, "flash.notificationNotFound"));
     return res.redirect("/publications/manage");
   }
-
-  setFlash(req, "error", t(req, "flash.invalidPublicationType"));
-  return res.redirect("/publications/manage");
+  return res.render("publication-edit", {
+    pageTitle: t(req, "publication.editNotification"),
+    publicationKind: "notification",
+    item,
+    options: [],
+    actionUrl: `/publications/notifications/${item.id}/update`
+  });
 });
 
-router.get("/publications/:type/:id/edit", requireAuth, requirePublicationOrAdmin, (req, res) => {
-  const publicationType = String(req.params.type || "");
-  const publicationId = Number(req.params.id);
-
-  if (publicationType === "notification") {
-    const item = db.prepare("SELECT * FROM notifications WHERE id = ? LIMIT 1").get(publicationId);
-    if (!item) {
-      setFlash(req, "error", t(req, "flash.notificationNotFound"));
-      return res.redirect("/publications/manage");
-    }
-    return res.render("publication-edit", { pageTitle: t(req, "publication.edit"), publicationType, item, options: [] });
-  }
-
-  if (publicationType === "news") {
-    const item = db.prepare("SELECT * FROM news_posts WHERE id = ? LIMIT 1").get(publicationId);
-    if (!item) {
-      setFlash(req, "error", t(req, "flash.newsNotFound"));
-      return res.redirect("/publications/manage");
-    }
-    return res.render("publication-edit", { pageTitle: t(req, "publication.edit"), publicationType, item, options: [] });
-  }
-
-  if (publicationType === "poll") {
-    const item = db.prepare("SELECT * FROM polls WHERE id = ? LIMIT 1").get(publicationId);
-    if (!item) {
-      setFlash(req, "error", t(req, "flash.pollNotFound"));
-      return res.redirect("/publications/manage");
-    }
-    const options = db.prepare("SELECT label FROM poll_options WHERE poll_id = ? ORDER BY position ASC, id ASC").all(publicationId);
-    return res.render("publication-edit", { pageTitle: t(req, "publication.edit"), publicationType, item, options });
-  }
-
-  setFlash(req, "error", t(req, "flash.invalidPublicationType"));
-  return res.redirect("/publications/manage");
-});
-
-router.post("/publications/:type/:id/update", requireAuth, requirePublicationOrAdmin, (req, res) => {
-  const publicationType = String(req.params.type || "");
-  const publicationId = Number(req.params.id);
+router.post("/publications/notifications/:id/update", requireAuth, requirePublicationOrAdmin, (req, res) => {
+  const notificationId = Number(req.params.id);
   const title = cleanText(req.body.title);
+  const message = cleanText(req.body.message);
+  const allowedTargets = new Set(["all", "helpers", "admins", "publication"]);
+  const allowedCategories = new Set(["site_updates", "polls"]);
+  const targetRole = allowedTargets.has(req.body.targetRole) ? req.body.targetRole : "";
+  const category = allowedCategories.has(req.body.category) ? req.body.category : "";
   const publishedAt = getPublishedTimestamp(req.body.publishedAt);
 
   if (title.length < 3 || title.length > 120) {
     setFlash(req, "error", t(req, "flash.titleLength"));
-    return res.redirect(`/publications/${publicationType}/${publicationId}/edit`);
+    return res.redirect(`/publications/notifications/${notificationId}/edit`);
   }
 
   if (!publishedAt) {
     setFlash(req, "error", t(req, "flash.invalidPublicationDate"));
-    return res.redirect(`/publications/${publicationType}/${publicationId}/edit`);
+    return res.redirect(`/publications/notifications/${notificationId}/edit`);
   }
 
-  if (publicationType === "notification") {
-    const message = cleanText(req.body.message);
-    const allowedTargets = new Set(["all", "helpers", "admins", "publication"]);
-    const allowedCategories = new Set(["site_updates", "polls"]);
-    const targetRole = allowedTargets.has(req.body.targetRole) ? req.body.targetRole : "";
-    const category = allowedCategories.has(req.body.category) ? req.body.category : "";
-    if (message.length < 5 || message.length > 500 || !targetRole || !category) {
-      setFlash(req, "error", t(req, !targetRole ? "flash.chooseValidTarget" : !category ? "flash.chooseValidCategory" : "flash.messageLength"));
-      return res.redirect(`/publications/${publicationType}/${publicationId}/edit`);
-    }
-    db.prepare("UPDATE notifications SET title = ?, message = ?, category = ?, target_role = ?, updated_at = ?, published_at = ? WHERE id = ?")
-      .run(title, message, category, targetRole, new Date().toISOString(), publishedAt, publicationId);
-    setFlash(req, "success", t(req, "flash.notificationUpdated"));
-    return res.redirect("/publications/manage");
+  if (message.length < 5 || message.length > 500 || !targetRole || !category) {
+    setFlash(req, "error", t(req, !targetRole ? "flash.chooseValidTarget" : !category ? "flash.chooseValidCategory" : "flash.messageLength"));
+    return res.redirect(`/publications/notifications/${notificationId}/edit`);
   }
 
-  if (publicationType === "news") {
-    const summary = cleanText(req.body.summary);
-    const content = cleanText(req.body.content);
-    if (summary.length < 10 || summary.length > 220) {
-      setFlash(req, "error", t(req, "flash.newsSummaryLength"));
-      return res.redirect(`/publications/${publicationType}/${publicationId}/edit`);
-    }
-    if (content.length < 30 || content.length > 5000) {
-      setFlash(req, "error", t(req, "flash.newsContentLength"));
-      return res.redirect(`/publications/${publicationType}/${publicationId}/edit`);
-    }
-    db.prepare("UPDATE news_posts SET title = ?, summary = ?, content = ?, updated_at = ?, published_at = ? WHERE id = ?")
-      .run(title, summary, content, new Date().toISOString(), publishedAt, publicationId);
-    setFlash(req, "success", t(req, "flash.newsUpdated"));
-    return res.redirect("/publications/manage");
-  }
+  db.prepare("UPDATE notifications SET title = ?, message = ?, category = ?, target_role = ?, updated_at = ?, published_at = ? WHERE id = ?")
+    .run(title, message, category, targetRole, new Date().toISOString(), publishedAt, notificationId);
 
-  if (publicationType === "poll") {
-    const question = cleanText(req.body.question);
-    const allowMultiple = req.body.allowMultiple === "on" ? 1 : 0;
-    const options = String(req.body.options || "")
-      .split(/\r?\n/)
-      .map((entry) => cleanText(entry))
-      .filter(Boolean);
-    if (question.length < 10 || question.length > 300) {
-      setFlash(req, "error", t(req, "flash.pollQuestionLength"));
-      return res.redirect(`/publications/${publicationType}/${publicationId}/edit`);
-    }
-    if (options.length < 2 || options.length > 10) {
-      setFlash(req, "error", t(req, "flash.pollOptionsLength"));
-      return res.redirect(`/publications/${publicationType}/${publicationId}/edit`);
-    }
-    const transaction = db.transaction(() => {
-      db.prepare("UPDATE polls SET title = ?, question = ?, allow_multiple = ?, updated_at = ?, published_at = ? WHERE id = ?")
-        .run(title, question, allowMultiple, new Date().toISOString(), publishedAt, publicationId);
-      db.prepare("DELETE FROM poll_options WHERE poll_id = ?").run(publicationId);
-      const insertOption = db.prepare("INSERT INTO poll_options (poll_id, label, position) VALUES (?, ?, ?)");
-      options.forEach((option, index) => insertOption.run(publicationId, option, index + 1));
-      db.prepare("DELETE FROM poll_answers WHERE poll_id = ?").run(publicationId);
-    });
-    transaction();
-    setFlash(req, "success", t(req, "flash.pollUpdated"));
-    return res.redirect("/publications/manage");
-  }
-
-  setFlash(req, "error", t(req, "flash.invalidPublicationType"));
+  setFlash(req, "success", t(req, "flash.notificationUpdated"));
   return res.redirect("/publications/manage");
 });
 
-router.post("/publications/:type/:id/delete", requireAuth, requirePublicationOrAdmin, (req, res) => {
-  const publicationType = String(req.params.type || "");
-  const publicationId = Number(req.params.id);
+router.post("/publications/notifications/:id/delete", requireAuth, requirePublicationOrAdmin, (req, res) => {
+  db.prepare("DELETE FROM notifications WHERE id = ?").run(Number(req.params.id));
+  setFlash(req, "success", t(req, "flash.notificationDeleted"));
+  return res.redirect("/publications/manage");
+});
 
-  if (publicationType === "notification") {
-    db.prepare("DELETE FROM notifications WHERE id = ?").run(publicationId);
-    setFlash(req, "success", t(req, "flash.notificationDeleted"));
+router.get("/publications/news/:id/edit", requireAuth, requirePublicationOrAdmin, (req, res) => {
+  const item = db.prepare("SELECT * FROM news_posts WHERE id = ? LIMIT 1").get(Number(req.params.id));
+  if (!item) {
+    setFlash(req, "error", t(req, "flash.newsNotFound"));
     return res.redirect("/publications/manage");
   }
+  return res.render("publication-edit", {
+    pageTitle: t(req, "publication.editNews"),
+    publicationKind: "news",
+    item,
+    options: [],
+    actionUrl: `/publications/news/${item.id}/update`
+  });
+});
 
-  if (publicationType === "news") {
-    db.prepare("DELETE FROM news_posts WHERE id = ?").run(publicationId);
-    setFlash(req, "success", t(req, "flash.newsDeleted"));
-    return res.redirect("/publications/manage");
+router.post("/publications/news/:id/update", requireAuth, requirePublicationOrAdmin, (req, res) => {
+  const newsId = Number(req.params.id);
+  const title = cleanText(req.body.title);
+  const summary = cleanText(req.body.summary);
+  const content = cleanText(req.body.content);
+  const publishedAt = getPublishedTimestamp(req.body.publishedAt);
+
+  if (title.length < 3 || title.length > 120) {
+    setFlash(req, "error", t(req, "flash.titleLength"));
+    return res.redirect(`/publications/news/${newsId}/edit`);
   }
 
-  if (publicationType === "poll") {
-    db.prepare("DELETE FROM polls WHERE id = ?").run(publicationId);
-    setFlash(req, "success", t(req, "flash.pollDeleted"));
-    return res.redirect("/publications/manage");
+  if (!publishedAt) {
+    setFlash(req, "error", t(req, "flash.invalidPublicationDate"));
+    return res.redirect(`/publications/news/${newsId}/edit`);
   }
 
-  setFlash(req, "error", t(req, "flash.invalidPublicationType"));
+  if (summary.length < 10 || summary.length > 220) {
+    setFlash(req, "error", t(req, "flash.newsSummaryLength"));
+    return res.redirect(`/publications/news/${newsId}/edit`);
+  }
+
+  if (content.length < 30 || content.length > 5000) {
+    setFlash(req, "error", t(req, "flash.newsContentLength"));
+    return res.redirect(`/publications/news/${newsId}/edit`);
+  }
+
+  db.prepare("UPDATE news_posts SET title = ?, summary = ?, content = ?, updated_at = ?, published_at = ? WHERE id = ?")
+    .run(title, summary, content, new Date().toISOString(), publishedAt, newsId);
+
+  setFlash(req, "success", t(req, "flash.newsUpdated"));
+  return res.redirect("/publications/manage");
+});
+
+router.post("/publications/news/:id/delete", requireAuth, requirePublicationOrAdmin, (req, res) => {
+  db.prepare("DELETE FROM news_posts WHERE id = ?").run(Number(req.params.id));
+  setFlash(req, "success", t(req, "flash.newsDeleted"));
+  return res.redirect("/publications/manage");
+});
+
+router.get("/publications/polls/:id/edit", requireAuth, requirePublicationOrAdmin, (req, res) => {
+  const pollId = Number(req.params.id);
+  const item = db.prepare("SELECT * FROM polls WHERE id = ? LIMIT 1").get(pollId);
+  if (!item) {
+    setFlash(req, "error", t(req, "flash.pollNotFound"));
+    return res.redirect("/publications/manage");
+  }
+  const options = db.prepare("SELECT label FROM poll_options WHERE poll_id = ? ORDER BY position ASC, id ASC").all(pollId);
+  return res.render("publication-edit", {
+    pageTitle: t(req, "publication.editPoll"),
+    publicationKind: "poll",
+    item,
+    options,
+    actionUrl: `/publications/polls/${item.id}/update`
+  });
+});
+
+router.post("/publications/polls/:id/update", requireAuth, requirePublicationOrAdmin, (req, res) => {
+  const pollId = Number(req.params.id);
+  const title = cleanText(req.body.title);
+  const question = cleanText(req.body.question);
+  const allowMultiple = req.body.allowMultiple === "on" ? 1 : 0;
+  const options = String(req.body.options || "")
+    .split(/\r?\n/)
+    .map((entry) => cleanText(entry))
+    .filter(Boolean);
+  const publishedAt = getPublishedTimestamp(req.body.publishedAt);
+
+  if (title.length < 3 || title.length > 120) {
+    setFlash(req, "error", t(req, "flash.titleLength"));
+    return res.redirect(`/publications/polls/${pollId}/edit`);
+  }
+
+  if (!publishedAt) {
+    setFlash(req, "error", t(req, "flash.invalidPublicationDate"));
+    return res.redirect(`/publications/polls/${pollId}/edit`);
+  }
+
+  if (question.length < 10 || question.length > 300) {
+    setFlash(req, "error", t(req, "flash.pollQuestionLength"));
+    return res.redirect(`/publications/polls/${pollId}/edit`);
+  }
+
+  if (options.length < 2 || options.length > 10) {
+    setFlash(req, "error", t(req, "flash.pollOptionsLength"));
+    return res.redirect(`/publications/polls/${pollId}/edit`);
+  }
+
+  const transaction = db.transaction(() => {
+    db.prepare("UPDATE polls SET title = ?, question = ?, allow_multiple = ?, updated_at = ?, published_at = ? WHERE id = ?")
+      .run(title, question, allowMultiple, new Date().toISOString(), publishedAt, pollId);
+    db.prepare("DELETE FROM poll_options WHERE poll_id = ?").run(pollId);
+    const insertOption = db.prepare("INSERT INTO poll_options (poll_id, label, position) VALUES (?, ?, ?)");
+    options.forEach((option, index) => insertOption.run(pollId, option, index + 1));
+    db.prepare("DELETE FROM poll_answers WHERE poll_id = ?").run(pollId);
+  });
+
+  transaction();
+  setFlash(req, "success", t(req, "flash.pollUpdated"));
+  return res.redirect("/publications/manage");
+});
+
+router.post("/publications/polls/:id/delete", requireAuth, requirePublicationOrAdmin, (req, res) => {
+  db.prepare("DELETE FROM polls WHERE id = ?").run(Number(req.params.id));
+  setFlash(req, "success", t(req, "flash.pollDeleted"));
   return res.redirect("/publications/manage");
 });
 

@@ -12,43 +12,23 @@
 
     <%- include("partials/flash") %>
 
-    <div class="dashboard-grid">
+    <div class="notifications-list">
       <section class="dashboard-card">
         <div class="section-head">
-          <h2><%= t("publication.new") %></h2>
-          <p><%= t("publication.newIntro") %></p>
+          <h2><%= t("publication.typeNotification") %></h2>
+          <p><%= t("publication.notificationIntro") %></p>
         </div>
 
-        <form action="/publications/create" method="post" class="stack-form">
-          <label class="field">
-            <span><%= t("publication.type") %></span>
-            <select name="type" class="field-select visually-hidden" required data-publication-type tabindex="-1" aria-hidden="true">
-              <option value="notification" selected><%= t("publication.typeNotification") %></option>
-              <option value="news"><%= t("publication.typeNews") %></option>
-              <option value="poll"><%= t("publication.typePoll") %></option>
-            </select>
-            <div class="publication-type-grid" role="tablist" aria-label="<%= t('publication.type') %>">
-              <button type="button" class="publication-type-button is-active" data-publication-choice="notification">
-                <strong><%= t("publication.typeNotification") %></strong>
-              </button>
-              <button type="button" class="publication-type-button" data-publication-choice="news">
-                <strong><%= t("publication.typeNews") %></strong>
-              </button>
-              <button type="button" class="publication-type-button" data-publication-choice="poll">
-                <strong><%= t("publication.typePoll") %></strong>
-              </button>
-            </div>
-          </label>
-
+        <form action="/publications/notifications/create" method="post" class="stack-form">
           <label class="field">
             <span><%= t("publication.titleField") %></span>
             <input type="text" name="title" minlength="3" maxlength="120" required />
           </label>
 
-          <div data-publication-notification-fields>
+          <div class="field-split">
             <label class="field">
               <span><%= t("admin.target") %></span>
-              <select name="targetRole" class="field-select">
+              <select name="targetRole" class="field-select" required>
                 <option value="all"><%= t("admin.allAccounts") %></option>
                 <option value="helpers"><%= t("admin.helpers") %></option>
                 <option value="admins"><%= t("admin.admins") %></option>
@@ -58,63 +38,102 @@
 
             <label class="field">
               <span><%= t("admin.category") %></span>
-              <select name="category" class="field-select">
+              <select name="category" class="field-select" required>
                 <option value="site_updates"><%= t("notifications.categorySiteUpdates") %></option>
                 <option value="polls"><%= t("notifications.categoryPolls") %></option>
               </select>
             </label>
-
-            <label class="field">
-              <span><%= t("admin.message") %></span>
-              <textarea name="message" rows="5" maxlength="500"></textarea>
-            </label>
           </div>
 
-          <div data-publication-news-fields hidden>
-            <label class="field">
-              <span><%= t("news.summary") %></span>
-              <textarea name="summary" rows="3" maxlength="220"></textarea>
-            </label>
-
-            <label class="field">
-              <span><%= t("news.content") %></span>
-              <textarea name="content" rows="8" maxlength="5000"></textarea>
-            </label>
-          </div>
-
-          <div data-publication-poll-fields hidden>
-            <label class="field">
-              <span><%= t("polls.question") %></span>
-              <textarea name="question" rows="4" maxlength="300"></textarea>
-            </label>
-
-            <label class="field">
-              <span><%= t("polls.options") %></span>
-              <textarea name="options" rows="6" maxlength="1000" placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
-            </label>
-
-            <label class="consent-check">
-              <input type="checkbox" name="allowMultiple" />
-              <span><%= t("polls.allowMultiple") %></span>
-            </label>
-          </div>
+          <label class="field">
+            <span><%= t("admin.message") %></span>
+            <textarea name="message" rows="5" maxlength="500" required></textarea>
+          </label>
 
           <label class="field">
             <span><%= t("publication.publishAt") %></span>
             <input type="datetime-local" name="publishedAt" />
           </label>
 
-          <button type="submit" class="primary-button"><%= t("publication.publishButton") %></button>
+          <button type="submit" class="primary-button"><%= t("publication.publishNotification") %></button>
         </form>
       </section>
 
-      <aside class="dashboard-card">
+      <section class="dashboard-card">
+        <div class="section-head">
+          <h2><%= t("publication.typeNews") %></h2>
+          <p><%= t("publication.newsIntro") %></p>
+        </div>
+
+        <form action="/publications/news/create" method="post" class="stack-form">
+          <label class="field">
+            <span><%= t("publication.titleField") %></span>
+            <input type="text" name="title" minlength="3" maxlength="120" required />
+          </label>
+
+          <label class="field">
+            <span><%= t("news.summary") %></span>
+            <textarea name="summary" rows="3" maxlength="220" required></textarea>
+          </label>
+
+          <label class="field">
+            <span><%= t("news.content") %></span>
+            <textarea name="content" rows="8" maxlength="5000" required></textarea>
+          </label>
+
+          <label class="field">
+            <span><%= t("publication.publishAt") %></span>
+            <input type="datetime-local" name="publishedAt" />
+          </label>
+
+          <button type="submit" class="primary-button"><%= t("publication.publishNews") %></button>
+        </form>
+      </section>
+
+      <section class="dashboard-card">
+        <div class="section-head">
+          <h2><%= t("publication.typePoll") %></h2>
+          <p><%= t("publication.pollIntro") %></p>
+        </div>
+
+        <form action="/publications/polls/create" method="post" class="stack-form">
+          <label class="field">
+            <span><%= t("publication.titleField") %></span>
+            <input type="text" name="title" minlength="3" maxlength="120" required />
+          </label>
+
+          <label class="field">
+            <span><%= t("polls.question") %></span>
+            <textarea name="question" rows="4" maxlength="300" required></textarea>
+          </label>
+
+          <label class="field">
+            <span><%= t("polls.options") %></span>
+            <textarea name="options" rows="6" maxlength="1000" placeholder="Option 1&#10;Option 2&#10;Option 3" required></textarea>
+          </label>
+
+          <label class="consent-check">
+            <input type="checkbox" name="allowMultiple" />
+            <span><%= t("polls.allowMultiple") %></span>
+          </label>
+
+          <label class="field">
+            <span><%= t("publication.publishAt") %></span>
+            <input type="datetime-local" name="publishedAt" />
+          </label>
+
+          <button type="submit" class="primary-button"><%= t("publication.publishPoll") %></button>
+        </form>
+      </section>
+
+      <section class="dashboard-card">
         <div class="section-head">
           <h2><%= t("publication.manage") %></h2>
+          <p><%= t("publication.manageIntro") %></p>
         </div>
 
         <div class="section-head compact">
-          <h2><%= t("publication.typeNotification") %></h2>
+          <h3><%= t("publication.typeNotification") %></h3>
         </div>
         <% if (notifications.length === 0) { %>
           <p class="empty-state"><%= t("admin.noNotifications") %></p>
@@ -130,8 +149,8 @@
                 <h3><%= notification.title %></h3>
                 <p><%= notification.message %></p>
                 <div class="table-actions">
-                  <a href="/publications/notification/<%= notification.id %>/edit" class="ghost-button button-link"><%= t("publication.edit") %></a>
-                  <form action="/publications/notification/<%= notification.id %>/delete" method="post">
+                  <a href="/publications/notifications/<%= notification.id %>/edit" class="ghost-button button-link"><%= t("publication.edit") %></a>
+                  <form action="/publications/notifications/<%= notification.id %>/delete" method="post">
                     <button type="submit" class="history-delete-button"><%= t("publication.delete") %></button>
                   </form>
                 </div>
@@ -141,7 +160,7 @@
         <% } %>
 
         <div class="section-head compact">
-          <h2><%= t("publication.typeNews") %></h2>
+          <h3><%= t("publication.typeNews") %></h3>
         </div>
         <% if (newsPosts.length === 0) { %>
           <p class="empty-state"><%= t("news.none") %></p>
@@ -166,7 +185,7 @@
         <% } %>
 
         <div class="section-head compact">
-          <h2><%= t("publication.typePoll") %></h2>
+          <h3><%= t("publication.typePoll") %></h3>
         </div>
         <% if (polls.length === 0) { %>
           <p class="empty-state"><%= t("polls.none") %></p>
@@ -181,8 +200,8 @@
                 <h3><%= poll.title %></h3>
                 <p><%= poll.question %></p>
                 <div class="table-actions">
-                  <a href="/publications/poll/<%= poll.id %>/edit" class="ghost-button button-link"><%= t("publication.edit") %></a>
-                  <form action="/publications/poll/<%= poll.id %>/delete" method="post">
+                  <a href="/publications/polls/<%= poll.id %>/edit" class="ghost-button button-link"><%= t("publication.edit") %></a>
+                  <form action="/publications/polls/<%= poll.id %>/delete" method="post">
                     <button type="submit" class="history-delete-button"><%= t("publication.delete") %></button>
                   </form>
                 </div>
@@ -190,7 +209,7 @@
             <% }) %>
           </div>
         <% } %>
-      </aside>
+      </section>
     </div>
   </section>
 </main>

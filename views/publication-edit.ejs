@@ -11,13 +11,13 @@
 
       <%- include("partials/flash") %>
 
-      <form action="/publications/<%= publicationType %>/<%= item.id %>/update" method="post" class="stack-form">
+      <form action="<%= actionUrl %>" method="post" class="stack-form">
         <label class="field">
           <span><%= t("publication.titleField") %></span>
           <input type="text" name="title" minlength="3" maxlength="120" value="<%= item.title %>" required />
         </label>
 
-        <% if (publicationType === "notification") { %>
+        <% if (publicationKind === "notification") { %>
           <label class="field">
             <span><%= t("admin.target") %></span>
             <select name="targetRole" class="field-select" required>
@@ -42,7 +42,7 @@
           </label>
         <% } %>
 
-        <% if (publicationType === "news") { %>
+        <% if (publicationKind === "news") { %>
           <label class="field">
             <span><%= t("news.summary") %></span>
             <textarea name="summary" rows="3" maxlength="220" required><%= item.summary %></textarea>
@@ -54,7 +54,7 @@
           </label>
         <% } %>
 
-        <% if (publicationType === "poll") { %>
+        <% if (publicationKind === "poll") { %>
           <label class="field">
             <span><%= t("polls.question") %></span>
             <textarea name="question" rows="4" maxlength="300" required><%= item.question %></textarea>

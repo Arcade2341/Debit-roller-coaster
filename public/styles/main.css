@@ -1310,6 +1310,13 @@ textarea {
   margin-bottom: 1rem;
 }
 
+.notification-center-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+  align-items: start;
+}
+
 .notification-item {
   display: grid;
   gap: 0.75rem;
@@ -1365,6 +1372,42 @@ textarea {
   font-weight: 700;
 }
 
+.notification-feed-item {
+  gap: 0.85rem;
+}
+
+.notification-side-panel {
+  position: sticky;
+  top: 5.5rem;
+}
+
+.poll-card {
+  gap: 1rem;
+}
+
+.poll-option-row {
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+}
+
+.poll-option-row span {
+  line-height: 1.45;
+}
+
+.poll-option-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0 0.65rem;
+  border-radius: 999px;
+  background: rgba(143, 63, 23, 0.08);
+  color: var(--orange-deep);
+  font-family: "Sora", sans-serif;
+  font-size: 0.88rem;
+}
+
 :root[data-theme="dark"] .account-actions {
   border-color: rgba(255, 191, 133, 0.14);
   background: linear-gradient(180deg, rgba(255, 159, 67, 0.08), rgba(255, 159, 67, 0.03));
@@ -1416,6 +1459,11 @@ textarea {
 :root[data-theme="dark"] .notification-meta span {
   background: rgba(255, 159, 67, 0.12);
   color: #ffe0c2;
+}
+
+:root[data-theme="dark"] .poll-option-count {
+  background: rgba(255, 159, 67, 0.12);
+  color: #fff0e0;
 }
 
 .form-page {
@@ -1600,6 +1648,15 @@ code {
     grid-template-columns: 1fr;
   }
 
+  .notification-center-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .notification-side-panel {
+    position: static;
+    top: auto;
+  }
+
   .hero-copy h1,
   .section-head h1 {
     max-width: 100%;
@@ -1697,6 +1754,15 @@ code {
   .notification-item form,
   .notification-item .history-delete-button {
     width: 100%;
+  }
+
+  .poll-option-row {
+    grid-template-columns: auto 1fr;
+  }
+
+  .poll-option-count {
+    grid-column: 2;
+    justify-self: start;
   }
 
   .hero-summary-grid {
