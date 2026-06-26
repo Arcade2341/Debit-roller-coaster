@@ -343,3 +343,30 @@ if (form) {
   }
   syncFormState();
 }
+
+const publicationTypeSelect = document.querySelector("[data-publication-type]");
+
+if (publicationTypeSelect) {
+  const notificationFields = document.querySelector("[data-publication-notification-fields]");
+  const newsFields = document.querySelector("[data-publication-news-fields]");
+  const pollFields = document.querySelector("[data-publication-poll-fields]");
+
+  function syncPublicationFields() {
+    const selectedType = publicationTypeSelect.value;
+
+    if (notificationFields) {
+      notificationFields.hidden = selectedType !== "notification";
+    }
+
+    if (newsFields) {
+      newsFields.hidden = selectedType !== "news";
+    }
+
+    if (pollFields) {
+      pollFields.hidden = selectedType !== "poll";
+    }
+  }
+
+  publicationTypeSelect.addEventListener("change", syncPublicationFields);
+  syncPublicationFields();
+}

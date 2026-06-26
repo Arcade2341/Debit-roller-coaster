@@ -1,0 +1,85 @@
+<%- include("partials/head", { pageTitle, metaRobots: "noindex,nofollow" }) %>
+<%- include("partials/header") %>
+
+<main class="auth-page">
+  <section class="container form-page">
+    <div class="form-shell">
+      <div class="section-head">
+        <h1><%= t("publication.edit") %></h1>
+        <p><%= t("publication.editIntro") %></p>
+      </div>
+
+      <%- include("partials/flash") %>
+
+      <form action="/publications/<%= publicationType %>/<%= item.id %>/update" method="post" class="stack-form">
+        <label class="field">
+          <span><%= t("publication.titleField") %></span>
+          <input type="text" name="title" minlength="3" maxlength="120" value="<%= item.title %>" required />
+        </label>
+
+        <% if (publicationType === "notification") { %>
+          <label class="field">
+            <span><%= t("admin.target") %></span>
+            <select name="targetRole" class="field-select" required>
+              <option value="all" <%= item.target_role === "all" ? "selected" : "" %>><%= t("admin.allAccounts") %></option>
+              <option value="helpers" <%= item.target_role === "helpers" ? "selected" : "" %>><%= t("admin.helpers") %></option>
+              <option value="admins" <%= item.target_role === "admins" ? "selected" : "" %>><%= t("admin.admins") %></option>
+              <option value="publication" <%= item.target_role === "publication" ? "selected" : "" %>><%= t("admin.publicationRole") %></option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span><%= t("admin.category") %></span>
+            <select name="category" class="field-select" required>
+              <option value="site_updates" <%= item.category === "site_updates" ? "selected" : "" %>><%= t("notifications.categorySiteUpdates") %></option>
+              <option value="polls" <%= item.category === "polls" ? "selected" : "" %>><%= t("notifications.categoryPolls") %></option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span><%= t("admin.message") %></span>
+            <textarea name="message" rows="6" maxlength="500" required><%= item.message %></textarea>
+          </label>
+        <% } %>
+
+        <% if (publicationType === "news") { %>
+          <label class="field">
+            <span><%= t("news.summary") %></span>
+            <textarea name="summary" rows="3" maxlength="220" required><%= item.summary %></textarea>
+          </label>
+
+          <label class="field">
+            <span><%= t("news.content") %></span>
+            <textarea name="content" rows="10" maxlength="5000" required><%= item.content %></textarea>
+          </label>
+        <% } %>
+
+        <% if (publicationType === "poll") { %>
+          <label class="field">
+            <span><%= t("polls.question") %></span>
+            <textarea name="question" rows="4" maxlength="300" required><%= item.question %></textarea>
+          </label>
+
+          <label class="field">
+            <span><%= t("polls.options") %></span>
+            <textarea name="options" rows="6" maxlength="1000" required><%= options.map((option) => option.label).join("\n") %></textarea>
+          </label>
+
+          <label class="consent-check">
+            <input type="checkbox" name="allowMultiple" <%= item.allow_multiple ? "checked" : "" %> />
+            <span><%= t("polls.allowMultiple") %></span>
+          </label>
+        <% } %>
+
+        <label class="field">
+          <span><%= t("publication.publishAt") %></span>
+          <input type="datetime-local" name="publishedAt" value="<%= item.published_at ? item.published_at.slice(0, 16) : '' %>" />
+        </label>
+
+        <button type="submit" class="primary-button"><%= t("publication.save") %></button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

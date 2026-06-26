@@ -12,6 +12,10 @@ function getNotificationFilter(user) {
     targets.push("helpers");
   }
 
+  if (user.isPublication) {
+    targets.push("publication");
+  }
+
   return targets;
 }
 
@@ -20,7 +24,7 @@ function attachLocals(req, res, next) {
 
   if (req.session.user) {
     const freshUser = db
-      .prepare("SELECT id, username, is_admin, is_helper, is_journalist FROM users WHERE id = ? LIMIT 1")
+      .prepare("SELECT id, username, is_admin, is_helper, is_publication, is_super_admin FROM users WHERE id = ? LIMIT 1")
       .get(req.session.user.id);
 
     if (!freshUser) {
@@ -29,9 +33,10 @@ function attachLocals(req, res, next) {
       req.session.user = {
         id: freshUser.id,
         username: freshUser.username,
-        isAdmin: Boolean(freshUser.is_admin),
-        isHelper: Boolean(freshUser.is_helper),
-        isJournalist: Boolean(freshUser.is_journalist)
+        isAdmin: Boolean(freshUser.is_admin || freshUser.is_super_admin),
+        isHelper: Boolean(freshUser.is_helper || freshUser.is_super_admin),
+        isPublication: Boolean(freshUser.is_publication || freshUser.is_super_admin),
+        isSuperAdmin: Boolean(freshUser.is_super_admin)
       };
     }
   }
@@ -54,6 +59,7 @@ function attachLocals(req, res, next) {
           SELECT COUNT(*) AS total
           FROM notifications
           WHERE target_role IN (${placeholders})
+            AND published_at <= ?
             AND id NOT IN (
               SELECT notification_id
               FROM notification_reads
@@ -61,7 +67,7 @@ function attachLocals(req, res, next) {
             )
         `
       )
-      .get(...targets, req.session.user.id);
+      .get(...targets, new Date().toISOString(), req.session.user.id);
 
     res.locals.unreadNotificationsCount = row ? row.total : 0;
   }

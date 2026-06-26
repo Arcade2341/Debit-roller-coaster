@@ -25,7 +25,7 @@
                 <th><%= t("admin.username") %></th>
                 <th><%= t("admin.status") %></th>
                 <th><%= t("admin.helper") %></th>
-                <th><%= t("admin.journalist") %></th>
+                <th><%= t("admin.publication") %></th>
                 <th><%= t("admin.calculations") %></th>
                 <th><%= t("admin.createdAt") %></th>
                 <th><%= t("admin.actions") %></th>
@@ -35,28 +35,38 @@
               <% users.forEach((account) => { %>
                 <tr>
                   <td><%= account.username %></td>
-                  <td><%= account.is_admin ? t("admin.admin") : t("admin.user") %></td>
+                  <td>
+                    <% if (account.is_super_admin) { %>
+                      <%= t("admin.superAdmin") %>
+                    <% } else { %>
+                      <%= account.is_admin ? t("admin.admin") : t("admin.user") %>
+                    <% } %>
+                  </td>
                   <td><%= account.is_helper ? t("admin.yes") : t("admin.no") %></td>
-                  <td><%= account.is_journalist ? t("admin.yes") : t("admin.no") %></td>
+                  <td><%= account.is_publication ? t("admin.yes") : t("admin.no") %></td>
                   <td><%= account.calculations_count %></td>
                   <td><%= account.created_at.slice(0, 10) %></td>
                   <td>
                     <div class="table-actions">
-                      <form action="/admin/users/<%= account.id %>/toggle-admin" method="post">
-                        <button type="submit" class="history-delete-button">
-                          <%= account.is_admin ? t("admin.removeAdmin") : t("admin.makeAdmin") %>
-                        </button>
-                      </form>
-                      <form action="/admin/users/<%= account.id %>/toggle-helper" method="post">
-                        <button type="submit" class="history-delete-button">
-                          <%= account.is_helper ? t("admin.removeHelper") : t("admin.makeHelper") %>
-                        </button>
-                      </form>
-                      <form action="/admin/users/<%= account.id %>/toggle-journalist" method="post">
-                        <button type="submit" class="history-delete-button">
-                          <%= account.is_journalist ? t("admin.removeJournalist") : t("admin.makeJournalist") %>
-                        </button>
-                      </form>
+                      <% if (user.isSuperAdmin && !account.is_super_admin) { %>
+                        <form action="/admin/users/<%= account.id %>/toggle-admin" method="post">
+                          <button type="submit" class="history-delete-button">
+                            <%= account.is_admin ? t("admin.removeAdmin") : t("admin.makeAdmin") %>
+                          </button>
+                        </form>
+                      <% } %>
+                      <% if (!account.is_super_admin) { %>
+                        <form action="/admin/users/<%= account.id %>/toggle-helper" method="post">
+                          <button type="submit" class="history-delete-button">
+                            <%= account.is_helper ? t("admin.removeHelper") : t("admin.makeHelper") %>
+                          </button>
+                        </form>
+                        <form action="/admin/users/<%= account.id %>/toggle-publication" method="post">
+                          <button type="submit" class="history-delete-button">
+                            <%= account.is_publication ? t("admin.removePublication") : t("admin.makePublication") %>
+                          </button>
+                        </form>
+                      <% } %>
                     </div>
                   </td>
                 </tr>
@@ -68,80 +78,12 @@
 
       <aside class="dashboard-card">
         <div class="section-head">
-          <h2><%= t("admin.sendNotification") %></h2>
-        </div>
-
-        <form action="/admin/notifications" method="post" class="stack-form">
-          <label class="field">
-            <span><%= t("admin.titleField") %></span>
-            <input type="text" name="title" minlength="3" maxlength="80" required />
-          </label>
-
-          <label class="field">
-            <span><%= t("admin.target") %></span>
-            <select name="targetRole" class="field-select" required>
-              <option value="all"><%= t("admin.allAccounts") %></option>
-              <option value="helpers"><%= t("admin.helpers") %></option>
-              <option value="admins"><%= t("admin.admins") %></option>
-            </select>
-          </label>
-
-          <label class="field">
-            <span><%= t("admin.category") %></span>
-            <select name="category" class="field-select" required>
-              <option value="site_updates"><%= t("notifications.categorySiteUpdates") %></option>
-              <option value="polls"><%= t("notifications.categoryPolls") %></option>
-            </select>
-          </label>
-
-          <label class="field">
-            <span><%= t("admin.message") %></span>
-            <textarea name="message" rows="5" maxlength="500" required></textarea>
-          </label>
-
-          <button type="submit" class="primary-button"><%= t("admin.send") %></button>
-        </form>
-
-        <div class="section-head compact">
-          <h2><%= t("admin.clearNotifications") %></h2>
-          <p><%= t("admin.clearNotificationsText") %></p>
+          <h2><%= t("admin.roles") %></h2>
         </div>
 
         <form action="/admin/notifications/clear" method="post">
           <button type="submit" class="history-delete-button"><%= t("admin.clearNotificationsButton") %></button>
         </form>
-
-        <div class="section-head compact">
-          <h2><%= t("admin.manageNotifications") %></h2>
-        </div>
-
-        <% if (notifications.length === 0) { %>
-          <p class="empty-state"><%= t("admin.noNotifications") %></p>
-        <% } else { %>
-          <div class="notifications-list compact">
-            <% notifications.forEach((notification) => { %>
-              <article class="notification-item">
-                <div class="notification-meta">
-                  <span><%= resolveNotificationCategoryLabel(notification.category) %></span>
-                  <span><%= resolveNotificationTargetLabel(notification.target_role) %></span>
-                  <span><%= notification.created_at.slice(0, 10) %></span>
-                </div>
-                <h3><%= notification.title %></h3>
-                <p><%= notification.message %></p>
-                <div class="table-actions">
-                  <a href="/admin/notifications/<%= notification.id %>/edit" class="ghost-button button-link"><%= t("admin.editNotification") %></a>
-                  <form action="/admin/notifications/<%= notification.id %>/delete" method="post">
-                    <button type="submit" class="history-delete-button"><%= t("admin.deleteNotification") %></button>
-                  </form>
-                </div>
-              </article>
-            <% }) %>
-          </div>
-        <% } %>
-
-        <div class="section-head compact">
-          <h2><%= t("admin.roles") %></h2>
-        </div>
 
         <div class="info-stack">
           <p class="empty-state"><%= t("admin.helperInfo") %></p>

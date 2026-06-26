@@ -22,6 +22,18 @@ function requireAdmin(req, res, next) {
   next();
 }
 
+function requireSuperAdmin(req, res, next) {
+  if (!req.session.user || !req.session.user.isSuperAdmin) {
+    req.session.flash = {
+      type: "error",
+      message: "Acces reserve au super admin."
+    };
+    return res.redirect("/dashboard");
+  }
+
+  next();
+}
+
 function requireHelperOrAdmin(req, res, next) {
   if (!req.session.user || (!req.session.user.isAdmin && !req.session.user.isHelper)) {
     req.session.flash = {
@@ -34,11 +46,11 @@ function requireHelperOrAdmin(req, res, next) {
   next();
 }
 
-function requireJournalistOrAdmin(req, res, next) {
-  if (!req.session.user || (!req.session.user.isAdmin && !req.session.user.isJournalist)) {
+function requirePublicationOrAdmin(req, res, next) {
+  if (!req.session.user || (!req.session.user.isAdmin && !req.session.user.isPublication)) {
     req.session.flash = {
       type: "error",
-      message: "Acces reserve aux journalistes et aux admins."
+      message: "Acces reserve a la publication et aux admins."
     };
     return res.redirect("/dashboard");
   }
@@ -57,7 +69,8 @@ function redirectIfAuthenticated(req, res, next) {
 module.exports = {
   requireAuth,
   requireAdmin,
+  requireSuperAdmin,
   requireHelperOrAdmin,
-  requireJournalistOrAdmin,
+  requirePublicationOrAdmin,
   redirectIfAuthenticated
 };

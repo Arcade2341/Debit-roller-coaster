@@ -47,6 +47,65 @@
             <% }) %>
           </div>
         <% } %>
+
+        <div class="section-head compact">
+          <h2><%= t("news.title") %></h2>
+          <p><%= t("news.intro") %></p>
+        </div>
+
+        <% if (newsPosts.length === 0) { %>
+          <p class="empty-state"><%= t("news.none") %></p>
+        <% } else { %>
+          <div class="notifications-list compact">
+            <% newsPosts.forEach((post) => { %>
+              <article class="notification-item">
+                <div class="notification-meta">
+                  <span><%= post.created_at.slice(0, 10) %></span>
+                  <span><%= post.author_username || t("notifications.system") %></span>
+                </div>
+                <h2><%= post.title %></h2>
+                <p class="news-summary"><%= post.summary %></p>
+                <p><%= post.content %></p>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+
+        <div class="section-head compact">
+          <h2><%= t("polls.title") %></h2>
+          <p><%= t("polls.intro") %></p>
+        </div>
+
+        <% if (polls.length === 0) { %>
+          <p class="empty-state"><%= t("polls.none") %></p>
+        <% } else { %>
+          <div class="notifications-list compact">
+            <% polls.forEach((poll) => { %>
+              <article class="notification-item">
+                <div class="notification-meta">
+                  <span><%= poll.allow_multiple ? t("polls.multipleChoice") : t("polls.singleChoice") %></span>
+                  <span><%= poll.created_at.slice(0, 10) %></span>
+                </div>
+                <h2><%= poll.title %></h2>
+                <p><%= poll.question %></p>
+                <form action="/polls/<%= poll.id %>/respond" method="post" class="stack-form">
+                  <% poll.options.forEach((option) => { %>
+                    <label class="consent-check">
+                      <input
+                        type="<%= poll.allow_multiple ? 'checkbox' : 'radio' %>"
+                        name="optionIds"
+                        value="<%= option.id %>"
+                        <%= poll.selectedOptionIds.includes(option.id) ? 'checked' : '' %>
+                      />
+                      <span><%= option.label %> (<%= option.votes %>)</span>
+                    </label>
+                  <% }) %>
+                  <button type="submit" class="ghost-button"><%= t("polls.answer") %></button>
+                </form>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
     </section>
   </section>
 </main>
