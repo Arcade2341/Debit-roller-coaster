@@ -1,0 +1,36 @@
+<%- include("partials/head", { pageTitle, metaRobots: "noindex,nofollow" }) %>
+<%- include("partials/header") %>
+
+<main class="auth-page">
+  <section class="container form-page">
+    <div class="form-shell">
+      <div class="section-head">
+        <h1><%= t("news.publish") %></h1>
+        <p><%= t("news.publishIntro") %></p>
+      </div>
+
+      <%- include("partials/flash") %>
+
+      <form action="/actus" method="post" class="stack-form">
+        <label class="field">
+          <span><%= t("news.titleField") %></span>
+          <input type="text" name="title" minlength="3" maxlength="120" required />
+        </label>
+
+        <label class="field">
+          <span><%= t("news.summary") %></span>
+          <textarea name="summary" rows="3" maxlength="220" required></textarea>
+        </label>
+
+        <label class="field">
+          <span><%= t("news.content") %></span>
+          <textarea name="content" rows="10" maxlength="5000" required></textarea>
+        </label>
+
+        <button type="submit" class="primary-button"><%= t("news.publishButton") %></button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

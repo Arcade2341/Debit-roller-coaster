@@ -25,6 +25,7 @@
 
     <nav id="site-nav" class="nav-links" data-nav-links aria-label="<%= currentLang === 'en' ? 'Main navigation' : 'Navigation principale' %>">
       <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>"><%= t("nav.calculate") %></a>
+      <a href="/actus" class="<%= currentPath === '/actus' ? 'is-active' : '' %>"><%= t("nav.news") %></a>
       <% if (user) { %>
         <a href="/notifications" class="<%= currentPath === '/notifications' ? 'is-active' : '' %>">
           <%= t("nav.notifications") %>
@@ -39,6 +40,9 @@
         <% if (user.isAdmin) { %>
           <a href="/admin/accounts" class="<%= currentPath === '/admin/accounts' ? 'is-active' : '' %>"><%= t("nav.accounts") %></a>
         <% } %>
+        <% if (user.isAdmin || user.isJournalist) { %>
+          <a href="/actus/new" class="<%= currentPath === '/actus/new' ? 'is-active' : '' %>"><%= t("nav.publishNews") %></a>
+        <% } %>
       <% } else { %>
         <a href="/login" class="<%= currentPath === '/login' ? 'is-active' : '' %>"><%= t("nav.login") %></a>
         <a href="/register" class="cta-link <%= currentPath === '/register' ? 'is-active' : '' %>"><%= t("nav.register") %></a>
@@ -48,18 +52,3 @@
     </nav>
   </div>
 </header>
-
-<button
-  type="button"
-  class="theme-switch theme-switch-floating"
-  data-theme-toggle
-  aria-label="<%= t('common.darkMode') %>"
-  data-label-dark="<%= t('common.darkMode') %>"
-  data-label-light="<%= t('common.lightMode') %>"
-  aria-pressed="false"
->
-  <span class="theme-switch-track">
-    <span class="theme-switch-thumb"></span>
-  </span>
-  <span class="theme-switch-label"><%= t("common.darkMode") %></span>
-</button>

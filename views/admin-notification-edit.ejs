@@ -1,0 +1,48 @@
+<%- include("partials/head", { pageTitle, metaRobots: "noindex,nofollow" }) %>
+<%- include("partials/header") %>
+
+<main class="auth-page">
+  <section class="container form-page">
+    <div class="form-shell">
+      <div class="section-head">
+        <h1><%= t("admin.editNotification") %></h1>
+        <p><%= t("admin.editNotificationText") %></p>
+      </div>
+
+      <%- include("partials/flash") %>
+
+      <form action="/admin/notifications/<%= notification.id %>/update" method="post" class="stack-form">
+        <label class="field">
+          <span><%= t("admin.titleField") %></span>
+          <input type="text" name="title" minlength="3" maxlength="80" value="<%= notification.title %>" required />
+        </label>
+
+        <label class="field">
+          <span><%= t("admin.target") %></span>
+          <select name="targetRole" class="field-select" required>
+            <option value="all" <%= notification.target_role === "all" ? "selected" : "" %>><%= t("admin.allAccounts") %></option>
+            <option value="helpers" <%= notification.target_role === "helpers" ? "selected" : "" %>><%= t("admin.helpers") %></option>
+            <option value="admins" <%= notification.target_role === "admins" ? "selected" : "" %>><%= t("admin.admins") %></option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span><%= t("admin.category") %></span>
+          <select name="category" class="field-select" required>
+            <option value="site_updates" <%= notification.category === "site_updates" ? "selected" : "" %>><%= t("notifications.categorySiteUpdates") %></option>
+            <option value="polls" <%= notification.category === "polls" ? "selected" : "" %>><%= t("notifications.categoryPolls") %></option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span><%= t("admin.message") %></span>
+          <textarea name="message" rows="6" maxlength="500" required><%= notification.message %></textarea>
+        </label>
+
+        <button type="submit" class="primary-button"><%= t("admin.saveNotification") %></button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

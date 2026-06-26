@@ -29,6 +29,7 @@
             <% notifications.forEach((notification) => { %>
               <article class="notification-item <%= notification.is_read ? 'is-read' : 'is-unread' %>">
                 <div class="notification-meta">
+                  <span><%= resolveNotificationCategoryLabel(notification.category) %></span>
                   <span><%= resolveNotificationTargetLabel(notification.target_role) %></span>
                   <span><%= notification.created_at.slice(0, 10) %></span>
                   <span><%= notification.sender_username || t("notifications.system") %></span>

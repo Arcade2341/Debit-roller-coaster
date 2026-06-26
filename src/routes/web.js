@@ -8,6 +8,7 @@ const {
   requireAuth,
   requireAdmin,
   requireHelperOrAdmin,
+  requireJournalistOrAdmin,
   redirectIfAuthenticated
 } = require("../middleware/auth");
 const {
@@ -72,7 +73,8 @@ function buildSessionUser(user) {
     id: user.id,
     username: user.username,
     isAdmin: Boolean(user.is_admin),
-    isHelper: Boolean(user.is_helper)
+    isHelper: Boolean(user.is_helper),
+    isJournalist: Boolean(user.is_journalist)
   };
 }
 
@@ -101,8 +103,10 @@ function getNotificationsForUser(userId, sessionUser) {
           notifications.id,
           notifications.title,
           notifications.message,
+          notifications.category,
           notifications.target_role,
           notifications.created_at,
+          notifications.updated_at,
           sender.username AS sender_username,
           CASE WHEN notification_reads.id IS NULL THEN 0 ELSE 1 END AS is_read
         FROM notifications
@@ -115,6 +119,36 @@ function getNotificationsForUser(userId, sessionUser) {
       `
     )
     .all(userId, ...targets);
+}
+
+function resolveNotificationCategoryLabel(category, lang) {
+  const normalizedLang = getLanguage(lang);
+
+  if (category === "polls") {
+    return translate(normalizedLang, "notifications.categoryPolls");
+  }
+
+  return translate(normalizedLang, "notifications.categorySiteUpdates");
+}
+
+function getNewsPosts() {
+  return db
+    .prepare(
+      `
+        SELECT
+          news_posts.id,
+          news_posts.title,
+          news_posts.summary,
+          news_posts.content,
+          news_posts.created_at,
+          news_posts.updated_at,
+          users.username AS author_username
+        FROM news_posts
+        LEFT JOIN users ON users.id = news_posts.created_by_user_id
+        ORDER BY news_posts.id DESC
+      `
+    )
+    .all();
 }
 
 function resolveNotificationTargetLabel(targetRole, lang) {
@@ -161,6 +195,15 @@ router.get("/lang/:lang", (req, res) => {
   }
 
   res.redirect("/");
+});
+
+router.get("/actus", (req, res) => {
+  const posts = getNewsPosts();
+
+  res.render("news", {
+    pageTitle: t(req, "news.title"),
+    posts
+  });
 });
 
 router.get("/fonctionnement", (req, res) => {
@@ -712,7 +755,7 @@ router.post("/login", authLimiter, redirectIfAuthenticated, (req, res) => {
   const user = db
     .prepare(
       `
-        SELECT id, username, password_hash, is_admin, is_helper
+        SELECT id, username, password_hash, is_admin, is_helper, is_journalist
         FROM users
         WHERE LOWER(username) = LOWER(?)
         LIMIT 1
@@ -855,7 +898,8 @@ router.post("/register", registerLimiter, redirectIfAuthenticated, (req, res) =>
     id: Number(result.lastInsertRowid),
     username: usernameValidation.value,
     isAdmin: false,
-    isHelper: false
+    isHelper: false,
+    isJournalist: false
   };
 
   setFlash(req, "success", t(req, "flash.accountCreated"));
@@ -885,7 +929,8 @@ router.get("/dashboard", requireAuth, (req, res) => {
     pageTitle: t(req, "dashboard.title"),
     calculations,
     notifications,
-    resolveNotificationTargetLabel: (targetRole) => resolveNotificationTargetLabel(targetRole, req.session.lang)
+    resolveNotificationTargetLabel: (targetRole) => resolveNotificationTargetLabel(targetRole, req.session.lang),
+    resolveNotificationCategoryLabel: (category) => resolveNotificationCategoryLabel(category, req.session.lang)
   });
 });
 
@@ -895,7 +940,8 @@ router.get("/notifications", requireAuth, (req, res) => {
   res.render("notifications", {
     pageTitle: t(req, "notifications.title"),
     notifications,
-    resolveNotificationTargetLabel: (targetRole) => resolveNotificationTargetLabel(targetRole, req.session.lang)
+    resolveNotificationTargetLabel: (targetRole) => resolveNotificationTargetLabel(targetRole, req.session.lang),
+    resolveNotificationCategoryLabel: (category) => resolveNotificationCategoryLabel(category, req.session.lang)
   });
 });
 
@@ -908,6 +954,7 @@ router.get("/admin/accounts", requireAuth, requireAdmin, (req, res) => {
           username,
           is_admin,
           is_helper,
+          is_journalist,
           created_at,
           (
             SELECT COUNT(*)
@@ -920,9 +967,22 @@ router.get("/admin/accounts", requireAuth, requireAdmin, (req, res) => {
     )
     .all();
 
+  const notifications = db
+    .prepare(
+      `
+        SELECT notifications.id, notifications.title, notifications.message, notifications.category, notifications.target_role, notifications.created_at
+        FROM notifications
+        ORDER BY notifications.id DESC
+      `
+    )
+    .all();
+
   res.render("admin-accounts", {
     pageTitle: t(req, "admin.title"),
-    users
+    users,
+    notifications,
+    resolveNotificationTargetLabel: (targetRole) => resolveNotificationTargetLabel(targetRole, req.session.lang),
+    resolveNotificationCategoryLabel: (category) => resolveNotificationCategoryLabel(category, req.session.lang)
   });
 });
 
@@ -930,7 +990,9 @@ router.post("/admin/notifications", requireAuth, requireAdmin, (req, res) => {
   const title = cleanText(req.body.title);
   const message = cleanText(req.body.message);
   const allowedTargets = new Set(["all", "helpers", "admins"]);
+  const allowedCategories = new Set(["site_updates", "polls"]);
   const targetRole = allowedTargets.has(req.body.targetRole) ? req.body.targetRole : "";
+  const category = allowedCategories.has(req.body.category) ? req.body.category : "";
 
   if (title.length < 3 || title.length > 80) {
     setFlash(req, "error", t(req, "flash.titleLength"));
@@ -947,14 +1009,98 @@ router.post("/admin/notifications", requireAuth, requireAdmin, (req, res) => {
     return res.redirect("/admin/accounts");
   }
 
+  if (!category) {
+    setFlash(req, "error", t(req, "flash.chooseValidCategory"));
+    return res.redirect("/admin/accounts");
+  }
+
   db.prepare(
     `
-      INSERT INTO notifications (title, message, target_role, created_at, created_by_user_id)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO notifications (title, message, category, target_role, created_at, updated_at, created_by_user_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `
-  ).run(title, message, targetRole, new Date().toISOString(), req.session.user.id);
+  ).run(title, message, category, targetRole, new Date().toISOString(), new Date().toISOString(), req.session.user.id);
 
   setFlash(req, "success", t(req, "flash.notificationSent"));
+  res.redirect("/admin/accounts");
+});
+
+router.get("/admin/notifications/:id/edit", requireAuth, requireAdmin, (req, res) => {
+  const notificationId = Number(req.params.id);
+  const notification = db
+    .prepare("SELECT id, title, message, category, target_role FROM notifications WHERE id = ? LIMIT 1")
+    .get(notificationId);
+
+  if (!notification) {
+    setFlash(req, "error", t(req, "flash.notificationNotFound"));
+    return res.redirect("/admin/accounts");
+  }
+
+  res.render("admin-notification-edit", {
+    pageTitle: t(req, "admin.editNotification"),
+    notification
+  });
+});
+
+router.post("/admin/notifications/:id/update", requireAuth, requireAdmin, (req, res) => {
+  const notificationId = Number(req.params.id);
+  const title = cleanText(req.body.title);
+  const message = cleanText(req.body.message);
+  const allowedTargets = new Set(["all", "helpers", "admins"]);
+  const allowedCategories = new Set(["site_updates", "polls"]);
+  const targetRole = allowedTargets.has(req.body.targetRole) ? req.body.targetRole : "";
+  const category = allowedCategories.has(req.body.category) ? req.body.category : "";
+  const notification = db.prepare("SELECT id FROM notifications WHERE id = ? LIMIT 1").get(notificationId);
+
+  if (!notification) {
+    setFlash(req, "error", t(req, "flash.notificationNotFound"));
+    return res.redirect("/admin/accounts");
+  }
+
+  if (title.length < 3 || title.length > 80) {
+    setFlash(req, "error", t(req, "flash.titleLength"));
+    return res.redirect(`/admin/notifications/${notificationId}/edit`);
+  }
+
+  if (message.length < 5 || message.length > 500) {
+    setFlash(req, "error", t(req, "flash.messageLength"));
+    return res.redirect(`/admin/notifications/${notificationId}/edit`);
+  }
+
+  if (!targetRole) {
+    setFlash(req, "error", t(req, "flash.chooseValidTarget"));
+    return res.redirect(`/admin/notifications/${notificationId}/edit`);
+  }
+
+  if (!category) {
+    setFlash(req, "error", t(req, "flash.chooseValidCategory"));
+    return res.redirect(`/admin/notifications/${notificationId}/edit`);
+  }
+
+  db.prepare(
+    `
+      UPDATE notifications
+      SET title = ?, message = ?, category = ?, target_role = ?, updated_at = ?
+      WHERE id = ?
+    `
+  ).run(title, message, category, targetRole, new Date().toISOString(), notificationId);
+
+  setFlash(req, "success", t(req, "flash.notificationUpdated"));
+  res.redirect("/admin/accounts");
+});
+
+router.post("/admin/notifications/:id/delete", requireAuth, requireAdmin, (req, res) => {
+  const notificationId = Number(req.params.id);
+  const notification = db.prepare("SELECT id FROM notifications WHERE id = ? LIMIT 1").get(notificationId);
+
+  if (!notification) {
+    setFlash(req, "error", t(req, "flash.notificationNotFound"));
+    return res.redirect("/admin/accounts");
+  }
+
+  db.prepare("DELETE FROM notifications WHERE id = ?").run(notificationId);
+
+  setFlash(req, "success", t(req, "flash.notificationDeleted"));
   res.redirect("/admin/accounts");
 });
 
@@ -1049,6 +1195,77 @@ router.post("/admin/users/:id/toggle-helper", requireAuth, requireAdmin, (req, r
     nextHelperState ? t(req, "flash.accountPromotedHelper") : t(req, "flash.accountDemotedHelper")
   );
   res.redirect("/admin/accounts");
+});
+
+router.post("/admin/users/:id/toggle-journalist", requireAuth, requireAdmin, (req, res) => {
+  const userId = Number(req.params.id);
+  const targetUser = db
+    .prepare("SELECT id, is_journalist FROM users WHERE id = ? LIMIT 1")
+    .get(userId);
+
+  if (!targetUser) {
+    setFlash(req, "error", t(req, "flash.accountNotFound"));
+    return res.redirect("/admin/accounts");
+  }
+
+  const nextJournalistState = targetUser.is_journalist ? 0 : 1;
+
+  db.prepare(
+    `
+      UPDATE users
+      SET is_journalist = ?, updated_at = ?
+      WHERE id = ?
+    `
+  ).run(nextJournalistState, new Date().toISOString(), userId);
+
+  if (req.session.user.id === userId) {
+    req.session.user.isJournalist = Boolean(nextJournalistState);
+  }
+
+  setFlash(
+    req,
+    "success",
+    nextJournalistState ? t(req, "flash.accountPromotedJournalist") : t(req, "flash.accountDemotedJournalist")
+  );
+  res.redirect("/admin/accounts");
+});
+
+router.get("/actus/new", requireAuth, requireJournalistOrAdmin, (req, res) => {
+  res.render("news-form", {
+    pageTitle: t(req, "news.publish")
+  });
+});
+
+router.post("/actus", requireAuth, requireJournalistOrAdmin, (req, res) => {
+  const title = cleanText(req.body.title);
+  const summary = cleanText(req.body.summary);
+  const content = cleanText(req.body.content);
+
+  if (title.length < 3 || title.length > 120) {
+    setFlash(req, "error", t(req, "flash.newsTitleLength"));
+    return res.redirect("/actus/new");
+  }
+
+  if (summary.length < 10 || summary.length > 220) {
+    setFlash(req, "error", t(req, "flash.newsSummaryLength"));
+    return res.redirect("/actus/new");
+  }
+
+  if (content.length < 30 || content.length > 5000) {
+    setFlash(req, "error", t(req, "flash.newsContentLength"));
+    return res.redirect("/actus/new");
+  }
+
+  const now = new Date().toISOString();
+  db.prepare(
+    `
+      INSERT INTO news_posts (title, summary, content, created_at, updated_at, created_by_user_id)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `
+  ).run(title, summary, content, now, now, req.session.user.id);
+
+  setFlash(req, "success", t(req, "flash.newsPublished"));
+  res.redirect("/actus");
 });
 
 router.get("/requests/review", requireAuth, requireHelperOrAdmin, (req, res) => {

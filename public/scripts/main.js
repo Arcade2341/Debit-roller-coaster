@@ -1,4 +1,3 @@
-const themeToggles = document.querySelectorAll("[data-theme-toggle]");
 const navToggle = document.querySelector("[data-nav-toggle]");
 const navLinks = document.querySelector("[data-nav-links]");
 
@@ -30,41 +29,6 @@ if (navToggle && navLinks) {
       setNavOpen(false);
     }
   });
-}
-
-if (themeToggles.length > 0) {
-  const root = document.documentElement;
-
-  function syncThemeLabel() {
-    const isDark = root.dataset.theme === "dark";
-    themeToggles.forEach((themeToggle) => {
-      const themeToggleLabel = themeToggle.querySelector(".theme-switch-label");
-      themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
-      if (themeToggleLabel) {
-        themeToggleLabel.textContent = isDark
-          ? themeToggle.dataset.labelLight || "Light mode"
-          : themeToggle.dataset.labelDark || "Dark mode";
-      }
-    });
-  }
-
-  themeToggles.forEach((themeToggle) => {
-    themeToggle.addEventListener("click", () => {
-      const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
-      root.dataset.theme = nextTheme;
-      localStorage.setItem("roller-theme", nextTheme);
-      syncThemeLabel();
-    });
-  });
-
-  window.addEventListener("storage", (event) => {
-    if (event.key === "roller-theme" && event.newValue) {
-      root.dataset.theme = event.newValue;
-      syncThemeLabel();
-    }
-  });
-
-  syncThemeLabel();
 }
 
 const form = document.querySelector("[data-calculator-form]");

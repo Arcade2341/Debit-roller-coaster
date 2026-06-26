@@ -1,0 +1,35 @@
+<%- include("partials/head", { pageTitle }) %>
+<%- include("partials/header") %>
+
+<main class="dashboard-page">
+  <section class="container">
+    <div class="page-intro">
+      <div class="section-head">
+        <h1><%= t("news.title") %></h1>
+        <p><%= t("news.intro") %></p>
+      </div>
+    </div>
+
+    <%- include("partials/flash") %>
+
+    <section class="dashboard-card content-card">
+      <% if (posts.length === 0) { %>
+        <p class="empty-state"><%= t("news.none") %></p>
+      <% } else { %>
+        <% posts.forEach((post) => { %>
+          <article class="content-block news-post">
+            <div class="notification-meta">
+              <span><%= post.created_at.slice(0, 10) %></span>
+              <span><%= post.author_username || t("notifications.system") %></span>
+            </div>
+            <h2><%= post.title %></h2>
+            <p class="news-summary"><%= post.summary %></p>
+            <p><%= post.content %></p>
+          </article>
+        <% }) %>
+      <% } %>
+    </section>
+  </section>
+</main>
+
+<%- include("partials/footer") %>

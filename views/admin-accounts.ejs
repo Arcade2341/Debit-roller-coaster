@@ -25,6 +25,7 @@
                 <th><%= t("admin.username") %></th>
                 <th><%= t("admin.status") %></th>
                 <th><%= t("admin.helper") %></th>
+                <th><%= t("admin.journalist") %></th>
                 <th><%= t("admin.calculations") %></th>
                 <th><%= t("admin.createdAt") %></th>
                 <th><%= t("admin.actions") %></th>
@@ -36,6 +37,7 @@
                   <td><%= account.username %></td>
                   <td><%= account.is_admin ? t("admin.admin") : t("admin.user") %></td>
                   <td><%= account.is_helper ? t("admin.yes") : t("admin.no") %></td>
+                  <td><%= account.is_journalist ? t("admin.yes") : t("admin.no") %></td>
                   <td><%= account.calculations_count %></td>
                   <td><%= account.created_at.slice(0, 10) %></td>
                   <td>
@@ -48,6 +50,11 @@
                       <form action="/admin/users/<%= account.id %>/toggle-helper" method="post">
                         <button type="submit" class="history-delete-button">
                           <%= account.is_helper ? t("admin.removeHelper") : t("admin.makeHelper") %>
+                        </button>
+                      </form>
+                      <form action="/admin/users/<%= account.id %>/toggle-journalist" method="post">
+                        <button type="submit" class="history-delete-button">
+                          <%= account.is_journalist ? t("admin.removeJournalist") : t("admin.makeJournalist") %>
                         </button>
                       </form>
                     </div>
@@ -80,6 +87,14 @@
           </label>
 
           <label class="field">
+            <span><%= t("admin.category") %></span>
+            <select name="category" class="field-select" required>
+              <option value="site_updates"><%= t("notifications.categorySiteUpdates") %></option>
+              <option value="polls"><%= t("notifications.categoryPolls") %></option>
+            </select>
+          </label>
+
+          <label class="field">
             <span><%= t("admin.message") %></span>
             <textarea name="message" rows="5" maxlength="500" required></textarea>
           </label>
@@ -95,6 +110,34 @@
         <form action="/admin/notifications/clear" method="post">
           <button type="submit" class="history-delete-button"><%= t("admin.clearNotificationsButton") %></button>
         </form>
+
+        <div class="section-head compact">
+          <h2><%= t("admin.manageNotifications") %></h2>
+        </div>
+
+        <% if (notifications.length === 0) { %>
+          <p class="empty-state"><%= t("admin.noNotifications") %></p>
+        <% } else { %>
+          <div class="notifications-list compact">
+            <% notifications.forEach((notification) => { %>
+              <article class="notification-item">
+                <div class="notification-meta">
+                  <span><%= resolveNotificationCategoryLabel(notification.category) %></span>
+                  <span><%= resolveNotificationTargetLabel(notification.target_role) %></span>
+                  <span><%= notification.created_at.slice(0, 10) %></span>
+                </div>
+                <h3><%= notification.title %></h3>
+                <p><%= notification.message %></p>
+                <div class="table-actions">
+                  <a href="/admin/notifications/<%= notification.id %>/edit" class="ghost-button button-link"><%= t("admin.editNotification") %></a>
+                  <form action="/admin/notifications/<%= notification.id %>/delete" method="post">
+                    <button type="submit" class="history-delete-button"><%= t("admin.deleteNotification") %></button>
+                  </form>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
 
         <div class="section-head compact">
           <h2><%= t("admin.roles") %></h2>

@@ -20,6 +20,7 @@ db.exec(`
     locked_ip TEXT,
     is_admin INTEGER NOT NULL DEFAULT 0,
     is_helper INTEGER NOT NULL DEFAULT 0,
+    is_journalist INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   );
@@ -75,8 +76,10 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     message TEXT NOT NULL,
+    category TEXT NOT NULL DEFAULT 'site_updates',
     target_role TEXT NOT NULL,
     created_at TEXT NOT NULL,
+    updated_at TEXT,
     created_by_user_id INTEGER,
     FOREIGN KEY (created_by_user_id) REFERENCES users (id) ON DELETE SET NULL
   );
@@ -90,15 +93,30 @@ db.exec(`
     FOREIGN KEY (notification_id) REFERENCES notifications (id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS news_posts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    created_by_user_id INTEGER,
+    FOREIGN KEY (created_by_user_id) REFERENCES users (id) ON DELETE SET NULL
+  );
 `);
 
 const userColumns = db.prepare("PRAGMA table_info(users)").all();
 const hasLockedIpColumn = userColumns.some((column) => column.name === "locked_ip");
 const hasHelperColumn = userColumns.some((column) => column.name === "is_helper");
+const hasJournalistColumn = userColumns.some((column) => column.name === "is_journalist");
 const calculationColumns = db.prepare("PRAGMA table_info(calculations)").all();
 const hasTrainWindowColumn = calculationColumns.some((column) => column.name === "train_window_minutes");
 const hasAverageDispatchColumn = calculationColumns.some((column) => column.name === "average_dispatch_seconds");
 const hasTimeSamplesCountColumn = calculationColumns.some((column) => column.name === "time_samples_count");
+const notificationColumns = db.prepare("PRAGMA table_info(notifications)").all();
+const hasNotificationCategoryColumn = notificationColumns.some((column) => column.name === "category");
+const hasNotificationUpdatedColumn = notificationColumns.some((column) => column.name === "updated_at");
 
 if (!hasLockedIpColumn) {
   db.exec("ALTER TABLE users ADD COLUMN locked_ip TEXT");
@@ -106,6 +124,10 @@ if (!hasLockedIpColumn) {
 
 if (!hasHelperColumn) {
   db.exec("ALTER TABLE users ADD COLUMN is_helper INTEGER NOT NULL DEFAULT 0");
+}
+
+if (!hasJournalistColumn) {
+  db.exec("ALTER TABLE users ADD COLUMN is_journalist INTEGER NOT NULL DEFAULT 0");
 }
 
 if (!hasTrainWindowColumn) {
@@ -118,6 +140,14 @@ if (!hasAverageDispatchColumn) {
 
 if (!hasTimeSamplesCountColumn) {
   db.exec("ALTER TABLE calculations ADD COLUMN time_samples_count INTEGER");
+}
+
+if (!hasNotificationCategoryColumn) {
+  db.exec("ALTER TABLE notifications ADD COLUMN category TEXT NOT NULL DEFAULT 'site_updates'");
+}
+
+if (!hasNotificationUpdatedColumn) {
+  db.exec("ALTER TABLE notifications ADD COLUMN updated_at TEXT");
 }
 
 module.exports = db;

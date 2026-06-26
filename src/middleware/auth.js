@@ -34,6 +34,18 @@ function requireHelperOrAdmin(req, res, next) {
   next();
 }
 
+function requireJournalistOrAdmin(req, res, next) {
+  if (!req.session.user || (!req.session.user.isAdmin && !req.session.user.isJournalist)) {
+    req.session.flash = {
+      type: "error",
+      message: "Acces reserve aux journalistes et aux admins."
+    };
+    return res.redirect("/dashboard");
+  }
+
+  next();
+}
+
 function redirectIfAuthenticated(req, res, next) {
   if (req.session.user) {
     return res.redirect("/dashboard");
@@ -46,5 +58,6 @@ module.exports = {
   requireAuth,
   requireAdmin,
   requireHelperOrAdmin,
+  requireJournalistOrAdmin,
   redirectIfAuthenticated
 };

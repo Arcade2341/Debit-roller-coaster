@@ -20,7 +20,7 @@ function attachLocals(req, res, next) {
 
   if (req.session.user) {
     const freshUser = db
-      .prepare("SELECT id, username, is_admin, is_helper FROM users WHERE id = ? LIMIT 1")
+      .prepare("SELECT id, username, is_admin, is_helper, is_journalist FROM users WHERE id = ? LIMIT 1")
       .get(req.session.user.id);
 
     if (!freshUser) {
@@ -30,7 +30,8 @@ function attachLocals(req, res, next) {
         id: freshUser.id,
         username: freshUser.username,
         isAdmin: Boolean(freshUser.is_admin),
-        isHelper: Boolean(freshUser.is_helper)
+        isHelper: Boolean(freshUser.is_helper),
+        isJournalist: Boolean(freshUser.is_journalist)
       };
     }
   }
