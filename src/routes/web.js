@@ -753,13 +753,25 @@ Sitemap: ${siteUrl}/sitemap.xml
 });
 
 router.get("/sitemap.xml", (req, res) => {
-  const pages = ["/", "/fonctionnement", "/faq", "/a-propos"];
+  const pages = [
+    { path: "/", changefreq: "weekly", priority: "1.0" },
+    { path: "/fonctionnement", changefreq: "monthly", priority: "0.8" },
+    { path: "/faq", changefreq: "monthly", priority: "0.8" },
+    { path: "/a-propos", changefreq: "monthly", priority: "0.7" },
+    { path: "/cgu", changefreq: "yearly", priority: "0.4" },
+    { path: "/mentions-legales", changefreq: "yearly", priority: "0.4" },
+    { path: "/politique-confidentialite", changefreq: "yearly", priority: "0.4" }
+  ];
+  const lastmod = new Date().toISOString().slice(0, 10);
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${pages
   .map(
     (page) => `  <url>
-    <loc>${siteUrl}${page === "/" ? "" : page}</loc>
+    <loc>${siteUrl}${page.path === "/" ? "" : page.path}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
   </url>`
   )
   .join("\n")}

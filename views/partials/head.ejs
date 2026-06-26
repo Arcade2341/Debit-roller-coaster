@@ -11,6 +11,15 @@
       ? canonicalUrl
       : `${resolvedSiteUrl}${resolvedCurrentPath === "/" ? "" : resolvedCurrentPath}`; %>
     <% const resolvedSeoTitle = typeof seoTitle !== "undefined" ? seoTitle : pageTitle; %>
+    <% const resolvedOgImage = `${resolvedSiteUrl}/favicon.svg`; %>
+    <% const organizationJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "Roller Flow",
+      url: resolvedSiteUrl,
+      inLanguage: currentLang || "fr",
+      description: resolvedSeoDescription
+    }; %>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="<%= resolvedSeoDescription %>" />
@@ -21,10 +30,17 @@
     <meta property="og:title" content="<%= resolvedSeoTitle %>" />
     <meta property="og:description" content="<%= resolvedSeoDescription %>" />
     <meta property="og:url" content="<%= resolvedCanonicalUrl %>" />
+    <meta property="og:image" content="<%= resolvedOgImage %>" />
+    <meta property="og:locale" content="<%= (currentLang || 'fr') === 'fr' ? 'fr_FR' : 'en_US' %>" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="<%= resolvedSeoTitle %>" />
+    <meta name="twitter:description" content="<%= resolvedSeoDescription %>" />
+    <meta name="twitter:image" content="<%= resolvedOgImage %>" />
     <meta name="color-scheme" content="dark" />
     <title><%= resolvedSeoTitle %></title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.svg" />
+    <script type="application/ld+json"><%- JSON.stringify(organizationJsonLd) %></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
