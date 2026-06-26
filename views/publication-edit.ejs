@@ -29,14 +29,6 @@
           </label>
 
           <label class="field">
-            <span><%= t("admin.category") %></span>
-            <select name="category" class="field-select" required>
-              <option value="site_updates" <%= item.category === "site_updates" ? "selected" : "" %>><%= t("notifications.categorySiteUpdates") %></option>
-              <option value="polls" <%= item.category === "polls" ? "selected" : "" %>><%= t("notifications.categoryPolls") %></option>
-            </select>
-          </label>
-
-          <label class="field">
             <span><%= t("admin.message") %></span>
             <textarea name="message" rows="6" maxlength="500" required><%= item.message %></textarea>
           </label>

@@ -255,7 +255,6 @@ function buildNotificationFeedItems(notifications, newsPosts, lang) {
     author: notification.sender_username || translate(lang, "notifications.system"),
     pills: [
       translate(lang, "notifications.typeNotification"),
-      resolveNotificationCategoryLabel(notification.category, lang),
       resolveNotificationTargetLabel(notification.target_role, lang)
     ],
     isRead: Boolean(notification.is_read),
@@ -1149,9 +1148,7 @@ router.post("/publications/notifications/create", requireAuth, requirePublicatio
 
   const message = cleanText(req.body.message);
   const allowedTargets = new Set(["all", "helpers", "admins", "publication"]);
-  const allowedCategories = new Set(["site_updates", "polls"]);
   const targetRole = allowedTargets.has(req.body.targetRole) ? req.body.targetRole : "";
-  const category = allowedCategories.has(req.body.category) ? req.body.category : "";
 
   if (message.length < 5 || message.length > 500) {
     setFlash(req, "error", t(req, "flash.messageLength"));
@@ -1163,18 +1160,13 @@ router.post("/publications/notifications/create", requireAuth, requirePublicatio
     return res.redirect("/publications/manage");
   }
 
-  if (!category) {
-    setFlash(req, "error", t(req, "flash.chooseValidCategory"));
-    return res.redirect("/publications/manage");
-  }
-
   const now = new Date().toISOString();
   db.prepare(
     `
       INSERT INTO notifications (title, message, category, target_role, created_at, updated_at, published_at, created_by_user_id)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `
-  ).run(title, message, category, targetRole, now, now, publishedAt, req.session.user.id);
+  ).run(title, message, "site_updates", targetRole, now, now, publishedAt, req.session.user.id);
 
   setFlash(req, "success", t(req, "flash.notificationSent"));
   return res.redirect("/publications/manage");
@@ -1295,9 +1287,7 @@ router.post("/publications/notifications/:id/update", requireAuth, requirePublic
   const title = cleanText(req.body.title);
   const message = cleanText(req.body.message);
   const allowedTargets = new Set(["all", "helpers", "admins", "publication"]);
-  const allowedCategories = new Set(["site_updates", "polls"]);
   const targetRole = allowedTargets.has(req.body.targetRole) ? req.body.targetRole : "";
-  const category = allowedCategories.has(req.body.category) ? req.body.category : "";
   const publishedAt = getPublishedTimestamp(req.body.publishedAt);
 
   if (title.length < 3 || title.length > 120) {
@@ -1310,13 +1300,13 @@ router.post("/publications/notifications/:id/update", requireAuth, requirePublic
     return res.redirect(`/publications/notifications/${notificationId}/edit`);
   }
 
-  if (message.length < 5 || message.length > 500 || !targetRole || !category) {
-    setFlash(req, "error", t(req, !targetRole ? "flash.chooseValidTarget" : !category ? "flash.chooseValidCategory" : "flash.messageLength"));
+  if (message.length < 5 || message.length > 500 || !targetRole) {
+    setFlash(req, "error", t(req, !targetRole ? "flash.chooseValidTarget" : "flash.messageLength"));
     return res.redirect(`/publications/notifications/${notificationId}/edit`);
   }
 
   db.prepare("UPDATE notifications SET title = ?, message = ?, category = ?, target_role = ?, updated_at = ?, published_at = ? WHERE id = ?")
-    .run(title, message, category, targetRole, new Date().toISOString(), publishedAt, notificationId);
+    .run(title, message, "site_updates", targetRole, new Date().toISOString(), publishedAt, notificationId);
 
   setFlash(req, "success", t(req, "flash.notificationUpdated"));
   return res.redirect("/publications/manage");

@@ -35,14 +35,6 @@
                 <option value="publication"><%= t("admin.publicationRole") %></option>
               </select>
             </label>
-
-            <label class="field">
-              <span><%= t("admin.category") %></span>
-              <select name="category" class="field-select" required>
-                <option value="site_updates"><%= t("notifications.categorySiteUpdates") %></option>
-                <option value="polls"><%= t("notifications.categoryPolls") %></option>
-              </select>
-            </label>
           </div>
 
           <label class="field">
@@ -142,7 +134,6 @@
             <% notifications.forEach((notification) => { %>
               <article class="notification-item">
                 <div class="notification-meta">
-                  <span><%= resolveNotificationCategoryLabel(notification.category) %></span>
                   <span><%= resolveNotificationTargetLabel(notification.target_role) %></span>
                   <span><%= notification.published_at.slice(0, 16).replace("T", " ") %></span>
                 </div>
