@@ -22,11 +22,22 @@
         <form action="/publications/create" method="post" class="stack-form">
           <label class="field">
             <span><%= t("publication.type") %></span>
-            <select name="type" class="field-select" required data-publication-type>
-              <option value="notification"><%= t("publication.typeNotification") %></option>
+            <select name="type" class="field-select visually-hidden" required data-publication-type tabindex="-1" aria-hidden="true">
+              <option value="notification" selected><%= t("publication.typeNotification") %></option>
               <option value="news"><%= t("publication.typeNews") %></option>
               <option value="poll"><%= t("publication.typePoll") %></option>
             </select>
+            <div class="publication-type-grid" role="tablist" aria-label="<%= t('publication.type') %>">
+              <button type="button" class="publication-type-button is-active" data-publication-choice="notification">
+                <strong><%= t("publication.typeNotification") %></strong>
+              </button>
+              <button type="button" class="publication-type-button" data-publication-choice="news">
+                <strong><%= t("publication.typeNews") %></strong>
+              </button>
+              <button type="button" class="publication-type-button" data-publication-choice="poll">
+                <strong><%= t("publication.typePoll") %></strong>
+              </button>
+            </div>
           </label>
 
           <label class="field">

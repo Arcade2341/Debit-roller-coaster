@@ -350,6 +350,7 @@ if (publicationTypeSelect) {
   const notificationFields = document.querySelector("[data-publication-notification-fields]");
   const newsFields = document.querySelector("[data-publication-news-fields]");
   const pollFields = document.querySelector("[data-publication-poll-fields]");
+  const publicationChoices = Array.from(document.querySelectorAll("[data-publication-choice]"));
 
   function syncPublicationFields() {
     const selectedType = publicationTypeSelect.value;
@@ -365,8 +366,20 @@ if (publicationTypeSelect) {
     if (pollFields) {
       pollFields.hidden = selectedType !== "poll";
     }
+
+    publicationChoices.forEach((choice) => {
+      const isActive = choice.dataset.publicationChoice === selectedType;
+      choice.classList.toggle("is-active", isActive);
+      choice.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
   }
 
   publicationTypeSelect.addEventListener("change", syncPublicationFields);
+  publicationChoices.forEach((choice) => {
+    choice.addEventListener("click", () => {
+      publicationTypeSelect.value = choice.dataset.publicationChoice || "notification";
+      syncPublicationFields();
+    });
+  });
   syncPublicationFields();
 }
