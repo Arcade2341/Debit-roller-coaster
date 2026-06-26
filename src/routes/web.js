@@ -322,61 +322,63 @@ router.get("/fonctionnement", (req, res) => {
     seoDescription: "Comprenez comment fonctionne le calculateur de debit Roller Flow pour les roller coasters et attractions.",
     eyebrow: "Guide",
     title: "Fonctionnement du calculateur",
-    intro: "Un apercu simple du calcul, des modes disponibles et de l'usage du site.",
+    intro: "Un apercu simple du calcul actuel, du catalogue d'attractions et des fonctions du compte.",
     sections: [
       {
         title: "Intro",
         paragraphs: [
-          "Roller Flow est un outil qui permet d'estimer rapidement le debit horaire d'une attraction a partir de deux donnees simples : le nombre de personnes par train et le nombre de trains qui passent en 2 minutes.",
-          "L'objectif est d'obtenir une estimation claire, rapide et facile a comparer entre plusieurs attractions."
+          "Roller Flow permet d'estimer rapidement le debit horaire d'une attraction a partir du temps observe entre deux departs et de la capacite du train.",
+          "L'objectif est d'obtenir un resultat clair, rapide a comparer et simple a enregistrer dans son espace personnel."
         ]
       },
       {
         title: "Comment faire un calcul",
         paragraphs: [
-          "1. Renseigner le nom de l'attraction : vous pouvez saisir librement le nom de l'attraction pour retrouver plus facilement vos calculs.",
-          "2. Entrer les donnees d'exploitation : vous devez indiquer le nombre de personnes par train et le nombre de trains observes en 2 minutes.",
-          "3. Valider le calcul : Roller Flow affiche alors une estimation du debit de l'attraction en personnes par heure."
+          "1. Rechercher une attraction dans le catalogue. Le site recupere automatiquement le nombre de personnes par train.",
+          "2. Lancer le chrono et ajouter un train a chaque depart observe. Les temps sont enregistres en secondes.",
+          "3. Enregistrer le calcul. Roller Flow calcule alors une moyenne et affiche une estimation en personnes par heure."
         ]
       },
       {
         title: "La formule utilisee",
         paragraphs: [
-          "La formule utilisee par Roller Flow est la suivante : personnes par train x 30 x trains en 2 minutes.",
-          "Pourquoi x 30 ? Parce qu'une heure contient 30 periodes de 2 minutes."
+          "La formule utilisee est la suivante : debit horaire = 3600 / T x N.",
+          "T correspond a la moyenne du temps entre deux departs, en secondes. N correspond au nombre de personnes par train."
         ]
       },
       {
         title: "Exemple",
         paragraphs: [
-          "Si une attraction embarque 24 personnes par train et que 3 trains passent en 2 minutes : 24 x 30 x 3 = 2160 personnes/heure.",
-          "Le debit estime est donc de 2160 personnes par heure."
+          "Si une attraction embarque 24 personnes par train et que la moyenne entre deux departs est de 40 secondes, le calcul devient : 3600 / 40 x 24.",
+          "Le debit estime est alors de 2160 personnes par heure."
         ]
       },
       {
-        title: "Les deux modes disponibles",
+        title: "Catalogue et demandes",
         paragraphs: [
-          "Mode manuel : le mode manuel permet de saisir les informations soi-meme. Il est ideal pour faire un calcul rapide a partir d'une observation terrain ou d'une estimation personnelle.",
-          "Mode auto : le mode auto s'appuie sur un catalogue d'attractions. Il permet de gagner du temps en facilitant la saisie, selon les donnees disponibles dans l'outil."
+          "Le calcul s'appuie sur un catalogue d'attractions pour garder une base fiable sur les capacites par train.",
+          "Si une attraction manque, les comptes connectes peuvent envoyer une demande d'ajout qui pourra ensuite etre validee."
         ]
       },
       {
-        title: "Historique et compte utilisateur",
+        title: "Compte et historique",
         paragraphs: [
-          "En creant un compte, vous pouvez enregistrer vos calculs, consulter votre historique et retrouver facilement vos estimations precedentes."
+          "Avec un compte, vous pouvez enregistrer vos calculs, consulter votre historique, modifier votre pseudo et votre mot de passe, et supprimer vos anciens enregistrements.",
+          "Le but est de garder un suivi simple et personnel de vos observations."
+        ]
+      },
+      {
+        title: "Notifications et sondages",
+        paragraphs: [
+          "Le centre de notifications regroupe les messages du site, les actus publiees et les sondages actifs.",
+          "Selon votre role, certaines publications peuvent etre reservees a des groupes precis, tandis que les sondages peuvent etre ouverts a tous les comptes."
         ]
       },
       {
         title: "Important a savoir",
         paragraphs: [
-          "Le resultat affiche par Roller Flow est une estimation theorique ou observee, selon les donnees saisies.",
-          "Le debit reel peut varier en fonction de nombreux facteurs : temps de chargement, efficacite des operateurs, taux de remplissage, pannes ou ralentissements, conditions d'exploitation."
-        ]
-      },
-      {
-        title: "Conclusion",
-        paragraphs: [
-          "Roller Flow a ete concu pour proposer un calcul simple, rapide et lisible du debit d'un roller coaster, sur mobile comme sur ordinateur."
+          "Le resultat affiche par Roller Flow reste une estimation basee sur les temps observes et les donnees du catalogue.",
+          "Le debit reel peut varier selon le chargement, le taux de remplissage, les ralentissements, le nombre de trains en ligne ou les conditions d'exploitation du moment."
         ]
       }
     ]
@@ -396,7 +398,7 @@ router.get("/faq", (req, res) => {
       {
         title: "Qu'est-ce que Roller Flow ?",
         paragraphs: [
-          "Roller Flow est un calculateur qui permet d'estimer le debit horaire d'un roller coaster ou d'une attraction a trains, a partir de donnees simples d'exploitation."
+          "Roller Flow est un outil qui permet d'estimer le debit horaire d'un roller coaster ou d'une attraction a trains, a partir d'observations simples sur le terrain."
         ]
       },
       {
@@ -408,14 +410,15 @@ router.get("/faq", (req, res) => {
       {
         title: "Comment est calcule le resultat ?",
         paragraphs: [
-          "Le calcul repose sur la formule suivante : personnes par train x 30 x trains en 2 minutes.",
-          "Cette formule permet d'obtenir une estimation en personnes par heure."
+          "Le calcul repose sur la formule suivante : debit horaire = 3600 / T x N.",
+          "T est la moyenne du temps entre deux departs, en secondes, et N est le nombre de personnes par train."
         ]
       },
       {
-        title: "Pourquoi utilisez-vous une base de 2 minutes ?",
+        title: "Pourquoi utilisez-vous des secondes ?",
         paragraphs: [
-          "Le passage en 2 minutes permet d'obtenir une base simple, rapide a observer sur le terrain et facile a convertir en debit horaire."
+          "Le site fonctionne maintenant a partir des temps reels observes entre deux departs.",
+          "Cela permet une estimation plus fine et plus proche du rythme reel d'exploitation."
         ]
       },
       {
@@ -426,23 +429,37 @@ router.get("/faq", (req, res) => {
         ]
       },
       {
-        title: "Quelle est la difference entre le mode manuel et le mode auto ?",
-        paragraphs: [
-          "Mode manuel : vous entrez vous-meme les donnees.",
-          "Mode auto : l'outil s'appuie sur un catalogue d'attractions pour simplifier la saisie."
-        ]
-      },
-      {
         title: "Faut-il creer un compte ?",
         paragraphs: [
-          "Non, le calculateur peut etre utilise sans compte.",
-          "En revanche, creer un compte permet d'acceder a plus de fonctionnalites, comme l'historique et l'enregistrement des calculs."
+          "Le calculateur reste consultable simplement, mais creer un compte permet de sauvegarder ses calculs et d'acceder a son historique.",
+          "Le compte donne aussi acces aux demandes d'ajout et au centre de notifications personnalise."
         ]
       },
       {
         title: "Puis-je enregistrer mes calculs ?",
         paragraphs: [
           "Oui, l'enregistrement des calculs est disponible pour les utilisateurs connectes."
+        ]
+      },
+      {
+        title: "A quoi sert le catalogue d'attractions ?",
+        paragraphs: [
+          "Le catalogue permet de recuperer la capacite par train sans avoir a la ressaisir a chaque calcul.",
+          "Cela aide a garder des calculs plus fiables et plus rapides a faire."
+        ]
+      },
+      {
+        title: "Que faire si une attraction n'existe pas dans la recherche ?",
+        paragraphs: [
+          "Si vous avez un compte, vous pouvez envoyer une demande d'ajout.",
+          "Une fois validee, l'attraction pourra etre utilisee normalement dans le calculateur."
+        ]
+      },
+      {
+        title: "A quoi servent les notifications et les sondages ?",
+        paragraphs: [
+          "Le centre de notifications rassemble les messages du site, les actus et les sondages actifs.",
+          "Les sondages permettent de repondre directement depuis votre compte, avec un choix unique ou plusieurs reponses selon le cas."
         ]
       },
       {
@@ -482,27 +499,34 @@ router.get("/a-propos", (req, res) => {
     seoDescription: "Presentation de Roller Flow, outil de calcul de debit attraction pour roller coasters et parcs.",
     eyebrow: "Site",
     title: "A propos de Roller Flow",
-    intro: "Un projet simple pour calculer, comparer et retrouver plus facilement le debit d'une attraction.",
+    intro: "Un projet simple pour calculer, comparer et suivre plus facilement le debit d'une attraction.",
     sections: [
       {
         title: "Le projet",
         paragraphs: [
           "Roller Flow est un projet cree pour proposer un outil simple de calcul de debit d'attractions, centre avant tout sur les roller coasters.",
-          "L'idee est nee d'un besoin clair : pouvoir estimer rapidement la capacite horaire d'une attraction a partir de donnees faciles a relever, sans avoir a utiliser un tableur ou refaire le calcul a la main."
+          "L'idee est nee d'un besoin clair : pouvoir estimer rapidement la capacite horaire d'une attraction a partir de donnees faciles a relever, sans avoir a repasser par un tableur ou un calcul manuel."
         ]
       },
       {
         title: "L'objectif du site",
         paragraphs: [
           "Le site a ete pense pour etre rapide a utiliser, lisible sur mobile comme sur ordinateur, et utile aussi bien pour les passionnes que pour les personnes qui veulent comparer plusieurs attractions.",
-          "Roller Flow permet aujourd'hui de faire des calculs en mode manuel, d'utiliser un mode auto base sur un catalogue d'attractions, et d'enregistrer son historique avec un compte utilisateur."
+          "Aujourd'hui, Roller Flow permet de rechercher une attraction, chronometrer les departs, enregistrer un historique personnel et suivre les messages, actus et sondages du site."
         ]
       },
       {
-        title: "Une evolution continue",
+        title: "Une base qui evolue",
         paragraphs: [
           "Le projet continue d'evoluer avec l'objectif de rendre l'analyse d'exploitation plus simple, plus accessible et plus centralisee.",
-          "Merci de faire partie des premiers utilisateurs de Roller Flow."
+          "Le catalogue d'attractions, les demandes d'ajout et les outils de publication font partie de cette logique d'evolution continue."
+        ]
+      },
+      {
+        title: "Merci",
+        paragraphs: [
+          "Merci de faire partie des premiers utilisateurs de Roller Flow.",
+          "Chaque retour aide a faire grandir un outil plus clair, plus utile et plus coherent pour la suite."
         ]
       }
     ]
