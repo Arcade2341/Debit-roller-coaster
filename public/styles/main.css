@@ -1725,6 +1725,12 @@ code {
 }
 
 @media (min-width: 1025px) {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+
   body {
     padding-bottom: 0.75rem;
   }
@@ -1732,8 +1738,14 @@ code {
   .dashboard-page,
   .auth-page,
   .status-page {
+    overflow: hidden;
     min-height: calc(100vh - 86px);
     padding-bottom: 0.6rem;
+  }
+
+  main {
+    height: calc(100vh - 86px);
+    overflow: hidden;
   }
 
   .dashboard-page > .container,
@@ -1742,11 +1754,14 @@ code {
     display: grid;
     align-content: start;
     min-height: calc(100vh - 110px);
+    height: calc(100vh - 110px);
+    overflow: hidden;
   }
 
   .dashboard-grid,
   .notification-center-grid {
     min-height: calc(100vh - 190px);
+    height: calc(100vh - 190px);
   }
 
   .dashboard-card,
@@ -1754,6 +1769,31 @@ code {
   .content-card,
   .seo-accordion {
     max-height: calc(100vh - 190px);
+    overflow: auto;
+  }
+
+  .hero-section {
+    height: calc(100vh - 110px);
+    overflow: hidden;
+  }
+
+  .hero-grid,
+  .hero-stage,
+  .hero-card,
+  .panel-grid,
+  .calculator-card,
+  .result-card {
+    min-height: 0;
+  }
+
+  .hero-grid,
+  .panel-grid {
+    height: 100%;
+  }
+
+  .hero-card,
+  .calculator-card,
+  .result-card {
     overflow: auto;
   }
 
@@ -1770,6 +1810,11 @@ code {
 
   .seo-section {
     padding-bottom: 0;
+    overflow: hidden;
+  }
+
+  .site-footer {
+    overflow: hidden;
   }
 }
 
