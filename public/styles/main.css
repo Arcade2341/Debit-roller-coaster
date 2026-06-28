@@ -47,7 +47,7 @@ body {
   margin: 0;
   min-height: 100vh;
   overflow-x: hidden;
-  padding-bottom: 6rem;
+  padding-bottom: 2rem;
   font-family: "Source Sans 3", sans-serif;
   color: var(--text);
   background:
@@ -1150,7 +1150,7 @@ textarea {
 .dashboard-page,
 .auth-page,
 .status-page {
-  padding: 0 0 3rem;
+  padding: 0 0 1.2rem;
 }
 
 .dashboard-grid {
@@ -1586,18 +1586,18 @@ a.ghost-button.button-link:active {
 .status-shell {
   display: grid;
   place-items: center;
-  min-height: calc(100vh - 220px);
+  min-height: calc(100vh - 180px);
 }
 
 .site-footer {
-  padding: 0 0 2rem;
+  padding: 0 0 0.8rem;
 }
 
 .footer-shell {
   display: flex;
   justify-content: center;
   min-height: 12px;
-  padding: 1.2rem 0 0;
+  padding: 0.7rem 0 0;
   color: var(--muted);
 }
 
