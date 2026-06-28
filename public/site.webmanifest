@@ -1,0 +1,19 @@
+{
+  "name": "Roller Flow",
+  "short_name": "Roller Flow",
+  "description": "Calculateur de debit pour roller coasters et attractions a trains.",
+  "lang": "fr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#140e0b",
+  "theme_color": "#8f3f17",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
