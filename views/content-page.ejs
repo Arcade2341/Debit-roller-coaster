@@ -16,13 +16,17 @@
     </div>
 
     <section class="dashboard-card content-card">
-      <% sections.forEach((section) => { %>
-        <article class="content-block">
-          <h2><%= section.title %></h2>
-          <% section.paragraphs.forEach((paragraph) => { %>
-            <p><%= paragraph %></p>
-          <% }) %>
-        </article>
+      <% sections.forEach((section, index) => { %>
+        <details class="content-accordion" <%= index === 0 ? "open" : "" %>>
+          <summary class="content-accordion-summary">
+            <h2><%= section.title %></h2>
+          </summary>
+          <article class="content-block">
+            <% section.paragraphs.forEach((paragraph) => { %>
+              <p><%= paragraph %></p>
+            <% }) %>
+          </article>
+        </details>
       <% }) %>
     </section>
   </section>

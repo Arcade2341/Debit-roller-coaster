@@ -1261,6 +1261,56 @@ textarea {
   gap: 1.25rem;
 }
 
+.content-accordion {
+  border-radius: 24px;
+  border: 1px solid rgba(143, 63, 23, 0.1);
+  background: rgba(255, 251, 246, 0.78);
+  overflow: hidden;
+}
+
+.content-accordion + .content-accordion {
+  margin-top: 0.85rem;
+}
+
+.content-accordion-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.15rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.content-accordion-summary::-webkit-details-marker {
+  display: none;
+}
+
+.content-accordion-summary::after {
+  content: "+";
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(143, 63, 23, 0.08);
+  color: var(--orange-deep);
+  font-family: "Sora", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.content-accordion[open] .content-accordion-summary::after {
+  content: "−";
+}
+
+.content-accordion-summary h2,
+.content-accordion-summary h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
 .content-block {
   display: grid;
   gap: 0.85rem;
@@ -1406,6 +1456,16 @@ textarea {
   color: var(--orange-deep);
   font-family: "Sora", sans-serif;
   font-size: 0.88rem;
+}
+
+:root[data-theme="dark"] .content-accordion {
+  border-color: rgba(255, 191, 133, 0.14);
+  background: rgba(34, 22, 15, 0.84);
+}
+
+:root[data-theme="dark"] .content-accordion-summary::after {
+  background: rgba(255, 159, 67, 0.12);
+  color: #ffe1c3;
 }
 
 :root[data-theme="dark"] .account-actions {
@@ -1662,6 +1722,55 @@ code {
     max-width: 100%;
   }
 
+}
+
+@media (min-width: 1025px) {
+  body {
+    padding-bottom: 0.75rem;
+  }
+
+  .dashboard-page,
+  .auth-page,
+  .status-page {
+    min-height: calc(100vh - 86px);
+    padding-bottom: 0.6rem;
+  }
+
+  .dashboard-page > .container,
+  .auth-page > .container,
+  .status-page > .container {
+    display: grid;
+    align-content: start;
+    min-height: calc(100vh - 110px);
+  }
+
+  .dashboard-grid,
+  .notification-center-grid {
+    min-height: calc(100vh - 190px);
+  }
+
+  .dashboard-card,
+  .form-shell,
+  .content-card,
+  .seo-accordion {
+    max-height: calc(100vh - 190px);
+    overflow: auto;
+  }
+
+  .table-wrap {
+    max-height: calc(100vh - 330px);
+    overflow: auto;
+  }
+
+  .notifications-list {
+    max-height: calc(100vh - 320px);
+    overflow: auto;
+    padding-right: 0.2rem;
+  }
+
+  .seo-section {
+    padding-bottom: 0;
+  }
 }
 
 @media (max-width: 720px) {
