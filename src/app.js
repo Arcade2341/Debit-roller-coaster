@@ -6,6 +6,7 @@ const helmet = require("helmet");
 const FileStoreFactory = require("session-file-store");
 
 const { getLanguage, translate } = require("./i18n");
+const { blockDesktopAndTablet } = require("./middleware/deviceGate");
 const { attachLocals } = require("./middleware/locals");
 const { router } = require("./routes/web");
 require("./db");
@@ -64,6 +65,7 @@ app.use(
 
 app.use(express.static(path.join(__dirname, "..", "public")));
 app.use(attachLocals);
+app.use(blockDesktopAndTablet);
 app.use(router);
 
 app.use((req, res) => {

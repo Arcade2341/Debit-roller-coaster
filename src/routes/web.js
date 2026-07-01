@@ -465,7 +465,7 @@ router.get("/faq", (req, res) => {
       {
         title: "Le site fonctionne-t-il sur mobile ?",
         paragraphs: [
-          "Oui, Roller Flow est pense pour etre utilise aussi bien sur ordinateur que sur mobile."
+          "Oui. Roller Flow est maintenant reserve a un usage sur smartphone."
         ]
       },
       {
@@ -511,7 +511,7 @@ router.get("/a-propos", (req, res) => {
       {
         title: "L'objectif du site",
         paragraphs: [
-          "Le site a ete pense pour etre rapide a utiliser, lisible sur mobile comme sur ordinateur, et utile aussi bien pour les passionnes que pour les personnes qui veulent comparer plusieurs attractions.",
+          "Le site a ete pense pour etre rapide a utiliser sur smartphone et utile aussi bien pour les passionnes que pour les personnes qui veulent comparer plusieurs attractions.",
           "Aujourd'hui, Roller Flow permet de rechercher une attraction, chronometrer les departs, enregistrer un historique personnel et suivre les messages, actus et sondages du site."
         ]
       },
